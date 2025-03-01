@@ -6,9 +6,9 @@ export default {
 			required: true,
 		},
 	},
-	data() {
+	data: () => ({
 		//
-	},
+	}),
 	methods: {
 		handleClick() {
 			this.$emit("login-click");
