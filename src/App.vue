@@ -1,23 +1,16 @@
 <template>
   <v-app>
-    <v-main>
-      <HelloWorld/>
-    </v-main>
+	<Header
+		:isLoggedIn="isLoggedIn"
+		@navigate-to-stores="goToStoresPage"
+		@navigate-to-profile="goToProfilePage"
+		@navigate-to-login="goToLoginPage"
+		@navigate-to-home="goToHomePage"
+	/>
+	<v-main>
+		<router-view/> <!-- This will render different pages dynamically -->
+	</v-main>
   </v-app>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-
-  components: {
-    HelloWorld,
-  },
-
-  data: () => ({
-    //
-  }),
-}
-</script>
+<script src="./App.js"></script>

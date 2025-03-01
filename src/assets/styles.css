@@ -1,0 +1,11 @@
+body {
+	font-family: 'Poppins', sans-serif  !important; /* You can change this to your preferred font */
+	color: #312B1D !important;
+}
+
+/* Ensure all buttons, inputs, and headers use Poppins */
+h1, h2, h3, h4, h5, h6,
+p, span, button, input, textarea, a {
+	font-family: "Poppins", sans-serif !important;
+	color: #312B1D !important;
+}
