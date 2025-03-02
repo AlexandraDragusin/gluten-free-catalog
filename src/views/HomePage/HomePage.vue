@@ -75,12 +75,13 @@
 <style scoped>
 /* Main Container */
 .home-container {
-	padding: 88px 0 0 0;
+	padding: 140px 0 0 0;
 	background-color: #FEF9ED;
 	height: 100%;
 	width: 100%;
 	display: flex;
 	flex-direction: column;
+	gap: 80px;
 }
 
 /* Hero Section */
