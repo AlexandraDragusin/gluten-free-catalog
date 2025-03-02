@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+const dotenv = require("dotenv");
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -12,6 +15,7 @@ app.get("/", (req, res) => {
 
 // Routes
 const userRoutes = require("./routes/users");
+const authRoutes = require("./routes/auth");
 const productRoutes = require("./routes/products");
 const storeRoutes = require("./routes/stores");
 const favoriteRoutes = require("./routes/favorites");
@@ -20,6 +24,7 @@ const storeCategoryRoutes = require("./routes/store_categories");
 const productStoreRoutes = require("./routes/product_stores");
 
 app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/stores", storeRoutes);
 app.use("/api/favorites", favoriteRoutes);

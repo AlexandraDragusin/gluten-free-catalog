@@ -10,7 +10,14 @@
 	/>
 	<!-- Main Content -->
 	<v-main class="app-main">
-		<router-view/> <!-- This will render different pages dynamically -->
+		<router-view
+			@logout="handleLogout"
+			@register-success="handleLoginSuccess"
+			@login-success="handleLoginSuccess"
+			@navigate-to-register="goToRegisterPage"
+			@navigate-to-login="goToLoginPage"
+			@navigate-to-home="goToHomePage"
+		/>
 	</v-main>
 
 	<!-- Footer -->
@@ -22,8 +29,8 @@
 
 <style scoped>
 .app-main {
-  padding-bottom: 0;
-  margin-bottom: 0;
-  background-color: #FEF9ED;
+	padding-bottom: 0;
+	margin-bottom: 0;
+	background-color: #FEF9ED;
 }
 </style>

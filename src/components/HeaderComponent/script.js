@@ -4,9 +4,16 @@ export default {
 	components: {
 		LoginButton,
 	},
+	props: {
+		isLoggedIn: {
+			type: Boolean,
+			required: true,
+			default: false
+		},
+	},
 	data() {
 		return {
-			isLoggedIn: false, // Default state, should be dynamically set
+			//
 		};
 	},
 	methods: {

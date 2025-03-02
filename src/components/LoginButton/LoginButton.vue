@@ -18,7 +18,7 @@
 			}"
 			@click="handleClick"
 		>
-			{{ isLoggedIn ? "My Profile" : "Log in" }}
+			{{ isLoggedIn ? "Profilul meu" : "Conectare" }}
 		</v-btn>
 	</div>
 	
