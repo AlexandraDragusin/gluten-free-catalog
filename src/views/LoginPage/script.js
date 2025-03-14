@@ -14,6 +14,8 @@ export default {
 	},
 	methods: {
 		async handleLogin() {
+			if (localStorage.getItem("token")) return;
+
 			this.loginError = false;
 			this.loading = true;
 

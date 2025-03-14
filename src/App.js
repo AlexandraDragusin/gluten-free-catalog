@@ -1,6 +1,6 @@
 import Header from './components/HeaderComponent/HeaderComponent.vue';
 import Footer from './components/FooterComponent/FooterComponent.vue';
-import jwtDecode from "jwt-decode";
+import { checkLoginStatus, checkTokenExpiration } from "./utils/auth.js";
 
 export default {
 	name: 'App',
@@ -14,53 +14,25 @@ export default {
 		};
 	},
 	created() {
-		this.checkLoginStatus();
+		this.isLoggedIn = checkLoginStatus();
 
 		this.tokenCheckInterval = setInterval(() => {
-			this.checkTokenExpiration();
+			checkTokenExpiration(() => this.handleLogout());
 		}, 100000);
 	},
 	beforeUnmount() {
 		clearInterval(this.tokenCheckInterval);
 	},
 	methods: {
-		checkLoginStatus() {
-			const token = localStorage.getItem("token");
-
-			if (token) {
-				const isExpired = this.isTokenExpired(token);
-				if (!isExpired) {
-					this.isLoggedIn = true;
-				} else {
-					this.handleLogout();
-				}
-			} else {
-				this.isLoggedIn = false;
-			}
-		},
 		handleLoginSuccess() {
 			this.isLoggedIn = true;
 			this.goToHomePage();
 		},
 		handleLogout() {
 			localStorage.removeItem("token");
+
 			this.isLoggedIn = false;
 			this.goToLoginPage();
-		},
-		isTokenExpired(token) {
-			try {
-				const decoded = jwtDecode(token);
-				const currentTime = Date.now() / 1000;
-				return decoded.exp < currentTime;
-			} catch (error) {
-				return true;
-			}
-		},
-		checkTokenExpiration() {
-			const token = localStorage.getItem("token");
-			if (token && this.isTokenExpired(token)) {
-				this.handleLogout();
-			}
 		},
 		goToStoresPage() {
 			this.$router.push("/stores");

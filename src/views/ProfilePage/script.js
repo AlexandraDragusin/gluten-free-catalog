@@ -1,19 +1,41 @@
+import EditProfile from "./Components/EditProfile/EditProfile.vue";
+import FavoriteProducts from "./Components/FavoriteProducts/FavoriteProducts.vue";
+import ShoppingLists from "./Components/ShoppingLists/ShoppingLists.vue";
+
 export default {
+	components: {
+		EditProfile,
+		FavoriteProducts,
+		ShoppingLists,
+	},
 	data() {
 		return {
+			selectedTab: "edit-profile",
 			user: null,
 		};
 	},
 	created() {
 		this.fetchUserProfile();
 	},
+	mounted() {
+		window.addEventListener("storage", (event) => {
+			if (event.key === "token" && !event.newValue) {
+				this.logout();
+			}
+		});
+	},
+	beforeUnmount() {
+		window.removeEventListener("storage", this.handleStorageChange);
+	},
 	methods: {
 		async fetchUserProfile() {
+			if (this.user) return;
+
 			try {
 				const token = localStorage.getItem("token");
-
+		
 				if (!token) {
-					this.goToLogin();
+					this.$emit("navigate-to-login");
 					throw new Error("No authentication token found");
 				}
 
@@ -25,23 +47,26 @@ export default {
 					},
 				});
 
-				if (!response.ok) {
-					throw new Error(data.error || "Failed to load profile");
+				if (response.status === 401 || response.status === 403) {
+					console.log("Unauthorized access, logging out...");
+					this.logout();
+					return;
 				}
 
-				const data = await response.json();
+				if (!response.ok) {
+					throw new Error("Failed to load profile");
+				}
 
-				this.user = data;
+				this.user = await response.json();
+				console.log("User profile:", this.user);
+
 			} catch (error) {
 				console.error("Error fetching user profile:", error);
-				this.goToLogin();
+				this.$emit("navigate-to-login");
 			}
-		},
-		goToLogin() {
-			this.$emit("navigate-to-login");
 		},
 		logout() {
 			this.$emit("logout");
-		},
-	},
+		}
+	}
 };

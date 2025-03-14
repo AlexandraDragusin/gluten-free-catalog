@@ -1,91 +1,103 @@
 <template>
-	<v-container class="profile-container">
-		<v-card class="profile-card">
-			<v-card-title class="profile-title">Profilul Meu</v-card-title>
+	<v-container fluid class="profile-container">
+		<!-- Sidebar -->
+		<div class="sidebar">
+			<v-list nav dense class="sidebar-list">
+				<v-list-item @click="selectedTab = 'edit-profile'" :class="{ 'active-tab': selectedTab === 'edit-profile' }">
+					<v-icon class="mr-2">mdi-account</v-icon>
+					<v-list-item-title>Editează profilul</v-list-item-title>
+				</v-list-item>
 
-			<v-card-text v-if="user">
-				<v-list density="comfortable">
-					<!-- Username -->
-					<v-list-item>
-						<v-icon class="profile-icon">mdi-account</v-icon>
-						<span class="profile-text">{{ user.username }}</span>
-					</v-list-item>
+				<v-list-item @click="selectedTab = 'favorite-products'" :class="{ 'active-tab': selectedTab === 'favorite-products' }">
+					<v-icon class="mr-2">mdi-heart</v-icon>
+					<v-list-item-title>Produsele mele favorite</v-list-item-title>
+				</v-list-item>
 
-					<!-- Email -->
-					<v-list-item>
-						<v-icon class="profile-icon">mdi-email</v-icon>
-						<span class="profile-text">{{ user.email }}</span>
-					</v-list-item>
+				<v-list-item @click="selectedTab = 'shopping-lists'" :class="{ 'active-tab': selectedTab === 'shopping-lists' }">
+					<v-icon class="mr-2">mdi-cart</v-icon>
+					<v-list-item-title>Liste de cumpărături</v-list-item-title>
+				</v-list-item>
+			</v-list>
 
-					<!-- Role -->
-					<v-list-item>
-						<v-icon class="profile-icon">mdi-shield-account</v-icon>
-						<span class="profile-text">{{ user.role }}</span>
-					</v-list-item>
-				</v-list>
-			</v-card-text>
+			<v-btn class="logout-button" color="red" dark @click="logout">
+				<v-icon left>mdi-logout</v-icon> Deconectare
+			</v-btn>
+		</div>
 
-			<v-card-text v-else>
-				<p class="error-text">Eroare la încărcarea profilului.</p>
-			</v-card-text>
-
-			<v-card-actions>
-				<v-btn block class="logout-button" color="red" @click="logout">
-					Deconectare
-				</v-btn>
-			</v-card-actions>
-		</v-card>
+		<!-- Content -->
+		<div class="content-container">
+			<div v-if="!user">
+				<p class="loading-text">Se încarcă profilul...</p>
+			</div>
+			<EditProfile v-else-if="selectedTab === 'edit-profile'" :user="user" @profile-updated="fetchUserProfile" />
+			<FavoriteProducts v-else-if="selectedTab === 'favorite-products'" />
+			<ShoppingLists v-else-if="selectedTab === 'shopping-lists'" />
+		</div>
 	</v-container>
 </template>
 
-<script src="./script.js"></script>
+<script src="./script.js"/>
 
 <style scoped>
 .profile-container {
+	padding: 140px 0 0 0;
 	display: flex;
-	justify-content: center;
-	align-items: center;
 	height: 100vh;
 	background-color: #FEF9ED;
 }
 
-.profile-card {
-	padding: 32px;
-	width: 100%;
-	max-width: 480px;
-	text-align: center;
+.sidebar {
+	background: white;
 	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	padding: 20px;
+	width: 240px;
+	justify-content: center;
+	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+	margin-left: 40px;
+	margin-bottom: 50px;
 }
 
-.profile-title {
-	font-size: 24px;
-	font-weight: 600;
-	color: #312B1D;
-	margin-bottom: 16px;
+.sidebar-list {
+	padding: 0;
 }
 
-.profile-icon {
-	margin-right: 12px;
-	color: #312B1D;
-}
-
-.profile-text {
-	font-size: 18px;
-	color: #312B1D;
-	font-weight: 500;
-}
-
-.error-text {
-	color: red;
+.v-list-item {
+	cursor: pointer;
+	padding: 10px;
+	display: flex;
+	align-items: center;
 	font-size: 16px;
-	margin-bottom: 12px;
+	transition: 0.3s;
+}
+
+.v-list-item:hover,
+.active-tab {
+	background: #f0f0f0;
+	border-radius: 8px;
 }
 
 .logout-button {
-	margin-top: 16px;
-	color: white;
+	margin-top: auto;
+}
+
+.content-container {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	height: fit-content;
+}
+
+.content-card {
+	background: white;
+	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+	text-align: center;
+}
+
+.loading-text {
+	text-align: center;
 	font-size: 18px;
-	font-weight: 500;
-	text-transform: none;
+	color: #555;
 }
 </style>
