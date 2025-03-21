@@ -58,9 +58,8 @@
 				/>
 				<LoginButton
 					:isLoggedIn="isLoggedIn"
-					:style="{
-						cursor: 'pointer',
-					}"
+					:userRole="userRole"
+					:style="{ cursor: 'pointer'}"
 					@login-click="handleLoginClick"
 				/>
 			</div>

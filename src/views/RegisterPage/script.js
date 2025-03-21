@@ -19,13 +19,14 @@ export default {
 	},
 	methods: {
 		async handleRegister() {
-			// Verify if passwords match
+			const isValid = await this.$refs.registerForm.validate();
+			if (!isValid) return;
+
 			if (this.password !== this.confirmPassword) {
 				this.registerError = true;
 				return;
 			}
 
-			// Simulate loading
 			this.loading = true;
 			this.registerError = false;
 

@@ -22,10 +22,12 @@ const favoriteRoutes = require("./routes/favorites");
 const reviewRoutes = require("./routes/reviews");
 const storeCategoryRoutes = require("./routes/store_categories");
 const productStoreRoutes = require("./routes/product_stores");
+const categoriesRouter = require("./routes/categories");
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/categories", categoriesRouter); 
 app.use("/api/stores", storeRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/reviews", reviewRoutes);

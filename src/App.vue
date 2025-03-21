@@ -3,6 +3,8 @@
 	<!-- Header -->
 	<Header
 		:isLoggedIn="isLoggedIn"
+		:userRole="userRole"
+		@navigate-to-admin="goToAdminPage"
 		@navigate-to-stores="goToStoresPage"
 		@navigate-to-profile="goToProfilePage"
 		@navigate-to-login="goToLoginPage"

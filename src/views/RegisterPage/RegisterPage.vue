@@ -69,6 +69,7 @@
 					color="primary"
 					:loading="loading"
 					type="submit"
+					@click.prevent="handleRegister"
 				>
 					Înregistrează-te
 				</v-btn>

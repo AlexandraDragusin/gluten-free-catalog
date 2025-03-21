@@ -26,11 +26,11 @@ const generateToken = (user) => {
  */
 router.get("/", async (req, res) => {
 	try {
-		const result = await pool.query("SELECT id, username, email FROM users");
+		const result = await pool.query("SELECT id, username, email, created_at FROM users");
 		res.json(result.rows);
 	} catch (err) {
 		console.error(err);
-		res.status(500).json({ error: "Server error" });
+		res.status(500).json({ error: "Eroare la server" });
 	}
 });
 
@@ -42,19 +42,19 @@ router.get("/profile", authenticateToken, async (req, res) => {
 		console.log("Authenticated User:", req.user);
 
 		if (!req.user || !req.user.id) {
-			return res.status(401).json({ error: "Unauthorized. Invalid user data" });
+			return res.status(401).json({ error: "Utilizatorul nu a fost găsit" });
 		}
 
 		const user = await pool.query("SELECT id, username, email, role, profile_picture FROM users WHERE id = $1", [req.user.id]);
 
 		if (user.rows.length === 0) {
-			return res.status(404).json({ error: "User not found" });
+			return res.status(404).json({ error: "Utilizatorul nu a fost găsit" });
 		}
 
 		res.json(user.rows[0]);
 	} catch (err) {
 		console.error(err);
-		res.status(500).json({ error: "Server error" });
+		res.status(500).json({ error: "Eroare la server" });
 	}
 });
 
@@ -68,7 +68,7 @@ router.put("/update", authenticateToken, async (req, res) => {
 
 		const userCheck = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
 		if (userCheck.rows.length === 0) {
-			return res.status(404).json({ error: "User not found" });
+			return res.status(404).json({ error: "Utilizatorul nu a fost găsit" });
 		}
 
 		let updateFields = [];
@@ -95,7 +95,7 @@ router.put("/update", authenticateToken, async (req, res) => {
 		}
 
 		if (updateFields.length === 0) {
-			return res.status(400).json({ error: "No changes provided" });
+			return res.status(400).json({ error: "Nu au fost efectuate modificări" });
 		}
 
 		values.push(userId);
@@ -118,7 +118,31 @@ router.put("/update", authenticateToken, async (req, res) => {
 
 	} catch (err) {
 		console.error("Error updating profile:", err);
-		res.status(500).json({ error: "Server error" });
+		res.status(500).json({ error: "Eroare la server" });
+	}
+});
+
+/**
+ * Delete user profile. This route is protected and requires a valid JWT token
+ */
+router.delete("/:id", authenticateToken, async (req, res) => {
+	const { id } = req.params;
+
+	if (req.user.role !== "admin") {
+		return res.status(403).json({ error: "Acces interzis." });
+	}
+
+	try {
+		const user = await pool.query("DELETE FROM users WHERE id = $1 RETURNING *", [id]);
+
+		if (user.rowCount === 0) {
+			return res.status(404).json({ error: "Utilizatorul nu a fost găsit" });
+		}
+
+		res.json({ message: "Utilizator șters cu succes." });
+	} catch (err) {
+		console.error("Eroare la ștergerea utilizatorului:", err);
+		res.status(500).json({ error: "Eroare server." });
 	}
 });
 
@@ -129,11 +153,11 @@ router.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
 		const result = await pool.query("SELECT id, username, email FROM users WHERE id = $1", [id]);
-		if (result.rows.length === 0) return res.status(404).json({ error: "User not found" });
+		if (result.rows.length === 0) return res.status(404).json({ error: "Utilizatorul nu a fost găsit" });
 		res.json(result.rows[0]);
 	} catch (err) {
 		console.error(err);
-		res.status(500).json({ error: "Server error" });
+		res.status(500).json({ error: "Eroare la server" });
 	}
 });
 

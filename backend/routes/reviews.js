@@ -15,7 +15,7 @@ router.post("/", async (req, res) => {
         res.status(201).json(result.rows[0]);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 
@@ -28,7 +28,7 @@ router.get("/:product_id", async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 

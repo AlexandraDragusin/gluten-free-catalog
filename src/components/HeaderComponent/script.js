@@ -10,6 +10,10 @@ export default {
 			required: true,
 			default: false
 		},
+		userRole: {
+			type: String,
+			default: null
+		}
 	},
 	data() {
 		return {
@@ -18,7 +22,9 @@ export default {
 	},
 	methods: {
 		handleLoginClick() {
-			if (this.isLoggedIn) {
+			if (this.isLoggedIn && this.userRole === 'admin') {
+				this.$emit("navigate-to-admin");
+			} else if (this.isLoggedIn) {
 				this.$emit("navigate-to-profile");
 			} else {
 				this.$emit("navigate-to-login");

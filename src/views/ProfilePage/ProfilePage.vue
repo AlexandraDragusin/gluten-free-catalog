@@ -42,7 +42,7 @@
 .profile-container {
 	padding: 140px 0 0 0;
 	display: flex;
-	height: 100vh;
+	min-height: 100vh;
 	background-color: #FEF9ED;
 }
 
@@ -57,6 +57,7 @@
 	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
 	margin-left: 40px;
 	margin-bottom: 50px;
+	height: 60vh;
 }
 
 .sidebar-list {

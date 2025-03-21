@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
         res.status(201).json({ message: "Category added to store" });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 
@@ -30,7 +30,7 @@ router.get("/:store_id", async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 
@@ -46,7 +46,7 @@ router.delete("/", async (req, res) => {
         res.json({ message: "Category removed from store" });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 

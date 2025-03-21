@@ -11,10 +11,12 @@ export default {
 	data() {
 		return {
 			isLoggedIn: false,
+			userRole: null
 		};
 	},
 	created() {
 		this.isLoggedIn = checkLoginStatus();
+		this.userRole = localStorage.getItem("role");
 
 		this.tokenCheckInterval = setInterval(() => {
 			checkTokenExpiration(() => this.handleLogout());
@@ -24,14 +26,40 @@ export default {
 		clearInterval(this.tokenCheckInterval);
 	},
 	methods: {
-		handleLoginSuccess() {
-			this.isLoggedIn = true;
-			this.goToHomePage();
+		async handleLoginSuccess() {
+			const token = localStorage.getItem("token");
+
+			if (!token) return;
+
+			try {
+				const response = await fetch("http://localhost:5000/api/users/profile", {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				if (!response.ok) throw new Error("Eroare la obținerea profilului");
+
+				const userData = await response.json();
+				this.userRole = userData.role || null;
+
+				localStorage.setItem("role", this.userRole);
+
+				this.isLoggedIn = true;
+				this.goToHomePage();
+
+			} catch (e) {
+				console.error("Eroare la decodarea token-ului:", e);
+				this.handleLogout();
+			}
 		},
 		handleLogout() {
 			localStorage.removeItem("token");
+			localStorage.removeItem("role");
 
 			this.isLoggedIn = false;
+			this.userRole = null;
+
 			this.goToLoginPage();
 		},
 		goToStoresPage() {
@@ -39,6 +67,9 @@ export default {
 		},
 		goToProfilePage() {
 			this.$router.push("/profile");
+		},
+		goToAdminPage() {
+			this.$router.push("/admin");
 		},
 		goToLoginPage() {
 			this.$router.push("/login");

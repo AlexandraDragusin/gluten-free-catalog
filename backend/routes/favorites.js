@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
         res.status(201).json({ message: "Product added to favorites" });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 
@@ -33,7 +33,7 @@ router.get("/:user_id", async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 
@@ -49,7 +49,7 @@ router.delete("/", async (req, res) => {
         res.json({ message: "Product removed from favorites" });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 

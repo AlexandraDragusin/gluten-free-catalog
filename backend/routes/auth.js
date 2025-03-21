@@ -30,7 +30,7 @@ router.post("/register", async (req, res) => {
     try {
         const existingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
         if (existingUser.rows.length > 0) {
-            return res.status(400).json({ error: "User already exists" });
+            return res.status(400).json({ error: "Utilizatorul există deja" });
         }
 
 		const hashedPassword = await bcrypt.hash(password, 10);
@@ -49,7 +49,7 @@ router.post("/register", async (req, res) => {
         res.status(201).json({ message: "User registered successfully", token, user: newUser });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 
@@ -63,12 +63,12 @@ router.post("/login", async (req, res) => {
     try {
         const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
         if (user.rows.length === 0) {
-			return res.status(401).json({ error: "Invalid email or password" });
+			return res.status(401).json({ error: "Email-ul sau parola nu sunt valide" });
 		}
 
         const validPassword = await bcrypt.compare(password, user.rows[0].password_hash);
         if (!validPassword) {
-			return res.status(401).json({ error: "Invalid email or password" });
+			return res.status(401).json({ error: "Email-ul sau parola nu sunt valide" });
 		}
 
 		const token = generateToken(user.rows[0]);
@@ -76,7 +76,7 @@ router.post("/login", async (req, res) => {
         res.json({ message: "Login successful", token, user: { id: user.rows[0].id, username: user.rows[0].username } });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Eroare la server" });
     }
 });
 

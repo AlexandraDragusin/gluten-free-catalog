@@ -18,8 +18,8 @@
 			}"
 			@click="handleClick"
 		>
-			{{ isLoggedIn ? "Profilul meu" : "Conectare" }}
-		</v-btn>
+			{{ isLoggedIn ? (userRole === 'admin' ? "Administrator" : "Profilul meu") : "Conectare" }}
+	</v-btn>
 	</div>
 	
 </template>

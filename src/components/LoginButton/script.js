@@ -5,6 +5,10 @@ export default {
 			type: Boolean,
 			required: true,
 		},
+		userRole: {
+			type: String,
+			default: null,
+		}
 	},
 	data: () => ({
 		//
