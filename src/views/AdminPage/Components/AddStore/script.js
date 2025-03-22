@@ -1,19 +1,32 @@
 export default {
 	data() {
 		return {
-		store: {
-			name: "",
-			type: "",
-			address: "",
-			logo_url: "",
-			website: "",
-			description: "",
-			arig_partner: false,
-			discount_percentage: null,
-		},
+			store: {
+				name: "",
+				type: "",
+				logo_url: "",
+				website: "",
+				description: "",
+				arig_partner: false,
+				discount_percentage: null,
+				addresses: [
+					{ address: "", city: "", county: "", country: "România" }
+				],
+			},
 		};
 	},
 	methods: {
+		addAddress() {
+			this.store.addresses.push({
+				address: "",
+				city: "",
+				county: "",
+				country: "România"
+			});
+		},
+		removeAddress(index) {
+			this.store.addresses.splice(index, 1);
+		},
 		async submitForm() {
 			try {
 				const token = localStorage.getItem("token");

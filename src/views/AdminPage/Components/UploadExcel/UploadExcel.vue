@@ -12,7 +12,6 @@
 						accept=".xls,.xlsx"
 						prepend-icon="mdi-file-excel"
 						show-size
-						style="width: 100%; white-space: normal; overflow-wrap: break-word; word-wrap: break-word;"
 					/>
 
 					<p v-if="uploadError" class="error-text">Eroare la încărcare: {{ uploadError }}</p>
@@ -47,7 +46,7 @@
 .upload-card {
 	padding: 40px;
 	width: 100%;
-	max-width: 500px;
+	max-width: 640px;
 	max-height: 600px;
 	text-align: center;
 	border-radius: 12px;

@@ -228,7 +228,14 @@ router.post("/upload", authenticateToken, upload.single("file"), async (req, res
 				if (existingProduct.rows.length > 0) {
 					// UPDATE dacă există deja produsul
 					productId = existingProduct.rows[0].id;
-			
+
+					const existingName = existingProduct.rows[0].name;
+
+					if (existingName !== name) {
+						console.warn(`Produsul cu EAN ${ean_code} are deja alt nume în DB: '${existingName}' vs '${name}'. Se ignoră.`);
+						continue;
+					}
+
 					await pool.query(`
 						UPDATE products SET
 							name = $1, brand = $2, made_in_romania = $3, certified_arig = $4,
