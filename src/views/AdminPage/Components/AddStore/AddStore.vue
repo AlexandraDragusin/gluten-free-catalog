@@ -98,7 +98,6 @@
 .submit-button {
 	margin-top: 16px;
 	width: 100%;
-	background-color: #F7B41A;
 	color: #312B1D;
 	text-transform: none;
 }

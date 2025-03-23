@@ -57,7 +57,7 @@
 	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
 	margin-left: 40px;
 	margin-bottom: 50px;
-	height: 60vh;
+	height: 70vh;
 }
 
 .sidebar-list {

@@ -1,7 +1,7 @@
 <template>
 	<v-container class="upload-container">
 		<v-card class="upload-card">
-			<v-card-title class="upload-title">Încarcă fișierul Excel</v-card-title>
+			<v-card-title class="upload-title">Încarcă fișierul cu date</v-card-title>
 
 			<v-card-text>
 				<v-form @submit.prevent="handleFileUpload">
@@ -22,7 +22,7 @@
 				<v-btn
 					block
 					class="upload-button"
-					color="primary"
+					color="secondary"
 					:loading="loading"
 					@click="handleFileUpload"
 				>
@@ -55,9 +55,9 @@
 }
 
 .upload-title {
-	font-size: 24px;
-	font-weight: 600;
+	font-size: 20px;
 	color: #312B1D;
+	text-align: center;
 	margin-bottom: 16px;
 }
 
@@ -73,11 +73,10 @@
 }
 
 .upload-button {
-	margin-top: 16px;
 	background-color: #F7B41A;
+	margin-top: 16px;
+	width: 100%;
 	color: #312B1D;
-	font-size: 18px;
-	font-weight: 500;
 	text-transform: none;
 }
 

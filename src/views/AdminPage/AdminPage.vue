@@ -22,6 +22,26 @@
 					<v-icon class="mr-2">mdi-account-multiple</v-icon>
 					<v-list-item-title>Utilizatori</v-list-item-title>
 				</v-list-item>
+
+				<v-list-item @click="selectedTab = 'manage-categories'" :class="{ 'active-tab': selectedTab === 'manage-categories' }">
+					<v-icon class="mr-2">mdi-tag-multiple</v-icon>
+					<v-list-item-title>Categorii</v-list-item-title>
+				</v-list-item>
+
+				<v-list-item @click="selectedTab = 'manage-allergens'" :class="{ 'active-tab': selectedTab === 'manage-allergens' }">
+					<v-icon class="mr-2">mdi-alert-circle-outline</v-icon>
+					<v-list-item-title>Alergeni</v-list-item-title>
+				</v-list-item>
+
+				<v-list-item @click="selectedTab = 'manage-products'" :class="{ 'active-tab': selectedTab === 'manage-products' }">
+					<v-icon class="mr-2">mdi-package-variant-closed</v-icon>
+					<v-list-item-title>Produse</v-list-item-title>
+				</v-list-item>
+
+				<v-list-item @click="selectedTab = 'manage-stores'" :class="{ 'active-tab': selectedTab === 'manage-stores' }">
+					<v-icon class="mr-2">mdi-domain</v-icon>
+					<v-list-item-title>Magazine</v-list-item-title>
+				</v-list-item>
 			</v-list>
 
 			<v-btn class="logout-button" color="red" dark @click="logout">
@@ -35,6 +55,10 @@
 			<AddProduct v-else-if="selectedTab === 'add-product'" />
 			<UploadExcel v-else-if="selectedTab === 'upload-excel'" />
 			<ManageUsers v-else-if="selectedTab === 'manage-users'" />
+			<ManageCategories v-else-if="selectedTab === 'manage-categories'" />
+			<ManageAllergens v-else-if="selectedTab === 'manage-allergens'" />
+			<ManageProducts v-else-if="selectedTab === 'manage-products'" />
+			<ManageStores v-else-if="selectedTab === 'manage-stores'" />
 		</div>
 	</v-container>
 </template>
@@ -60,7 +84,7 @@
 	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
 	margin-left: 40px;
 	margin-bottom: 50px;
-	height: 60vh;
+	height: 70vh;
 }
 
 .sidebar-list {

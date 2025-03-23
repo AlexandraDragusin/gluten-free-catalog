@@ -13,9 +13,7 @@
 		>
 			<template v-slot:[`item.actions`]="{ item }">
 				<div class="action-container">
-					<v-btn icon color="red" @click="confirmDelete(item)">
-						<v-icon>mdi-delete</v-icon>
-					</v-btn>
+					<v-icon small color="red" @click="confirmDelete(item)">mdi-delete</v-icon>
 				</div>
 			</template>
 		</v-data-table>

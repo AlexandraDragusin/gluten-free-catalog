@@ -23,6 +23,7 @@ const reviewRoutes = require("./routes/reviews");
 const storeCategoryRoutes = require("./routes/store_categories");
 const productStoreRoutes = require("./routes/product_stores");
 const categoriesRouter = require("./routes/categories");
+const allergensRouter = require("./routes/allergens");
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
@@ -31,6 +32,7 @@ app.use("/api/categories", categoriesRouter);
 app.use("/api/stores", storeRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/allergens", allergensRouter);
 app.use("/api/store_categories", storeCategoryRoutes);
 app.use("/api/product_stores", productStoreRoutes);
 

@@ -320,4 +320,95 @@ router.post("/upload", authenticateToken, upload.single("file"), async (req, res
 	}
 });
 
+// Update an existing product
+router.put("/:id", authenticateToken, async (req, res) => {
+	const { id } = req.params;
+	const {
+		name,
+		brand,
+		made_in_romania,
+		certified_arig,
+		weight,
+		unit,
+		image_url,
+		ean_code,
+		allergen_tags,
+		category,
+		description,
+		cross_grain_cert_code
+	} = req.body;
+
+	if (req.user.role !== "admin") {
+		return res.status(403).json({ error: "Acces interzis" });
+	}
+
+	try {
+		// Verifică existența produsului
+		const exists = await pool.query("SELECT 1 FROM products WHERE id = $1", [id]);
+		if (exists.rowCount === 0) {
+			return res.status(404).json({ error: "Produsul nu a fost găsit." });
+		}
+
+		// Validare categorie
+		const categoryCheck = await pool.query("SELECT 1 FROM categories WHERE name = $1", [category]);
+		if (categoryCheck.rowCount === 0) {
+			return res.status(400).json({ error: `Categoria '${category}' nu există.` });
+		}
+
+		const formattedAllergenTags = Array.isArray(allergen_tags)
+			? allergen_tags.map(tag => tag.trim().toLowerCase())
+			: [];
+
+		await pool.query(`
+			UPDATE products SET
+				name = $1, brand = $2, made_in_romania = $3, certified_arig = $4,
+				weight = $5, unit = $6, image_url = $7, ean_code = $8,
+				allergen_tags = $9, category = $10, description = $11,
+				cross_grain_cert_code = $12
+			WHERE id = $13
+		`, [
+			name,
+			brand,
+			made_in_romania,
+			certified_arig,
+			weight,
+			unit,
+			image_url,
+			ean_code,
+			formattedAllergenTags,
+			category,
+			description,
+			cross_grain_cert_code,
+			id
+		]);
+
+		res.json({ message: "Produs actualizat cu succes." });
+	} catch (err) {
+		console.error("Eroare la actualizare produs:", err.message);
+		res.status(500).json({ error: "Eroare la server" });
+	}
+});
+
+// Delete a product
+router.delete("/:id", authenticateToken, async (req, res) => {
+	const { id } = req.params;
+
+	if (req.user.role !== "admin") {
+		return res.status(403).json({ error: "Acces interzis" });
+	}
+
+	try {
+		// Ștergem din product_stores (legătura cu magazine)
+		await pool.query("DELETE FROM product_stores WHERE product_id = $1", [id]);
+
+		// Apoi din products
+		await pool.query("DELETE FROM products WHERE id = $1", [id]);
+
+		res.json({ message: "Produs șters cu succes." });
+	} catch (err) {
+		console.error("Eroare la ștergere produs:", err.message);
+		res.status(500).json({ error: "Eroare la server" });
+	}
+});
+
 module.exports = router;
