@@ -35,6 +35,7 @@ router.post("/", authenticateToken, async (req, res) => {
 		category,
 		description,
 		cross_grain_cert_code,
+		producer_gluten_declaration = false,
 		store_id 
 	} = req.body;
 
@@ -43,16 +44,21 @@ router.post("/", authenticateToken, async (req, res) => {
 	}
 
 	try {
-		const categoryCheck = await pool.query("SELECT 1 FROM categories WHERE name = $1", [category]);
 
-		// Verifică dacă categoria există
-        if (categoryCheck.rows.length === 0) {
-            return res.status(400).json({ error: `Categoria '${category}' nu există în baza de date.` });
-        }
+		if (category) {
+			const categoryCheck = await pool.query("SELECT 1 FROM categories WHERE name = $1", [category]);
+			if (categoryCheck.rowCount === 0) {
+				return res.status(400).json({ error: `Categoria '${category}' nu există.` });
+			}
+		} else {
+			console.log("Categoria nu a fost selectată.");
+			return res.status(400).json({ error: "Categoria nu a fost selectată." });
+		}
 
 		if (!store_id) {
 			return res.status(400).json({ error: "Magazinul nu a fost selectat." });
 		}
+
 
 		// Formatează etichetele alergenilor
 		const formattedAllergenTags = Array.isArray(allergen_tags)
@@ -69,12 +75,14 @@ router.post("/", authenticateToken, async (req, res) => {
 				UPDATE products SET
 					name = $1, brand = $2, made_in_romania = $3, certified_arig = $4,
 					weight = $5, unit = $6, image_url = $7,
-					allergen_tags = $8, category = $9, description = $10, cross_grain_cert_code = $11
-				WHERE id = $12
+					allergen_tags = $8, category = $9, description = $10, cross_grain_cert_code = $11,
+					producer_gluten_declaration = $12
+				WHERE id = $13
 			`, [
 				name, brand, made_in_romania, certified_arig,
 				weight, unit, image_url, formattedAllergenTags,
-				category, description, cross_grain_cert_code, productId
+				category, description, cross_grain_cert_code,
+				producer_gluten_declaration, productId
 			]);
 
 		} else {
@@ -83,13 +91,15 @@ router.post("/", authenticateToken, async (req, res) => {
 				INSERT INTO products (
 					name, brand, made_in_romania, certified_arig,
 					weight, unit, image_url, ean_code,
-					allergen_tags, category, description, cross_grain_cert_code
-				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+					allergen_tags, category, description, cross_grain_cert_code,
+					producer_gluten_declaration
+				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 				RETURNING id
 			`, [
 				name, brand, made_in_romania, certified_arig,
 				weight, unit, image_url, ean_code,
-				formattedAllergenTags, category, description, cross_grain_cert_code
+				formattedAllergenTags, category, description,
+				cross_grain_cert_code, producer_gluten_declaration
 			]);
 
 			productId = insertResult.rows[0].id;
@@ -140,7 +150,7 @@ router.post("/upload", authenticateToken, upload.single("file"), async (req, res
 		}
 
 		const storeName = storeNameMatch[1].replace(/_/g, " ");
-        console.log(`Processing data for store: ${storeName}`);
+		console.log(`Procesăm date pentru magazinul: ${storeName}`);
 
 		const storeQuery = await pool.query("SELECT id FROM stores WHERE name = $1", [storeName]);
 		if (storeQuery.rows.length === 0) {
@@ -156,83 +166,67 @@ router.post("/upload", authenticateToken, upload.single("file"), async (req, res
 
 		const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
         const sheetName = workbook.SheetNames[0];
+
 		const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], {
-			header: 1,
-			range: 2 // Skip first row (headers)
+			defval: "",
+			raw: false
 		});
 
-		const headers = [
-			"Cod de bare produs (cod EAN certificat GS1)",
-			"Cod intern de produs",
-			"Categorie produs",
-			"Denumire produs",
-			"Gramaj",
-			"Unitate de măsura gramaj",
-			"Producător",
-			"Brand",
-			"Descriere produs",
-			"Certificat Crossed Grain",
-			"Etichetat Gluten Free",
-			"Alergeni (lista/flag-uri)"
-		];
-		
-		const rows = data.map(row => {
-			const obj = {};
-			headers.forEach((key, idx) => {
-				obj[key] = row[idx];
-			});
-			return obj;
-		});
+		let added = 0, updated = 0;
 
-		for (const row of rows) {
+		for (const row of data) {
 			const name = row["Denumire produs"] ?? null;
 			const brand = row["Brand"] ?? null;
 			const weight = parseFloat(row["Gramaj"]) || null;
 			const unit = row["Unitate de măsura gramaj"] ?? null;
 			const ean_code = row["Cod de bare produs (cod EAN certificat GS1)"] ?? null;
-			let category = row["Categorie produs"]?.trim() ?? "Fără categorie";
+			let category = row["Categorie produs"]?.trim() ?? null;
 			const image_url = null;
 			const description = row["Descriere produs"] ?? null;
-			const cross_grain_cert_code = row["Certificat Crossed Grain"] ?? null;
-			
+			const cross_grain_cert_code = row["Certificat Crossed Grain"] ?? null;			
 			const allergenRaw = row["Alergeni (lista/flag-uri)"] ?? "";
+
+			const producer = row["Producător"] ?? "";
+			const made_in_romania = /rom[aâ]nia/i.test(producer);
+			const certified_arig = (row["Etichetat Gluten Free"] ?? "").toString().toLowerCase().includes("da");
+			const producerDeclarationRaw = row["Declarație producător (DA/NU)"]?.toString().trim().toLowerCase();
+			const producer_gluten_declaration = producerDeclarationRaw === "da";
+
 			const allergen_tags = allergenRaw
 				.split(",")
 				.map((a) => a.trim().toLowerCase())
 				.filter(Boolean);
 
-			const producer = row["Producător"] ?? "";
-			const made_in_romania = /rom[aâ]nia/i.test(producer);
-			const certified_arig = (row["Etichetat Gluten Free"] ?? "").toString().toLowerCase().includes("da");
+			// Ignore rows with no data
+			if(!name && !ean_code && !category && !weight && !unit && !brand && !description && !cross_grain_cert_code) {
+				continue;
+			}
 
+			// Verify required fields
 			if (!name || !ean_code) {
 				return res.status(400).json({
 					error: `Produs invalid: lipsă nume sau cod EAN la rândul: ${JSON.stringify(row)}`
 				});
 			}
 
-			if (!existingCategories.includes(category.toLowerCase())) {
+			// Verify category
+			if (category && !existingCategories.includes(category.toLowerCase())) {
 				return res.status(400).json({
 					error: `Categoria '${category}' nu există în baza de date. Te rugăm să o corectezi.`,
 				});
 			}
 
 			try {
-				const existingProduct = await pool.query(
-					"SELECT id FROM products WHERE ean_code = $1",
-					[ean_code]
-				);
-			
+				const existingProduct = await pool.query("SELECT id FROM products WHERE ean_code = $1", [ean_code]);
 				let productId = null;
 
 				if (existingProduct.rows.length > 0) {
-					// UPDATE dacă există deja produsul
+					// UPDATE
 					productId = existingProduct.rows[0].id;
-
 					const existingName = existingProduct.rows[0].name;
 
 					if (existingName !== name) {
-						console.warn(`Produsul cu EAN ${ean_code} are deja alt nume în DB: '${existingName}' vs '${name}'. Se ignoră.`);
+						console.warn(`Produsul cu EAN ${ean_code} are deja alt nume în baza de date: '${existingName}' vs '${name}'. Se ignoră.`);
 						continue;
 					}
 
@@ -240,8 +234,9 @@ router.post("/upload", authenticateToken, upload.single("file"), async (req, res
 						UPDATE products SET
 							name = $1, brand = $2, made_in_romania = $3, certified_arig = $4,
 							weight = $5, unit = $6, image_url = $7,
-							allergen_tags = $8, category = $9, description = $10, cross_grain_cert_code = $11
-						WHERE id = $12
+							allergen_tags = $8, category = $9, description = $10, cross_grain_cert_code = $11,
+							producer_gluten_declaration = $12
+						WHERE id = $13
 					`, [
 						name,
 						brand,
@@ -254,19 +249,22 @@ router.post("/upload", authenticateToken, upload.single("file"), async (req, res
 						category,
 						description,
 						cross_grain_cert_code,
+						producer_gluten_declaration,
 						productId
 					]);
-			
+					
+					updated++;
 					console.log(`Produs actualizat: ${name}`);
 			
 				} else {
-					// INSERT dacă ean_code nu există
+					// INSERT
 					const insertProduct = await pool.query(`
 						INSERT INTO products (
 							name, brand, made_in_romania, certified_arig,
 							weight, unit, image_url, ean_code,
-							allergen_tags, category, description, cross_grain_cert_code
-						) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+							allergen_tags, category, description, cross_grain_cert_code,
+							producer_gluten_declaration
+						) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 						RETURNING id
 					`, [
 						name,
@@ -280,30 +278,36 @@ router.post("/upload", authenticateToken, upload.single("file"), async (req, res
 						allergen_tags,
 						category,
 						description,
-						cross_grain_cert_code
+						cross_grain_cert_code,
+						producer_gluten_declaration
 					]);
-			
+					
+					added++;
 					productId = insertProduct.rows[0].id;
 					console.log(`Produs adăugat: ${name}`);
 				}
 
+				// Link product to store
 				await pool.query(
 					"INSERT INTO product_stores (product_id, store_id) VALUES ($1, $2)",
 					[productId, storeId]
 				);
 
-				const existingStoreCategory = await pool.query(
-					"SELECT 1 FROM store_categories WHERE store_id = $1 AND category = $2",
-					[storeId, category]
-				);
-
-				if (existingStoreCategory.rows.length === 0) {
-					await pool.query(
-						"INSERT INTO store_categories (store_id, category) VALUES ($1, $2)",
+				// Link product to category
+				if (category) {
+					const existingStoreCategory = await pool.query(
+						"SELECT 1 FROM store_categories WHERE store_id = $1 AND category = $2",
 						[storeId, category]
 					);
+
+					if (existingStoreCategory.rows.length === 0) {
+						await pool.query(
+							"INSERT INTO store_categories (store_id, category) VALUES ($1, $2)",
+							[storeId, category]
+						);
+					}
 				}
-				
+
 			} catch (err) {
 				console.warn(`Eroare la inserarea produsului ${name} : ${err.message}`);
 				return res.status(400).json({
@@ -312,7 +316,11 @@ router.post("/upload", authenticateToken, upload.single("file"), async (req, res
 			}
 		}
 
-		res.status(200).json({ message: "Fișier procesat cu succes!" });
+		res.status(200).json({
+			message: "Fișier procesat cu succes!",
+			adaugate: added,
+			actualizate: updated
+		});
 
 	} catch (err) {
 		console.error("Eroare la procesarea fișierului:", err);
@@ -335,7 +343,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
 		allergen_tags,
 		category,
 		description,
-		cross_grain_cert_code
+		cross_grain_cert_code,
+		producer_gluten_declaration = false
 	} = req.body;
 
 	if (req.user.role !== "admin") {
@@ -350,9 +359,11 @@ router.put("/:id", authenticateToken, async (req, res) => {
 		}
 
 		// Validare categorie
-		const categoryCheck = await pool.query("SELECT 1 FROM categories WHERE name = $1", [category]);
-		if (categoryCheck.rowCount === 0) {
-			return res.status(400).json({ error: `Categoria '${category}' nu există.` });
+		if (category) {
+			const categoryCheck = await pool.query("SELECT 1 FROM categories WHERE name = $1", [category]);
+			if (categoryCheck.rowCount === 0) {
+				return res.status(400).json({ error: `Categoria '${category}' nu există.` });
+			}
 		}
 
 		const formattedAllergenTags = Array.isArray(allergen_tags)
@@ -364,8 +375,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
 				name = $1, brand = $2, made_in_romania = $3, certified_arig = $4,
 				weight = $5, unit = $6, image_url = $7, ean_code = $8,
 				allergen_tags = $9, category = $10, description = $11,
-				cross_grain_cert_code = $12
-			WHERE id = $13
+				cross_grain_cert_code = $12, producer_gluten_declaration = $13
+			WHERE id = $14
 		`, [
 			name,
 			brand,
@@ -379,6 +390,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 			category,
 			description,
 			cross_grain_cert_code,
+			producer_gluten_declaration,
 			id
 		]);
 

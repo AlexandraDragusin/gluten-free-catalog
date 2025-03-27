@@ -2,11 +2,34 @@
 	<v-card class="manage-card">
 		<v-card-title class="title">Magazine</v-card-title>
 
+		<div class="action-buttons" v-if="!selectionMode">
+			<v-btn @click="selectionMode = true">
+				<v-icon left>mdi-check</v-icon>Selectează
+			</v-btn>
+		</div>
+
+		<div class="action-buttons" v-else>
+			<v-btn @click="cancelSelection">
+				<v-icon left>mdi-close</v-icon>Anulează
+			</v-btn>
+			<v-btn
+				color="grey"
+				variant="tonal"
+				:disabled="selectedStores.length === 0"
+				@click="showConfirmDialog = true"
+			>
+				<v-icon left>mdi-delete</v-icon>Șterge ({{ selectedStores.length }})
+			</v-btn>
+		</div>
+
 		<v-card-text>
 			<v-data-table
 				:headers="headers"
 				:items="stores"
 				item-value="id"
+				return-object
+				v-model="selectedStores"
+				:show-select="selectionMode"
 				class="elevation-1"
 				no-data-text="Nu există magazine."
 			>	
@@ -16,11 +39,14 @@
 
 				<template v-slot:[`item.actions`]="{ item }">
 					<v-icon small class="mr-2" @click="openEditDialog(item)">mdi-pencil</v-icon>
-					<v-icon small class="mr-2" color="red" @click="deleteStore(item)">mdi-delete</v-icon>
+				</template>
+
+				<template v-slot:[`item.arig_partner`]="{ item }">
+					{{ item.arig_partner ? 'da' : 'nu' }}
 				</template>
 			</v-data-table>
-	
-			<!-- Dialog editare magazin -->
+
+			<!-- Edit store dialog -->
 			<v-dialog v-model="editDialog" max-width="600px">
 				<v-card v-if="editedStore">
 					<v-card-title>Editare magazin: {{ editedStore.name }}</v-card-title>
@@ -62,6 +88,21 @@
 				</v-card>
 			</v-dialog>
 
+			<!-- Confirm delete dialog -->
+			<v-dialog v-model="showConfirmDialog" max-width="400">
+				<v-card>
+					<v-card-title class="text-h6">Confirmare ștergere</v-card-title>
+					<v-card-text>
+						Sigur vrei să ștergi <strong>{{ selectedStores.length }}</strong> magazin(e)?
+					</v-card-text>
+					<v-card-actions>
+						<v-spacer />
+						<v-btn text @click="showConfirmDialog = false">Anulează</v-btn>
+						<v-btn color="grey" variant="tonal" @click="confirmBulkDeleteStores">Șterge</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+
 			<v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="3000">
 				{{ snackbar.message }}
 			</v-snackbar>
@@ -74,7 +115,7 @@
 <style scoped>
 .manage-card {
 	width: 100%;
-	max-width: 1400px;
+	max-width: 90%;
 	padding: 24px;
 	border-radius: 12px;
 	background-color: white;
@@ -87,6 +128,13 @@
 	margin-bottom: 16px;
 }
 
-
+.action-buttons {
+	display: flex;
+	justify-content: end;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 16px;
+	margin-right: 16px;
+}
 
 </style>

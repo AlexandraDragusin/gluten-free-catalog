@@ -3,13 +3,18 @@ export default {
 		return {
 			selectedFile: null,
 			loading: false,
-			uploadError: null,
+			uploadSummary: null,
+			snackbar: {
+				show: false,
+				message: "",
+				color: "success"
+			}
 		};
 	},
 	methods: {
 		async handleFileUpload() {
 			if (!this.selectedFile) {
-				this.uploadError = "Te rugăm să selectezi un fișier.";
+				this.showSnackbar("Te rugăm să selectezi un fișier.", "error");
 				return;
 			}
 
@@ -17,12 +22,12 @@ export default {
 			const validFileName = /^Tabel_Informatii_.+\.xlsx$/;
 
 			if (!validFileName.test(fileName)) {
-				this.uploadError = "Numele fișierului trebuie să fie în formatul: 'Tabel_Informatii_Nume_Magazin.xlsx'.";
+				this.showSnackbar("Numele fișierului trebuie să fie în formatul: 'Tabel_Informatii_Nume_Magazin.xlsx'", "error");
 				return;
 			}
 
 			this.loading = true;
-			this.uploadError = null;
+			this.uploadSummary = null;
 
 			try {
 				const formData = new FormData();
@@ -44,14 +49,29 @@ export default {
 					throw new Error(data.error || "Eroare la încărcare");
 				}
 
-				alert("Fișierul a fost încărcat cu succes!");
+				this.uploadSummary = {
+					adaugate: data.added,
+					actualizate: data.updated,
+				};
+
+				
+				this.showSnackbar(
+					`Fișier procesat: ${data.adaugate} adăugate, ${data.actualizate} actualizate.`,
+					"success"
+				);
+
 				this.selectedFile = null;
 
 			} catch (error) {
-				this.uploadError = error.message;
+				this.showSnackbar(error.message, "error");
 			} finally {
 				this.loading = false;
 			}
 		},
+		showSnackbar(message, color = "success") {
+			this.snackbar.message = message;
+			this.snackbar.color = color;
+			this.snackbar.show = true;
+		}
 	},
 };

@@ -132,6 +132,8 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 		return res.status(403).json({ error: "Acces interzis." });
 	}
 
+	console.log("Deleting user with ID:", req.params.id);
+
 	try {
 		const user = await pool.query("DELETE FROM users WHERE id = $1 RETURNING *", [id]);
 

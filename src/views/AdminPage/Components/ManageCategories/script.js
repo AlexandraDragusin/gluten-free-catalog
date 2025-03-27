@@ -7,6 +7,10 @@ export default {
 			newCategory: "",
 			editDialog: false,
 			originalName: null,
+			showAddDialog: false,
+			selectionMode: false,
+			selectedCategories: [],
+			showConfirmDialog: false,
 			snackbar: {
 				show: false,
 				message: "",
@@ -41,6 +45,10 @@ export default {
 			this.editDialog = false;
 			this.originalName = null;
 		},
+		cancelSelection() {
+			this.selectionMode = false;
+			this.selectedCategories = [];
+		},
 		async updateCategory() {
 			try {
 				const res = await fetch(`http://localhost:5000/api/categories/${this.originalName}`, {
@@ -64,46 +72,61 @@ export default {
 				this.showSnackbar(err.message, "error");
 			}
 		},
-		async deleteCategory(category) {
-			if (!confirm(`Sigur vrei să ștergi categoria "${category.name}"?`)) return;
-
+		async confirmBulkDelete() {
+			if (this.selectedCategories.length === 0) return;
+		
 			try {
-				const res = await fetch(`http://localhost:5000/api/categories/${category.name}`, {
-					method: "DELETE",
-					headers: {
-					Authorization: `Bearer ${localStorage.getItem("token")}`
-					}
-				});
-
-				if (!res.ok) {
-					const error = await res.json();
-					throw new Error(error.error || "Eroare la ștergere.");
-				}
-
-				this.showSnackbar("Categorie ștearsă cu succes.");
-				this.fetchCategories();
-
+				const token = localStorage.getItem("token");
+		
+				await Promise.all(
+					this.selectedCategories.map(async (cat) => {
+						const res = await fetch(`http://localhost:5000/api/categories/${cat.name}`, {
+							method: "DELETE",
+							headers: {
+								Authorization: `Bearer ${token}`,
+							},
+						});
+						if (!res.ok) throw new Error("Eroare la ștergere");
+					})
+				);
+		
+				this.categories = this.categories.filter(
+					(c) => !this.selectedCategories.some((sel) => sel.name === c.name)
+				);
+		
+				this.showSnackbar(`${this.selectedCategories.length} categorie(i) șters(e).`);
+				this.cancelSelection();
+				this.showConfirmDialog = false;
 			} catch (err) {
-				this.showSnackbar(err.message, "error");
+				console.error("Eroare la ștergerea în masă:", err);
+				this.showSnackbar("Eroare la ștergerea în masă.", "error");
+				this.cancelSelection();
+				this.showConfirmDialog = false;
 			}
 		},
-		async addCategory() {
+		async submitAddCategory() {
+			if (!this.newCategory.trim()) {
+				this.showSnackbar("Completează denumirea categoriei.", "error");
+				return;
+			}
+		
 			try {
 				const res = await fetch("http://localhost:5000/api/categories", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
-						Authorization: `Bearer ${localStorage.getItem("token")}`
+						Authorization: `Bearer ${localStorage.getItem("token")}`,
 					},
-					body: JSON.stringify({ name: this.newCategory })
+					body: JSON.stringify({ name: this.newCategory }),
 				});
-
+		
 				if (!res.ok) {
 					const error = await res.json();
 					throw new Error(error.message || "Eroare la adăugare.");
 				}
-
+		
 				this.newCategory = "";
+				this.showAddDialog = false;
 				this.showSnackbar("Categorie adăugată cu succes.");
 				await this.fetchCategories();
 			} catch (err) {

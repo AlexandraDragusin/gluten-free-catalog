@@ -6,6 +6,7 @@ export default {
 				brand: "",
 				made_in_romania: false,
 				certified_arig: false,
+				producer_gluten_declaration: false,
 				weight: null,
 				unit: "",
 				ean_code: "",
@@ -23,8 +24,14 @@ export default {
 				required: (v) => !!v || "Acest câmp este obligatoriu.",
 				isNumber: (v) =>
 					!v || !isNaN(parseFloat(v)) || "Trebuie să fie un număr valid.",
+				requiredSelect: (v) => v !== null && v !== "" || "Selectează o opțiune.",
 			},
 			isSubmitting: false,
+			snackbar: {
+				show: false,
+				message: "",
+				color: "success"
+			}
 		};
 	},
 	created() {
@@ -42,7 +49,7 @@ export default {
 			} catch (error) {
 				console.error("Eroare la preluarea categoriilor:", error);
 			}
-	},
+		},
 		async fetchStores() {
 			try {
 				const response = await fetch("http://localhost:5000/api/stores");
@@ -83,12 +90,14 @@ export default {
 				const data = await response.json();
 				console.log("Produs adăugat:", data);
 
-				alert("Produs adăugat cu succes!");
+				this.showSnackbar("Produs adăugat cu succes!");
 				this.resetForm();
 		
 			} catch (error) {
 				console.error("Eroare la adăugarea produsului:", error);
-				alert("A apărut o eroare. Verifică datele introduse.");
+				this.showSnackbar("A apărut o eroare. Verifică datele introduse.", "error");
+			} finally {
+				this.isSubmitting = false;
 			}
 		},
 		resetForm() {
@@ -97,6 +106,7 @@ export default {
 				brand: "",
 				made_in_romania: false,
 				certified_arig: false,
+				producer_gluten_declaration: false,
 				weight: null,
 				unit: "",
 				ean_code: "",
@@ -110,5 +120,12 @@ export default {
 
 			this.$refs.form.reset();
 		},
+		showSnackbar(message, color = "success") {
+			this.snackbar = {
+				show: true,
+				message,
+				color,
+			};
+		}
 	},
 };

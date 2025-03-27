@@ -7,6 +7,15 @@ export default {
 		editedAllergen: null,
 		editDialog: false,
 		originalCode: null,
+		selectionMode: false,
+		selectedAllergens: [],
+		showConfirmDialog: false,
+		showAddDialog: false,
+		snackbar: {
+			show: false,
+			message: "",
+			color: "success",
+		},
 		headers: [
 			{ title: "Cod", value: "code" },
 			{ title: "Nume alergen", value: "name" },
@@ -54,6 +63,8 @@ export default {
 
 				this.newAllergen = { code: "", name: "" };
 				this.fetchAllergens();
+				this.showAddDialog = false;
+				this.showSnackbar("Alergen adăugat cu succes.");
 
 			} catch (err) {
 				console.error("Eroare la adăugare alergen:", err);
@@ -67,6 +78,15 @@ export default {
 			};
 
 			this.editDialog = true;
+		},
+		cancelSelection() {
+			this.selectionMode = false;
+			this.selectedAllergens = [];
+		},
+		showSnackbar(message, color = "success") {
+			this.snackbar.message = message;
+			this.snackbar.color = color;
+			this.snackbar.show = true;
 		},
 		cancelEdit() {
 			this.editDialog = false;
@@ -111,25 +131,35 @@ export default {
 				console.error("Eroare la actualizare alergen:", err);
 			}
 		},
-		async deleteAllergen(item) {
-			if (!confirm(`Sigur vrei să ștergi alergenul "${item.name}"?`)) return;
+		async confirmBulkDelete() {
+			if (this.selectedAllergens.length === 0) return;
+		
 			try {
-				const res = await fetch(
-					`http://localhost:5000/api/allergens/${item.code}`,
-					{
-						method: "DELETE",
-						headers: {
-						Authorization: `Bearer ${localStorage.getItem("token")}`
-						}
-					}
+				await Promise.all(
+					this.selectedAllergens.map(async (allergen) => {
+						const res = await fetch(`http://localhost:5000/api/allergens/${allergen.code}`, {
+							method: "DELETE",
+							headers: {
+								Authorization: `Bearer ${localStorage.getItem("token")}`,
+							},
+						});
+						if (!res.ok) throw new Error("Eroare la ștergere");
+					})
 				);
-
-				if (!res.ok) throw new Error("Eroare la ștergere");
-
-				this.fetchAllergens();
+		
+				this.allergens = this.allergens.filter(
+					(a) => !this.selectedAllergens.some((sel) => sel.code === a.code)
+				);
+				this.showSnackbar(`${this.selectedAllergens.length} alergen(i) șters(i).`);
+				this.cancelSelection();
+				this.showConfirmDialog = false;
+		
 			} catch (err) {
-				console.error("Eroare la ștergere alergen:", err);
+				console.error("Eroare la ștergerea în masă:", err);
+				this.showSnackbar("Eroare la ștergerea în masă.", "error");
+				this.cancelSelection();
+				this.showConfirmDialog = false;
 			}
-		}
+		},
 	}
 };

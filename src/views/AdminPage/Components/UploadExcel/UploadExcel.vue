@@ -13,8 +13,6 @@
 						prepend-icon="mdi-file-excel"
 						show-size
 					/>
-
-					<p v-if="uploadError" class="error-text">Eroare la încărcare: {{ uploadError }}</p>
 				</v-form>
 			</v-card-text>
 
@@ -29,6 +27,16 @@
 					Încarcă fișierul
 				</v-btn>
 			</v-card-actions>
+
+			<!-- Snackbar -->
+			<v-snackbar
+				v-model="snackbar.show"
+				:color="snackbar.color"
+				timeout="4000"
+				top
+			>
+				{{ snackbar.message }}
+			</v-snackbar>
 		</v-card>
 	</v-container>
 </template>

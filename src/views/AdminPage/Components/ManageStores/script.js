@@ -3,6 +3,9 @@ export default {
 	data() {
 		return {
 			stores: [],
+			selectedStores: [],
+			selectionMode: false,
+			showConfirmDialog: false,
 			editedStore: null,
 			editDialog: false,
 			snackbar: {
@@ -12,13 +15,12 @@ export default {
 			},
 			headers: [
 				{ title: "Logo", value: "logo_url" },
-				{ title: "Nume", value: "name" },
+				{ title: "Nume", value: "name", sortable: true },
 				{ title: "Tip", value: "type_display", sortable: false },
 				{ title: "Website", value: "website" },
 				{ title: "Partener ARIG", value: "arig_partner" },
 				{ title: "Discount", value: "discount_percentage" },
-				{ title: "Descriere", value: "description" },
-				{ title: "Acțiuni", value: "actions", sortable: false, width: "100px" }
+				{ title: "Acțiuni", value: "actions", sortable: false }
 			]
 		};
 	},
@@ -53,6 +55,10 @@ export default {
 			this.editDialog = false;
 			this.editedStore = null;
 		},
+		cancelSelection() {
+			this.selectionMode = false;
+			this.selectedStores = [];
+		},
 		async updateStore() {
 			const valid = this.$refs.storeForm?.validate?.();
 			if (valid === false) return;
@@ -84,27 +90,35 @@ export default {
 				this.showSnackbar(err.message, "error");
 			}
 		},
-		async deleteStore(store) {
-			if (!confirm(`Sigur vrei să ștergi magazinul "${store.name}"?`)) return;
-
+		async confirmBulkDeleteStores() {
+			if (this.selectedStores.length === 0) return;
+		
+			const token = localStorage.getItem("token");
 			try {
-			const res = await fetch(`http://localhost:5000/api/stores/${store.id}`, {
-				method: "DELETE",
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem("token")}`
-				}
-			});
-
-			if (!res.ok) {
-				const error = await res.json();
-				throw new Error(error.error || "Eroare la ștergere.");
-			}
-
-			this.showSnackbar("Magazin șters cu succes.");
-
-			this.fetchStores();
+				await Promise.all(
+					this.selectedStores.map(async (store) => {
+						const res = await fetch(`http://localhost:5000/api/stores/${store.id}`, {
+							method: "DELETE",
+							headers: {
+								Authorization: `Bearer ${token}`,
+							},
+						});
+						if (!res.ok) throw new Error("Eroare la ștergere");
+					})
+				);
+		
+				this.stores = this.stores.filter(
+					s => !this.selectedStores.some(sel => sel.id === s.id)
+				);
+		
+				this.showSnackbar(`${this.selectedStores.length} magazin(e) șters(e).`);
+				this.cancelSelection();
+				this.showConfirmDialog = false;
 			} catch (err) {
-				this.showSnackbar(err.message, "error");
+				console.error("Eroare la ștergerea în masă:", err);
+				this.showSnackbar("Eroare la ștergerea în masă.", "error");
+				this.cancelSelection();
+				this.showConfirmDialog = false;
 			}
 		},
 		showSnackbar(message, color = "success") {

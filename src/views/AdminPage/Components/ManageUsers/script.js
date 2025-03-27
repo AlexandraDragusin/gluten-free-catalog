@@ -3,15 +3,20 @@ export default {
 		return {
 			users: [],
 			loading: false,
+			selectionMode: false,
+			selectedUsers: [],
+			showConfirmDialog: false,
 			headers: [
 				{ title: "Id unic", key: "id", align: "start", sortable: true },
 				{ title: "Nume de utilizator", key: "username", sortable: true },
 				{ title: "Email", key: "email", sortable: true },
-				{ title: "Data înregistrării", key: "created_at", sortable: true },
-				{ title: "Acțiuni", key: "actions", sortable: false }
+				{ title: "Data înregistrării", key: "created_at", sortable: true }
 			],
-			selectedUser: null,
-			showConfirmDialog: false,
+			snackbar: {
+				show: false,
+				message: "",
+				color: "success",
+			},
 		};
 	},
 	created() {
@@ -40,31 +45,50 @@ export default {
 				this.loading = false;
 			}
 		},
-		confirmDelete(user) {
-			this.selectedUser = user;
-			this.showConfirmDialog = true;
+		cancelSelection() {
+			this.selectionMode = false;
+			this.selectedUsers = [];
 		},
-		async deleteUser() {
+		async confirmBulkDelete() {
+			if (this.selectedUsers.length === 0) return;
+
 			const token = localStorage.getItem("token");
-
 			try {
-				const res = await fetch(`http://localhost:5000/api/users/${this.selectedUser.id}`, {
-					method: "DELETE",
-					headers: {
-					Authorization: `Bearer ${token}`,
-					},
-				});
+				await Promise.all(
+					this.selectedUsers.map(async (user) => {
+						const res = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+							method: "DELETE",
+							headers: {
+								Authorization: `Bearer ${token}`,
+							},
+						});
+						if (!res.ok) throw new Error("Eroare la ștergere");
+					})
+				);
 
-				if (!res.ok) throw new Error("Eroare la ștergere");
+				// Update the user list without fetching it again
+				this.users = this.users.filter(
+					u => !this.selectedUsers.some(sel => sel.id === u.id)
+				);
 
-				this.users = this.users.filter((u) => u.id !== this.selectedUser.id);
+				this.showSnackbar(`${this.selectedUsers.length} utilizator(i) șters(i).`);
+				this.cancelSelection();
 				this.showConfirmDialog = false;
-				this.selectedUser = null;
 
 			} catch (err) {
-				console.error("Eroare la ștergerea utilizatorului:", err);
-				alert("Nu s-a putut șterge utilizatorul.");
+				console.error("Eroare la ștergerea în masă:", err);
+				this.showSnackbar("Eroare la ștergerea în masă.", "error");
+				this.cancelSelection();
+				this.showConfirmDialog = false;
 			}
+		},
+		showSnackbar(message, color = "success") {
+			this.snackbar.message = message;
+			this.snackbar.color = color;
+			this.snackbar.show = true;
+		},
+		getRowClass(item) {
+			return this.selectedUsers.includes(item) ? 'highlight-row' : '';
 		}
 	},
 };
