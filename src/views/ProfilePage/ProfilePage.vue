@@ -19,7 +19,7 @@
 				</v-list-item>
 			</v-list>
 
-			<v-btn class="logout-button" color="red" dark @click="logout">
+			<v-btn class="logout-button" color="grey" variant="tonal" dark @click="logout">
 				<v-icon left>mdi-logout</v-icon> Deconectare
 			</v-btn>
 		</div>

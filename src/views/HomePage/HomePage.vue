@@ -41,13 +41,13 @@
 				no-gutters
 			>
 				<v-col cols="12" sm="4" :style="{ padding: '24px'}">
-					<v-btn class="shop-button" block>ONLINE</v-btn>
+					<v-btn class="shop-button" block @click="$emit('navigate-to-stores', 'online')" >ONLINE</v-btn>
 				</v-col>
 				<v-col cols="12" sm="4" :style="{ padding: '24px' }">
-					<v-btn class="shop-button" block>FIZIC</v-btn>
+					<v-btn class="shop-button" block @click="$emit('navigate-to-stores', 'physical')">FIZIC</v-btn>
 				</v-col>
 				<v-col cols="12" sm="4" :style="{ padding: '24px' }">
-					<v-btn class="shop-button" block>MIXT</v-btn>
+					<v-btn class="shop-button" block @click="$emit('navigate-to-stores', 'mixed')">MIXT</v-btn>
 				</v-col>
 			</v-row>
 		</div>

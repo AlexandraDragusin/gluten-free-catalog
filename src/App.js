@@ -62,8 +62,8 @@ export default {
 
 			this.goToLoginPage();
 		},
-		goToStoresPage() {
-			this.$router.push("/stores");
+		goToStoresPage(type = '') {
+			this.$router.push({ path: '/stores', query: { type } });
 		},
 		goToProfilePage() {
 			this.$router.push("/profile");
