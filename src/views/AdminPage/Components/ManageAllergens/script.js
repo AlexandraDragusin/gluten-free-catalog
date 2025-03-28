@@ -1,27 +1,39 @@
 export default {
 	name: "ManageAllergens",
 	data() {
-	return {
-		allergens: [],
-		newAllergen: { code: "", name: "" },
-		editedAllergen: null,
-		editDialog: false,
-		originalCode: null,
-		selectionMode: false,
-		selectedAllergens: [],
-		showConfirmDialog: false,
-		showAddDialog: false,
-		snackbar: {
-			show: false,
-			message: "",
-			color: "success",
-		},
-		headers: [
-			{ title: "Cod", value: "code" },
-			{ title: "Nume alergen", value: "name" },
-			{ title: "Acțiuni", value: "actions", sortable: false }
-		]
-	};
+		return {
+			allergens: [],
+			newAllergen: { code: "", name: "" },
+			editedAllergen: null,
+			editDialog: false,
+			originalCode: null,
+			selectionMode: false,
+			selectedAllergens: [],
+			showConfirmDialog: false,
+			showAddDialog: false,
+			snackbar: {
+				show: false,
+				message: "",
+				color: "success",
+			},
+			headers: [
+				{ title: "", value: "placeholder", sortable: false, width: "56px"},
+				{ title: "Cod", value: "code" },
+				{ title: "Nume alergen", value: "name" },
+				{ title: "Acțiuni", value: "actions", sortable: false }
+			],
+			pagination: {
+				page: 1,
+				itemsPerPage: 10,
+			},
+		};
+	},
+	computed: {
+		headersToUse() {
+			return this.selectionMode
+				? this.headers.filter(h => h.value !== "placeholder")
+				: this.headers;
+		}
 	},
 	created() {
 		this.fetchAllergens();

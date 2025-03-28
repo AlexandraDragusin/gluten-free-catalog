@@ -16,11 +16,23 @@ export default {
 				message: "",
 				color: "success",
 			},
+			pagination: {
+				page: 1,
+				itemsPerPage: 10,
+			},
 			headers: [
+				{ title: "", value: "placeholder", sortable: false, width: "56px"},
 				{ title: "Nume categorie", value: "name" },
 				{ title: "Acțiuni", value: "actions", sortable: false, width: '112px' }
 			]
 		};
+	},
+	computed: {
+		headersToUse() {
+			return this.selectionMode
+				? this.headers.filter(h => h.value !== "placeholder")
+				: this.headers;
+		}
 	},
 	created() {
 		this.fetchCategories();

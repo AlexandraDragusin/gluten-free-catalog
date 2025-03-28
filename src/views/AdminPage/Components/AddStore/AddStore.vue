@@ -105,6 +105,7 @@
 	margin-top: 16px;
 	width: 100%;
 	color: #312B1D;
+	font-size: 16px;
 	text-transform: none;
 }
 </style>

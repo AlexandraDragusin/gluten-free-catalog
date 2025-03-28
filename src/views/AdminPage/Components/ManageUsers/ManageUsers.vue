@@ -1,6 +1,17 @@
 <template>
 	<v-card class="user-list-card">
-		<v-card-title class="section-title">Lista utilizatorilor</v-card-title>
+		<v-card-title class="section-title">Utilizatori</v-card-title>
+
+		<div class="table-toolbar">
+			<v-select
+				v-model="pagination.itemsPerPage"
+				:items="[5, 10, 25, 50]"
+				class="items-per-page"
+				label="Elemente pe pagină"
+				density="compact"
+				variant="outlined"
+				hide-details
+			/>
 
 			<div class="action-buttons" v-if="!selectionMode">
 				<v-btn @click="selectionMode = true">
@@ -22,19 +33,41 @@
 					<v-icon left>mdi-delete</v-icon>Șterge ({{ selectedUsers.length }})
 				</v-btn>
 			</div>
+		</div>
 
 		<v-data-table
-			:headers="headers"
+			:headers="headersToUse"
 			:items="users"
 			:loading="loading"
 			loading-text="Se încarcă utilizatorii..."
-			class="elevation-1 custom-table"
+			class="custom-table"
 			item-value="id"
 			return-object
 			v-model="selectedUsers"
 			:show-select="selectionMode"
-			:item-class="getRowClass"
-		/>
+			:page="pagination.page"
+			:items-per-page="pagination.itemsPerPage"
+			@update:page="pagination.page = $event"
+			@update:items-per-page="pagination.itemsPerPage = $event"
+			show-current-page
+			items-per-page-text="Elemente pe pagină"
+			no-data-text="Nu există utilizatori"
+		>	
+			<template v-slot:[`item.placeholder`]>
+			</template>
+
+			<template v-slot:bottom>
+				<div class="pagination-container">
+					<span class="pagination-label">Pagina anterioară</span>
+					<v-pagination
+						v-model="pagination.page"
+						:length="Math.ceil(users.length / pagination.itemsPerPage)"
+						total-visible="7"
+					/>
+					<span class="pagination-label">Pagina următoare</span>
+				</div>
+			</template>
+		</v-data-table>
 	</v-card>
 
 	<!-- Delete confirmation -->
@@ -64,10 +97,11 @@
 .user-list-card {
 	padding: 24px;
 	width: 100%;
-	max-width: 900px;
-	border-radius: 12px;
-	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-	background: white;
+	max-width: 60%;
+	height: fit-content;
+	background-color: white;
+	box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+	margin: auto;
 }
 
 .section-title {
@@ -86,17 +120,46 @@
 	margin-bottom: 16px;
 }
 
-.custom-table ::v-deep(.v-data-table__td) {
-	padding: 16px !important;
-	height: 60px !important;
+.table-toolbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+	gap: 12px;
 }
 
-.v-data-table__selected {
-	background-color: #e0e0e0 !important;
+.items-per-page {
+	max-width: 160px;
 }
 
-.highlight-row {
-	background-color: #e0e0e0 !important;
+.custom-table {
+	overflow: hidden;
+	border: 1px solid #e0e0e0;
+	box-shadow: none !important;
+}
+
+.custom-table :deep(.v-data-table__td) {
+	height: 80px !important;
+}
+
+.custom-table :deep(.v-data-table__th) {
+  font-weight: 600;
+}
+
+.pagination-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.pagination-label {
+	font-size: 14px;
+	font-weight: 500;
+	color: #333;
 }
 
 </style>

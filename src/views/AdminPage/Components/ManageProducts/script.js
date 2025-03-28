@@ -15,7 +15,12 @@ export default {
 			},
 			categories: [],
 			allergens: [],
+			pagination: {
+				page: 1,
+				itemsPerPage: 10,
+			},
 			headers: [
+				{ title: "", value: "placeholder", sortable: false, width: "56px"},
 				{ title: "Nume", value: "name", sortable: true },
 				{ title: "Brand", value: "brand", sortable: true },
 				{ title: "Cantitate", value: "weight" },
@@ -26,6 +31,13 @@ export default {
 				{ title: "Acțiuni", value: "actions", sortable: false, width: "112px" },
 			]
 		};
+	},
+	computed: {
+		headersToUse() {
+			return this.selectionMode
+				? this.headers.filter(h => h.value !== "placeholder")
+				: this.headers;
+		}
 	},
 	created() {
 		this.fetchProducts();

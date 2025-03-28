@@ -7,7 +7,7 @@ export default {
 			selectedUsers: [],
 			showConfirmDialog: false,
 			headers: [
-				{ title: "Id unic", key: "id", align: "start", sortable: true },
+				{ title: "", value: "placeholder", sortable: false, width: "56px"},
 				{ title: "Nume de utilizator", key: "username", sortable: true },
 				{ title: "Email", key: "email", sortable: true },
 				{ title: "Data înregistrării", key: "created_at", sortable: true }
@@ -17,7 +17,18 @@ export default {
 				message: "",
 				color: "success",
 			},
+			pagination: {
+				page: 1,
+				itemsPerPage: 10,
+			},
 		};
+	},
+	computed: {
+		headersToUse() {
+			return this.selectionMode
+				? this.headers.filter(h => h.value !== "placeholder")
+				: this.headers;
+		}
 	},
 	created() {
 		this.fetchUsers();
@@ -41,6 +52,7 @@ export default {
 
 			} catch (err) {
 				console.error("Eroare la obținerea utilizatorilor:", err);
+				this.showSnackbar("Eroare la încărcarea utilizatorilor", "error");
 			} finally {
 				this.loading = false;
 			}
@@ -86,9 +98,6 @@ export default {
 			this.snackbar.message = message;
 			this.snackbar.color = color;
 			this.snackbar.show = true;
-		},
-		getRowClass(item) {
-			return this.selectedUsers.includes(item) ? 'highlight-row' : '';
 		}
 	},
 };

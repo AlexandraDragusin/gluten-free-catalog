@@ -83,6 +83,7 @@
 .upload-button {
 	background-color: #F7B41A;
 	margin-top: 16px;
+	font-size: 16px;
 	width: 100%;
 	color: #312B1D;
 	text-transform: none;

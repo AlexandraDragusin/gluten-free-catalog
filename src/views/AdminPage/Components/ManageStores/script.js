@@ -13,7 +13,12 @@ export default {
 				message: "",
 				color: "success",
 			},
+			pagination: {
+				page: 1,
+				itemsPerPage: 10,
+			},
 			headers: [
+				{ title: "", value: "placeholder", sortable: false, width: "56px"},
 				{ title: "Logo", value: "logo_url" },
 				{ title: "Nume", value: "name", sortable: true },
 				{ title: "Tip", value: "type_display", sortable: false },
@@ -23,6 +28,13 @@ export default {
 				{ title: "Acțiuni", value: "actions", sortable: false }
 			]
 		};
+	},
+	computed: {
+		headersToUse() {
+			return this.selectionMode
+				? this.headers.filter(h => h.value !== "placeholder")
+				: this.headers;
+		}
 	},
 	created() {
 		this.fetchStores();
