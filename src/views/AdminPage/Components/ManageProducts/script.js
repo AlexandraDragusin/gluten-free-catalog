@@ -19,6 +19,31 @@ export default {
 				page: 1,
 				itemsPerPage: 10,
 			},
+			storeOptions: [],
+			filterDraft: {
+				name: '',
+				brand: '',
+				categories: [],
+				made_in_romania: null,
+				certified_arig: null,
+				producer_gluten_declaration: null,
+				cross_grain_cert: '',
+				excluded_allergens: [],
+				stores: []
+			},
+			filters: {
+				name: '',
+				brand: '',
+				categories: [],
+				made_in_romania: null,
+				certified_arig: null,
+				producer_gluten_declaration: null,
+				cross_grain_cert: '',
+				excluded_allergens: [],
+				stores: []
+			},
+			filteredProducts: [],
+			showFilterDialog: false,
 			headers: [
 				{ title: "", value: "placeholder", sortable: false, width: "56px"},
 				{ title: "Nume", value: "name", sortable: true },
@@ -37,19 +62,27 @@ export default {
 			return this.selectionMode
 				? this.headers.filter(h => h.value !== "placeholder")
 				: this.headers;
+		},
+		hasActiveFilters() {
+			return Object.values(this.filterDraft).some(v => {
+				if (Array.isArray(v)) return v.length > 0;
+				return v !== '' && v !== null;
+			});
 		}
 	},
 	created() {
 		this.fetchProducts();
 		this.fetchAllergens();
 		this.fetchCategories();
+		this.fetchStores();
 	},
 	methods: {
 		async fetchProducts() {
 			try {
 				const res = await fetch("http://localhost:5000/api/products");
 				const data = await res.json();
-				this.products = data.map(p => {
+
+				const mappedProducts  = data.map(p => {
 					const names = p.allergen_tags
 						.map(code => {
 							const found = this.allergens.find(a => a.code === code);
@@ -57,9 +90,27 @@ export default {
 						});
 					return {
 						...p,
-						allergen_tags_display: names.join(", ")
+						allergen_tags_display: names.join(", "),
+						stores: []
 					};
 				});
+
+				// Fetch stores for each product
+				await Promise.all(mappedProducts.map(async (product) => {
+					try {
+						const resStores = await fetch(`http://localhost:5000/api/product_stores/${product.id}`);
+						if (!resStores.ok) return;
+		
+						const storeData = await resStores.json();
+						product.stores = storeData.map(s => s.id);
+					} catch (err) {
+						console.error("Eroare la fetch stores for product", product.id, err);
+					}
+				}));
+
+				this.products = mappedProducts;
+
+				this.applyFilters();
 			} catch (err) {
 				console.error("Eroare la preluarea produselor:", err);
 			}
@@ -81,6 +132,15 @@ export default {
 			} catch (err) {
 				console.error("Eroare la preluarea alergenilor:",
 				err);
+			}
+		},
+		async fetchStores() {
+			try {
+				const res = await fetch("http://localhost:5000/api/stores");
+				const data = await res.json();
+				this.storeOptions = data;
+			} catch (err) {
+				console.error("Eroare la preluarea magazinelor:", err);
 			}
 		},
 		editProduct(product) {
@@ -166,10 +226,92 @@ export default {
 				this.showConfirmDialog = false;
 			}
 		},
+		applyFilters() {
+			this.filteredProducts = this.products.filter(product => {
+				const {
+					name,
+					brand,
+					categories,
+					made_in_romania,
+					certified_arig,
+					producer_gluten_declaration,
+					cross_grain_cert,
+					excluded_allergens,
+					stores
+				} = this.filters;
+
+				const matchesName = !name || product.name?.toLowerCase().includes(name.toLowerCase());
+				const matchesBrand = !brand || product.brand?.toLowerCase().includes(brand.toLowerCase());
+				const matchesMadeInRo = made_in_romania === null || product.made_in_romania === made_in_romania;
+				const matchesCertArig = certified_arig === null || product.certified_arig === certified_arig;
+				const matchesDecl = producer_gluten_declaration === null || product.producer_gluten_declaration === producer_gluten_declaration;
+				const matchesCrossGrain = !cross_grain_cert || (product.cross_grain_cert_code || '').toLowerCase().includes(cross_grain_cert.toLowerCase());
+				const matchesCategory = categories.length === 0 || categories.includes(product.category);
+				const excludedCodes = excluded_allergens.map(tag => typeof tag === 'string' ? tag : tag.code);
+				const matchesAllergens = excludedCodes.length === 0 || !excludedCodes.some(code => product.allergen_tags.includes(code));
+				const matchesStores = stores.length === 0 || stores.some(storeId => product.stores?.includes(storeId));
+				return matchesName && matchesBrand && matchesMadeInRo && matchesCertArig &&
+					matchesDecl && matchesCrossGrain && matchesCategory &&
+					matchesAllergens && matchesStores;
+			});
+		},
+		openFilterDialog() {
+			this.filterDraft = JSON.parse(JSON.stringify(this.filters));
+			this.showFilterDialog = true;
+		},
+		applyFilterDialog() {
+			this.filters = {
+				...this.filterDraft,
+				excluded_allergens: this.filterDraft.excluded_allergens.map(tag =>
+					typeof tag === 'string' ? tag : tag.code
+				)
+			};
+
+			this.showFilterDialog = false;
+			this.applyFilters();
+		},
+		resetFilters() {
+			this.filterDraft = {
+				name: '',
+				brand: '',
+				categories: [],
+				made_in_romania: null,
+				certified_arig: null,
+				producer_gluten_declaration: null,
+				cross_grain_cert: '',
+				excluded_allergens: [],
+				stores: []
+			};
+
+			this.filters = { ...this.filterDraft };
+			this.applyFilters();
+		},
 		showSnackbar(message, color = "success") {
 			this.snackbar.message = message;
 			this.snackbar.color = color;
 			this.snackbar.show = true;
-		}
+		},
+		getEmptyFilter() {
+			return {
+				name: '',
+				brand: '',
+				categories: [],
+				made_in_romania: null,
+				certified_arig: null,
+				producer_gluten_declaration: null,
+				cross_grain_cert: '',
+				excluded_allergens: [],
+				stores: []
+			};
+		},
+		toggleSwitch(field) {
+			if (this.filterDraft[field] === null) {
+				this.filterDraft[field] = true;
+			} else if (this.filterDraft[field] === true) {
+				this.filterDraft[field] = false;
+			} else {
+				this.filterDraft[field] = null;
+			}
+		},
 	}
 };

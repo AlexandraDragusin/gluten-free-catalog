@@ -5,41 +5,54 @@
 
 		<!-- Toolbar -->
 		<div class="table-toolbar">
-			<v-select
-				v-model="pagination.itemsPerPage"
-				:items="[5, 10, 25, 50]"
-				class="items-per-page"
-				label="Elemente pe pagină"
-				density="compact"
-				variant="outlined"
-				hide-details
-			/>
+			<!-- Filter section actions-->
+			<div class="toolbar-group">
+				<v-btn
+					:disabled="selectionMode"
+					variant="tonal"
+					@click="openFilterDialog"
+					prepend-icon="mdi-filter-variant"
+				>
+					Filtrează
+				</v-btn>
 
-			<div class="action-buttons" v-if="!selectionMode">
-				<v-btn @click="selectionMode = true">
-					<v-icon left>mdi-check</v-icon>Selectează
+				<v-btn
+					v-if="hasActiveFilters"
+					:disabled="selectionMode"
+					variant="tonal"
+					prepend-icon="mdi-close-circle"
+					@click="resetFilters"
+				>
+					Resetează filtrele
 				</v-btn>
 			</div>
 
-			<div class="action-buttons" v-else>
-				<v-btn @click="cancelSelection">
-					<v-icon left>mdi-close</v-icon>Anulează
-				</v-btn>
-				<v-btn
-					color="grey"
-					variant="tonal"
-					:disabled="selectedStores.length === 0"
-					@click="showConfirmDialog = true"
-				>
-					<v-icon left>mdi-delete</v-icon>Șterge ({{ selectedStores.length }})
-				</v-btn>
+			<div class="toolbar-group action-buttons">
+				<div class="action-buttons" v-if="!selectionMode">
+					<v-btn @click="selectionMode = true">
+						<v-icon left>mdi-check</v-icon>Selectează
+					</v-btn>
+				</div>
+
+				<div class="action-buttons" v-else>
+					<v-btn @click="cancelSelection">
+						<v-icon left>mdi-close</v-icon>Anulează
+					</v-btn>
+					<v-btn
+						variant="tonal"
+						:disabled="selectedStores.length === 0"
+						@click="showConfirmDialog = true"
+					>
+						<v-icon left>mdi-delete</v-icon>Șterge ({{ selectedStores.length }})
+					</v-btn>
+				</div>
 			</div>
 		</div>
 
 		<!-- Data -->
 		<v-data-table
 			:headers="headersToUse"
-			:items="stores"
+			:items="filteredStores"
 			item-value="id"
 			class="custom-table"
 			return-object
@@ -73,7 +86,7 @@
 					<span class="pagination-label">Pagina anterioară</span>
 					<v-pagination
 						v-model="pagination.page"
-						:length="Math.ceil(stores.length / pagination.itemsPerPage)"
+						:length="Math.ceil(filteredStores.length / pagination.itemsPerPage)"
 						total-visible="7"
 					/>
 					<span class="pagination-label">Pagina următoare</span>
@@ -138,6 +151,67 @@
 			</v-card>
 		</v-dialog>
 
+		<!-- Filter dialog -->
+		<v-dialog v-model="showFilterDialog" max-width="500">
+			<v-card>
+				<v-card-title>Filtre</v-card-title>
+				<v-card-text>
+				<v-text-field v-model="filterDraft.search" label="Caută după nume" variant="outlined" />
+
+				<v-select
+					v-model="filterDraft.type"
+					:items="filterOptions.types"
+					label="Tip magazin"
+					variant="outlined"
+				/>
+
+				<v-select
+					v-model="filterDraft.arig_partner"
+					:items="[
+					{ title: 'Toate', value: null },
+					{ title: 'Partener ARIG', value: true },
+					{ title: 'Ne-partener', value: false }
+					]"
+					item-title="title"
+					item-value="value"
+					label="Partener ARIG"
+					variant="outlined"
+				/>
+
+				<v-select
+					v-model="filterDraft.city"
+					:items="filterOptions.cities"
+					label="Oraș"
+					variant="outlined"
+					clearable
+				/>
+
+				<v-select
+					v-model="filterDraft.country"
+					:items="filterOptions.countries"
+					label="Țară"
+					variant="outlined"
+					clearable
+				/>
+
+				<v-combobox
+					v-model="filterDraft.categories"
+					:items="filterOptions.categories"
+					label="Categorii"
+					multiple
+					variant="outlined"
+					clearable
+				/>
+				</v-card-text>
+
+				<v-card-actions>
+				<v-spacer />
+				<v-btn text @click="showFilterDialog = false">Anulează</v-btn>
+				<v-btn color="primary" @click="applyFilterDialog">Aplică</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
 		<!-- Snackbar -->
 		<v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="3000">
 			{{ snackbar.message }}
@@ -183,8 +257,10 @@
 	gap: 12px;
 }
 
-.items-per-page {
-	max-width: 160px;
+.toolbar-group {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .custom-table {

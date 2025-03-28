@@ -3,6 +3,30 @@ export default {
 	data() {
 		return {
 			stores: [],
+			showFilterDialog: false,
+			filters: {
+				search: '',
+				type: '',
+				arig_partner: null,
+				city: '',
+				country: '',
+				categories: []
+			},
+			filterOptions: {
+				types: ['physical', 'online', 'mixed', 'restaurant'],
+				cities: [],
+				countries: [],
+				categories: []
+			},
+			filterDraft: {
+				search: '',
+				type: '',
+				arig_partner: null,
+				city: '',
+				country: '',
+				categories: []
+			},
+			filteredStores: [],
 			selectedStores: [],
 			selectionMode: false,
 			showConfirmDialog: false,
@@ -34,12 +58,54 @@ export default {
 			return this.selectionMode
 				? this.headers.filter(h => h.value !== "placeholder")
 				: this.headers;
+		},
+		hasActiveFilters() {
+			const f = this.filters;
+			return (
+				f.search ||
+				f.type ||
+				f.arig_partner !== null ||
+				f.city ||
+				f.country ||
+				(f.categories && f.categories.length > 0)
+			);
+		}
+	},
+	watch: {
+		stores: {
+			handler() {
+				this.applyFilters();
+			},
+			deep: true,
+			immediate: true
 		}
 	},
 	created() {
 		this.fetchStores();
 	},
 	methods: {
+		applyFilters() {
+			this.filteredStores = this.stores.filter(store => {
+				const matchesSearch = !this.filters.search || store.name.toLowerCase().includes(this.filters.search.toLowerCase());
+				const matchesType = !this.filters.type || store.type === this.filters.type;
+				const matchesPartner = this.filters.arig_partner === null || store.arig_partner === this.filters.arig_partner;
+				const matchesCity = !this.filters.city || (store.addresses || []).some(addr => addr.city === this.filters.city);
+				const matchesCountry = !this.filters.country || (store.addresses || []).some(addr => addr.country === this.filters.country);
+				const matchesCategories =
+					this.filters.categories.length === 0 ||
+					(this.filters.categories.some(cat => store.categories?.includes(cat)));
+				return matchesSearch && matchesType && matchesPartner && matchesCity && matchesCountry && matchesCategories;
+			});
+		},
+		applyFilterDialog() {
+			this.filters = JSON.parse(JSON.stringify(this.filterDraft));
+			this.showFilterDialog = false;
+			this.applyFilters();
+		},
+		openFilterDialog() {
+			this.filterDraft = JSON.parse(JSON.stringify(this.filters));
+			this.showFilterDialog = true;
+		},
 		async fetchStores() {
 			try {
 				const res = await fetch("http://localhost:5000/api/stores");
@@ -54,6 +120,17 @@ export default {
 							restaurant: "Restaurant"
 					}[store.type] || store.type
 				}));
+
+				this.filterOptions.cities = [
+					...new Set(data.flatMap(store => store.addresses?.map(addr => addr.city).filter(Boolean)))
+				];
+				
+				this.filterOptions.countries = [
+					...new Set(data.flatMap(store => store.addresses?.map(addr => addr.country).filter(Boolean)))
+				];
+
+				const allCategories = data.flatMap(store => store.categories || []);
+				this.filterOptions.categories = [...new Set(allCategories)];
 
 			} catch (err) {
 				console.error("Eroare la preluarea magazinelor:", err);
@@ -137,6 +214,18 @@ export default {
 			this.snackbar.message = message;
 			this.snackbar.color = color;
 			this.snackbar.show = true;
+		},
+		resetFilters() {
+			this.filters = {
+				search: '',
+				type: '',
+				arig_partner: null,
+				city: '',
+				country: '',
+				categories: []
+			};
+			this.filterDraft = { ...this.filters };
+			this.applyFilters();
 		}
 	}
 };

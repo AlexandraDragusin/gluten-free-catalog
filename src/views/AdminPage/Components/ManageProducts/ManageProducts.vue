@@ -5,41 +5,55 @@
 
 		<!-- Toolbar -->
 		<div class="table-toolbar">
-			<v-select
-				v-model="pagination.itemsPerPage"
-				:items="[5, 10, 25, 50]"
-				class="items-per-page"
-				label="Elemente pe pagină"
-				density="compact"
-				variant="outlined"
-				hide-details
-			/>
+			<!-- Filter section actions-->
+			<div class="toolbar-group">
+				<v-btn
+					:disabled="selectionMode"
+					variant="tonal"
+					@click="openFilterDialog"
+					prepend-icon="mdi-filter-variant"
+				>
+					Filtrează
+				</v-btn>
 
-			<div class="action-buttons" v-if="!selectionMode">
-				<v-btn @click="selectionMode = true">
-					<v-icon left>mdi-check</v-icon>Selectează
+				<v-btn
+					v-if="hasActiveFilters"
+					:disabled="selectionMode"
+					variant="tonal"
+					prepend-icon="mdi-close-circle"
+					@click="resetFilters"
+				>
+					Resetează filtrele
 				</v-btn>
 			</div>
 
-			<div class="action-buttons" v-else>
-				<v-btn @click="cancelSelection">
-					<v-icon left>mdi-close</v-icon>Anulează
-				</v-btn>
-				<v-btn
-					color="grey"
-					variant="tonal"
-					:disabled="selectedProducts.length === 0"
-					@click="showConfirmDialog = true"
-				>
-					<v-icon left>mdi-delete</v-icon>Șterge ({{ selectedProducts.length }})
-				</v-btn>
+			<div class="toolbar-group action-buttons">
+				<div class="action-buttons" v-if="!selectionMode">
+					<v-btn @click="selectionMode = true">
+						<v-icon left>mdi-check</v-icon>Selectează
+					</v-btn>
+				</div>
+
+				<div class="action-buttons" v-else>
+					<v-btn @click="cancelSelection">
+						<v-icon left>mdi-close</v-icon>Anulează
+					</v-btn>
+					<v-btn
+						color="grey"
+						variant="tonal"
+						:disabled="selectedProducts.length === 0"
+						@click="showConfirmDialog = true"
+					>
+						<v-icon left>mdi-delete</v-icon>Șterge ({{ selectedProducts.length }})
+					</v-btn>
+				</div>
 			</div>
 		</div>
 
 		<!-- Data -->
 		<v-data-table
 			:headers="headersToUse"
-			:items="products"
+			:items="filteredProducts"
 			class="custom-table"
 			item-value="id"
 			return-object
@@ -77,7 +91,7 @@
 					<span class="pagination-label">Pagina anterioară</span>
 					<v-pagination
 						v-model="pagination.page"
-						:length="Math.ceil(products.length / pagination.itemsPerPage)"
+						:length="Math.ceil(filteredProducts.length / pagination.itemsPerPage)"
 						total-visible="7"
 					/>
 					<span class="pagination-label">Pagina următoare</span>
@@ -143,6 +157,93 @@
 		</v-card>
 	</v-dialog>
 
+	<!-- Filter dialog -->
+	<v-dialog v-model="showFilterDialog" max-width="600">
+		<v-card>
+			<v-card-title>Filtre produse</v-card-title>
+			<v-card-text>
+			<v-text-field
+				v-model="filterDraft.name"
+				label="Caută numele produsului"
+				variant="outlined"
+			/>
+
+			<v-text-field
+				v-model="filterDraft.brand"
+				label="Caută numele brandului"
+				variant="outlined"
+			/>
+
+			<v-select
+				v-model="filterDraft.categories"
+				:items="categories"
+				label="Categorii"
+				variant="outlined"
+				multiple
+				clearable
+			/>
+
+			<v-switch
+				v-model="filterDraft.made_in_romania"
+				label="Fabricat în România"
+				inset
+				:indeterminate="filterDraft.made_in_romania === null"
+				@click="toggleSwitch('made_in_romania')"
+			/>
+
+			<v-switch
+				v-model="filterDraft.certified_arig"
+				label="Certificat ARIG"
+				inset
+				:indeterminate="filterDraft.certified_arig === null"
+				@click="toggleSwitch('certified_arig')"
+			/>
+
+			<v-switch
+				v-model="filterDraft.producer_gluten_declaration"
+				label="Declarație producător fără gluten"
+				inset
+				:indeterminate="filterDraft.producer_gluten_declaration === null"
+				@click="toggleSwitch('producer_gluten_declaration')"
+			/>
+
+			<v-text-field
+				v-model="filterDraft.cross_grain_cert"
+				label="Certificat Crossed Grain (conține)"
+				variant="outlined"
+			/>
+
+			<v-combobox
+				v-model="filterDraft.excluded_allergens"
+				:items="allergens"
+				item-title="name"
+				item-value="code"
+				label="Exclude alergeni"
+				multiple
+				chips
+				clearable
+				variant="outlined"
+			/>
+
+			<v-select
+				v-model="filterDraft.stores"
+				:items="storeOptions"
+				item-title="name"
+				item-value="id"
+				label="Magazine"
+				multiple
+				clearable
+				variant="outlined"
+			/>
+			</v-card-text>
+			<v-card-actions>
+			<v-spacer />
+			<v-btn text @click="showFilterDialog = false">Anulează</v-btn>
+			<v-btn color="primary" @click="applyFilterDialog">Aplică</v-btn>
+			</v-card-actions>
+		</v-card>
+	</v-dialog>
+
 	<!-- Snackbar -->
 	<v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="3000">
 		{{ snackbar.message }}
@@ -186,8 +287,10 @@
 	gap: 12px;
 }
 
-.items-per-page {
-	max-width: 160px;
+.toolbar-group {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .custom-table {

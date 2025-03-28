@@ -20,21 +20,21 @@ router.post("/", async (req, res) => {
 
 // Get all stores for a product
 router.get("/:product_id", async (req, res) => {
-    const { product_id } = req.params;
+	const { product_id } = req.params;
 
-    try {
-        const result = await pool.query(
-            `SELECT s.id, s.name, s.address, s.website 
-            FROM stores s
-            JOIN product_stores ps ON s.id = ps.store_id
-            WHERE ps.product_id = $1`,
-            [product_id]
-        );
-        res.json(result.rows);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: "Eroare la server" });
-    }
+	try {
+		const result = await pool.query(
+			`SELECT s.id, s.name, s.website, s.logo_url, s.type
+			FROM stores s
+			JOIN product_stores ps ON s.id = ps.store_id
+			WHERE ps.product_id = $1`,
+			[product_id]
+		);
+		res.json(result.rows);
+	} catch (err) {
+		console.error("Eroare în GET /product_stores/:product_id", err.message);
+		res.status(500).json({ error: "Eroare la server" });
+	}
 });
 
 // Remove a product from a store
