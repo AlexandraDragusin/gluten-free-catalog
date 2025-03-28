@@ -56,6 +56,8 @@
 
 						<!-- Error message -->
 						<p v-if="registerError" class="error-text">Eroare la înregistrare! Verifică datele introduse.</p>
+
+						<button type="submit" @click.prevent="handleRegister" style="display: none;"></button>
 					</v-form>
 				</v-card-text>
 			</div>

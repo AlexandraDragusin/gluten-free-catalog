@@ -7,8 +7,7 @@ export default {
 			loading: false,
 			loginError: false,
 			rules: {
-				required: (value) => !!value || "Câmp obligatoriu",
-				email: (value) => /.+@.+\..+/.test(value) || "Email invalid"
+				required: (value) => !!value || "Câmp obligatoriu"
 			},
 		};
 	},

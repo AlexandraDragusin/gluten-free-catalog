@@ -15,7 +15,7 @@
 						variant="outlined"
 						density="comfortable"
 						prepend-inner-icon="mdi-email"
-						:rules="[rules.required, rules.email]"
+						:rules="[rules.required]"
 					/>
 
 					<!-- Password input -->
@@ -33,6 +33,8 @@
 
 					<!-- Error message -->
 					<p v-if="loginError" class="error-text">Email sau parolă incorectă!</p>
+
+					<button type="submit" @click.prevent="handleLogin" style="display: none;"></button>
 				</v-form>
 			</v-card-text>
 		</div>
