@@ -27,7 +27,6 @@ export default {
 				made_in_romania: null,
 				certified_arig: null,
 				producer_gluten_declaration: null,
-				cross_grain_cert: '',
 				excluded_allergens: [],
 				stores: []
 			},
@@ -38,7 +37,6 @@ export default {
 				made_in_romania: null,
 				certified_arig: null,
 				producer_gluten_declaration: null,
-				cross_grain_cert: '',
 				excluded_allergens: [],
 				stores: []
 			},
@@ -235,7 +233,6 @@ export default {
 					made_in_romania,
 					certified_arig,
 					producer_gluten_declaration,
-					cross_grain_cert,
 					excluded_allergens,
 					stores
 				} = this.filters;
@@ -245,13 +242,12 @@ export default {
 				const matchesMadeInRo = made_in_romania === null || product.made_in_romania === made_in_romania;
 				const matchesCertArig = certified_arig === null || product.certified_arig === certified_arig;
 				const matchesDecl = producer_gluten_declaration === null || product.producer_gluten_declaration === producer_gluten_declaration;
-				const matchesCrossGrain = !cross_grain_cert || (product.cross_grain_cert_code || '').toLowerCase().includes(cross_grain_cert.toLowerCase());
 				const matchesCategory = categories.length === 0 || categories.includes(product.category);
 				const excludedCodes = excluded_allergens.map(tag => typeof tag === 'string' ? tag : tag.code);
 				const matchesAllergens = excludedCodes.length === 0 || !excludedCodes.some(code => product.allergen_tags.includes(code));
 				const matchesStores = stores.length === 0 || stores.some(storeId => product.stores?.includes(storeId));
 				return matchesName && matchesBrand && matchesMadeInRo && matchesCertArig &&
-					matchesDecl && matchesCrossGrain && matchesCategory &&
+					matchesDecl && matchesCategory &&
 					matchesAllergens && matchesStores;
 			});
 		},
@@ -278,7 +274,6 @@ export default {
 				made_in_romania: null,
 				certified_arig: null,
 				producer_gluten_declaration: null,
-				cross_grain_cert: '',
 				excluded_allergens: [],
 				stores: []
 			};
@@ -299,7 +294,6 @@ export default {
 				made_in_romania: null,
 				certified_arig: null,
 				producer_gluten_declaration: null,
-				cross_grain_cert: '',
 				excluded_allergens: [],
 				stores: []
 			};

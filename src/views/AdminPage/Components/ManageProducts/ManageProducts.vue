@@ -207,12 +207,6 @@
 				@click="toggleSwitch('producer_gluten_declaration')"
 			/>
 
-			<v-text-field
-				v-model="filterDraft.cross_grain_cert"
-				label="Certificat Crossed Grain (conține)"
-				variant="outlined"
-			/>
-
 			<v-combobox
 				v-model="filterDraft.excluded_allergens"
 				:items="allergens"

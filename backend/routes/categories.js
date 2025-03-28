@@ -50,7 +50,6 @@ router.delete("/:name", authenticateToken, async (req, res) => {
 	const { name } = req.params;
 
 	try {
-		// Verifică dacă categoria este folosită în produse
 		const result = await pool.query("SELECT COUNT(*) FROM products WHERE category = $1", [name]);
 		if (parseInt(result.rows[0].count) > 0) {
 			return res.status(400).json({ error: "Categoria nu poate fi ștearsă deoarece este folosită de produse." });

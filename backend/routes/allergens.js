@@ -3,7 +3,7 @@ const router = express.Router();
 const authenticateToken = require("../middleware/authMiddleware");
 const pool = require("../db");
 
-// GET toti alergenii
+// GET
 router.get("/", async (req, res) => {
 	try {
 		const result = await pool.query("SELECT code, name FROM allergens ORDER BY name");
@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
 	}
 });
 
-// POST - adaugă un alergen nou
+// POST
 router.post("/", authenticateToken, async (req, res) => {
 	if (req.user.role !== "admin") return res.status(403).json({ error: "Acces interzis" });
 
@@ -35,7 +35,7 @@ router.post("/", authenticateToken, async (req, res) => {
 	}
 });
 
-// PUT - actualizează un alergen
+// PUT
 router.put("/:code", authenticateToken, async (req, res) => {
 	if (req.user.role !== "admin") return res.status(403).json({ error: "Acces interzis" });
 
@@ -63,7 +63,7 @@ router.put("/:code", authenticateToken, async (req, res) => {
 	}
 });
 
-// DELETE - șterge un alergen
+// DELETE
 router.delete("/:code", authenticateToken, async (req, res) => {
 	if (req.user.role !== "admin") return res.status(403).json({ error: "Acces interzis" });
 
