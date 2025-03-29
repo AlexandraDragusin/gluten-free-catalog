@@ -12,7 +12,7 @@ const routes = [
 	{ path: "/login", name: "Login", component: LoginPage },
 	{ path: "/register", name: "Register", component: RegisterPage },
 	{ path: "/profile", name: "Profile", component: ProfilePage },
-	{ path: '/admin', name: 'AdminPage', component: AdminPage }
+	{ path: '/admin', name: 'AdminPage', component: AdminPage, meta: { requiresAuth: true, requiresAdmin: true } }
 ];
 
 const router = createRouter({
@@ -22,10 +22,16 @@ const router = createRouter({
 
 // Navigation Guard (Redirect if not logged in)
 router.beforeEach((to, from, next) => {
-	const isLoggedIn = !!localStorage.getItem("token");
+	const token = localStorage.getItem("token");
+	const role = localStorage.getItem("role");
+
+	const isLoggedIn = !!token;
+	const isAdmin = role === "admin";
 
 	if (to.meta.requiresAuth && !isLoggedIn) {
 		next("/login");
+	} else if (to.meta.requiresAdmin && !isAdmin) {
+		next("/");
 	} else {
 		next();
 	}
