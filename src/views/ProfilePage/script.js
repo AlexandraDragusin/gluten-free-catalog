@@ -57,8 +57,11 @@ export default {
 					throw new Error("Failed to load profile");
 				}
 
-				this.user = await response.json();
-				console.log("User profile:", this.user);
+				const rawUser = await response.json();
+				this.user = {
+					...rawUser,
+					profilePicture: rawUser.profile_picture
+				};
 
 			} catch (error) {
 				console.error("Error fetching user profile:", error);

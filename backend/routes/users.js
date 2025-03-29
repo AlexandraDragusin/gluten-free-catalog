@@ -5,6 +5,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 
+const multer = require("multer");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
+
+// Multer middleware
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 /** 
  * Generates a JWT token.
  */
@@ -119,6 +127,69 @@ router.put("/update", authenticateToken, async (req, res) => {
 	} catch (err) {
 		console.error("Error updating profile:", err);
 		res.status(500).json({ error: "Eroare la server" });
+	}
+});
+
+/**
+ * Upload user profile picture. This route is protected and requires a valid JWT token
+ */
+router.post("/upload-profile-picture", authenticateToken, upload.single("profilePicture"), async (req, res) => {
+	try {
+		const userId = req.user.id;
+
+		if (!req.file) {
+			return res.status(400).json({ error: "Niciun fișier trimis" });
+		}
+
+		// Upload to cloudinary from buffer
+		const streamUpload = (req) => {
+			return new Promise((resolve, reject) => {
+				const stream = cloudinary.uploader.upload_stream(
+					{ folder: "profile_pictures" },
+					(error, result) => {
+						if (result) {
+							resolve(result);
+						} else {
+							reject(error);
+						}
+					}
+				);
+				streamifier.createReadStream(req.file.buffer).pipe(stream);
+			});
+		};
+
+		const result = await streamUpload(req);
+
+		// Save URL to DB
+		await pool.query(
+			"UPDATE users SET profile_picture = $1 WHERE id = $2",
+			[result.secure_url, userId]
+		);
+
+		res.json({ imageUrl: result.secure_url });
+
+	} catch (err) {
+		console.error("Upload error:", err);
+		res.status(500).json({ error: "Eroare la încărcarea imaginii" });
+	}
+});
+
+/**
+ * Delete user profile picture. This route is protected and requires a valid JWT token
+ */
+router.delete("/profile-picture", authenticateToken, async (req, res) => {
+	try {
+		const userId = req.user.id;
+
+		const result = await pool.query(
+			"UPDATE users SET profile_picture = NULL WHERE id = $1 RETURNING id, username, email, role",
+			[userId]
+		);
+
+		res.json({ message: "Imaginea de profil a fost ștearsă", user: result.rows[0] });
+	} catch (err) {
+		console.error("Eroare la ștergerea imaginii:", err);
+		res.status(500).json({ error: "Eroare server la ștergerea imaginii" });
 	}
 });
 

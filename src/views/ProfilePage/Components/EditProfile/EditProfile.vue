@@ -4,11 +4,16 @@
 
 		<!-- Profile Picture -->
 		<v-card-text class="profile-picture-section">
-			<v-avatar size="100">
+			<v-avatar size="200">
 				<v-img v-if="user?.profilePicture" :src="user?.profilePicture" alt="Profile Picture"></v-img>
 				<v-icon v-else class="default-avatar">mdi-account</v-icon>
 			</v-avatar>
-			<v-btn class="upload-button" variant="outlined" @click="triggerFileInput">Schimbă imaginea</v-btn>
+
+			<div class="picture-buttons">
+				<v-btn class="picture-btn" variant="outlined" @click="triggerFileInput">Schimbă imaginea</v-btn>
+				<v-btn class="picture-btn" variant="outlined" @click="deleteProfilePicture">Șterge imaginea</v-btn>
+			</div>
+
 			<input type="file" ref="fileInput" @change="uploadProfilePicture" hidden />
 		</v-card-text>
 
@@ -53,6 +58,17 @@
 			</form>
 		</v-card-text>
 	</v-card>
+
+	<!-- Snackbar -->
+	<v-snackbar
+		v-model="snackbar.show"
+		:color="snackbar.color"
+		timeout="3000"
+		location="top"
+		class="custom-snackbar"
+	>
+		{{ snackbar.message }}
+	</v-snackbar>
 </template>
 
 
@@ -95,6 +111,19 @@
 	color: #312B1D;
 }
 
+.picture-buttons {
+	display: flex;
+	gap: 12px;
+	margin-top: 12px;
+	width: 70%;
+	justify-content: center;
+}
+
+.picture-btn {
+	flex: 1;
+	text-transform: none;
+}
+
 .save-button {
 	margin-top: 16px;
 	background-color: #F7B41A;
@@ -102,5 +131,13 @@
 	font-size: 16px;
 	text-transform: none;
 	width: 100%;
+}
+
+.custom-snackbar {
+	justify-content: center;
+	width: 100%;
+	padding: 12px;
+	border-radius: 8px;
+	box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 </style>

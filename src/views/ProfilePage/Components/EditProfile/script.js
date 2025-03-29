@@ -6,8 +6,14 @@ export default {
 		return {
 			password: "",
 			showPassword: false,
+			snackbar: {
+				show: false,
+				message: "",
+				color: "success"
+			},
 		};
 	},
+	emits: ["profile-updated"],
 	methods: {
 		async updateProfile() {
 			try {
@@ -48,7 +54,6 @@ export default {
 				console.error("Error updating profile:", error);
 			}
 		},
-		// Function to upload profile picture (Backend API should handle the storage)
 		async uploadProfilePicture(event) {
 			const file = event.target.files[0];
 			if (!file) return;
@@ -56,10 +61,64 @@ export default {
 			const formData = new FormData();
 			formData.append("profilePicture", file);
 
-			// TO DO: Upload the file to the server
+			try {
+				const token = localStorage.getItem("token");
+
+				const response = await fetch("http://localhost:5000/api/users/upload-profile-picture", {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${token}`
+					},
+					body: formData
+				});
+
+				const data = await response.json();
+
+				if (data.imageUrl) {
+					this.user.profilePicture = data.imageUrl;
+
+					this.$emit("profile-updated");
+
+					this.showSnackbar("Imaginea a fost actualizată cu succes!");
+				} else {
+					this.showSnackbar("Eroare la încărcarea imaginii", "error");
+				}
+
+			} catch (err) {
+				console.error("Eroare la upload:", err);
+			}
+		},
+		async deleteProfilePicture() {
+			try {
+				const token = localStorage.getItem("token");
+		
+				const response = await fetch("http://localhost:5000/api/users/profile-picture", {
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+		
+				if (!response.ok) throw new Error("Eroare la ștergerea imaginii");
+
+				const data = await response.json();
+				this.user.profilePicture = data.profile_picture || null;
+
+				this.showSnackbar("Imaginea a fost ștearsă");
+				this.$emit("profile-updated");
+
+			} catch (err) {
+				console.error(err);
+				this.showSnackbar("Eroare la ștergerea imaginii", "error");
+			}
 		},
 		triggerFileInput() {
 			this.$refs.fileInput.click();
+		},
+		showSnackbar(message, color = "success") {
+			this.snackbar.message = message;
+			this.snackbar.color = color;
+			this.snackbar.show = true;
 		},
 	},
 };
