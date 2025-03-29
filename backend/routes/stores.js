@@ -3,6 +3,12 @@ const pool = require("../db");
 const router = express.Router();
 const authenticateToken = require("../middleware/authMiddleware");
 
+const multer = require("multer");
+const streamifier = require("streamifier");
+const cloudinary = require("../utils/cloudinary");
+
+const upload = multer();
+
 // Get all stores
 router.get("/", async (req, res) => {
     try {
@@ -63,7 +69,7 @@ router.post("/", authenticateToken, async (req, res) => {
 	};
 
 	const storeType = allowedTypes[type];
-	
+
 	if (!storeType) {
 		return res.status(400).json({ error: "Tipul magazinului este invalid" });
 	}
@@ -148,6 +154,64 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ error: "Eroare la server" });
+	}
+});
+
+// Upload logo to Cloudinary
+router.post("/upload-logo", authenticateToken, upload.single("logo"), async (req, res) => {
+	if (!req.user || req.user.role !== "admin") {
+		return res.status(403).json({ error: "Acces interzis." });
+	}
+
+	if (!req.file) {
+		return res.status(400).json({ error: "Fișier lipsă." });
+	}
+
+	try {
+		const streamUpload = () => {
+			return new Promise((resolve, reject) => {
+				const stream = cloudinary.uploader.upload_stream(
+					{ folder: "store_logos" },
+					(error, result) => {
+						if (result) {
+							resolve(result);
+						} else {
+							reject(error);
+						}
+					}
+				);
+				streamifier.createReadStream(req.file.buffer).pipe(stream);
+			});
+		};
+
+		const result = await streamUpload();
+		res.json({ logoUrl: result.secure_url });
+
+	} catch (error) {
+		console.error("Eroare la upload logo:", error);
+		res.status(500).json({ error: "Eroare la încărcarea logo-ului." });
+	}
+});
+
+// Delete a store logo
+router.delete('/:id/logo', authenticateToken, async (req, res) => {
+	const storeId = req.params.id;
+
+	try {
+		// Set logo_url to NULL
+		const result = await pool.query(
+			`UPDATE stores SET logo_url = NULL WHERE id = $1 RETURNING *`,
+			[storeId]
+		);
+
+		if (result.rowCount === 0) {
+			return res.status(404).json({ error: 'Magazinul nu a fost găsit.' });
+		}
+
+		res.json({ message: 'Logo-ul a fost șters cu succes.' });
+	} catch (err) {
+		console.error('Eroare la ștergerea logo-ului:', err);
+		res.status(500).json({ error: 'Eroare la server.' });
 	}
 });
 

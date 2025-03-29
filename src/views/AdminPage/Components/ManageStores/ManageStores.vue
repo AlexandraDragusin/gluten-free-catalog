@@ -99,6 +99,35 @@
 			<v-card v-if="editedStore">
 				<v-card-title>Editare magazin: {{ editedStore.name }}</v-card-title>
 				<v-card-text>
+					<!-- Upload and preview logo -->
+					<div class="edit-logo-container">
+						<div class="logo-preview-box">
+							<v-img
+								v-if="logoPreview || editedStore.logo_url"
+								:src="logoPreview || editedStore.logo_url"
+								alt="Logo"
+								ref="editLogo"
+								class="edit-logo-img"
+								cover
+							/>
+							<v-icon v-else class="default-avatar">mdi-image-off</v-icon>
+						</div>
+
+						<div class="logo-buttons">
+							<v-btn variant="outlined" class="logo-btn" @click="triggerLogoUpload">Încarcă</v-btn>
+							<v-btn
+								v-if="logoPreview || editedStore.logo_url"
+								variant="outlined"
+								@click="removeLogo"
+								class="logo-btn"
+							>
+								Șterge
+							</v-btn>
+						</div>
+
+						<input type="file" ref="logoInput" accept="image/*" @change="handleLogoFile" hidden />
+					</div>
+
 					<v-form ref="storeForm" @submit.prevent="updateStore">
 						<v-text-field v-model="editedStore.name" label="Nume" required variant="outlined" />
 						<v-select
@@ -128,10 +157,9 @@
 						<v-textarea v-model="editedStore.description" label="Descriere" variant="outlined"/>
 					</v-form>
 				</v-card-text>
-				<v-card-actions>
-					<v-spacer />
-					<v-btn text @click="cancelEdit">Anulează</v-btn>
-					<v-btn color="primary" @click="updateStore">Salvează</v-btn>
+				<v-card-actions class="sticky-actions">
+					<v-btn text variant="outlined" @click="cancelEdit">Anulează</v-btn>
+					<v-btn variant="outlined" @click="updateStore">Salvează</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
@@ -290,6 +318,57 @@
 	font-size: 14px;
 	font-weight: 500;
 	color: #333;
+}
+
+.sticky-actions {
+	position: sticky;
+	bottom: 0;
+	background-color: white;
+	border-top: 1px solid #eee;
+	padding: 12px 16px;
+	z-index: 10;
+}
+
+.edit-logo-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.logo-preview-box {
+	width: 120px;
+	height: 120px;
+	border: 2px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #f9f9f9;
+}
+
+.logo-preview-box .v-img {
+	object-fit: contain;
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.default-avatar {
+	font-size: 48px;
+	color: #aaa;
+}
+
+.logo-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.logo-btn {
+	text-transform: none;
+	font-size: 13px;
 }
 
 </style>

@@ -41,6 +41,8 @@ export default {
 				page: 1,
 				itemsPerPage: 10,
 			},
+			logoFile: null,
+			logoPreview: null,
 			headers: [
 				{ title: "", value: "placeholder", sortable: false, width: "56px"},
 				{ title: "Logo", value: "logo_url" },
@@ -143,6 +145,8 @@ export default {
 		cancelEdit() {
 			this.editDialog = false;
 			this.editedStore = null;
+			this.logoFile = null;
+			this.logoPreview = null;
 		},
 		cancelSelection() {
 			this.selectionMode = false;
@@ -158,6 +162,27 @@ export default {
 			}
 
 			try {
+				if (this.logoFile) {
+					const formData = new FormData();
+					formData.append("logo", this.logoFile);
+				
+					const uploadRes = await fetch("http://localhost:5000/api/stores/upload-logo", {
+						method: "POST",
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem("token")}`
+						},
+						body: formData
+					});
+				
+					const uploadData = await uploadRes.json();
+				
+					if (!uploadRes.ok || !uploadData.logoUrl) {
+						throw new Error("Eroare la upload logo.");
+					}
+				
+					this.editedStore.logo_url = uploadData.logoUrl;
+				}
+
 				const res = await fetch(`http://localhost:5000/api/stores/${this.editedStore.id}`, {
 					method: "PUT",
 					headers: {
@@ -209,6 +234,37 @@ export default {
 				this.cancelSelection();
 				this.showConfirmDialog = false;
 			}
+		},
+		triggerLogoUpload() {
+			this.$refs.logoInput.click();
+		},
+		handleLogoFile(event) {
+			const file = event.target.files[0];
+			if (!file) return;
+
+			this.logoFile = file;
+			this.logoPreview = URL.createObjectURL(file);
+
+			const img = new Image();
+			img.src = this.logoPreview;
+			img.onload = () => {
+				const isLandscape = img.width > img.height;
+				const el = this.$refs.editLogo?.$el;
+				if (el) {
+					if (isLandscape) {
+						el.style.width = "100%";
+						el.style.height = "auto";
+					} else {
+						el.style.height = "100%";
+						el.style.width = "auto";
+					}
+				}
+			};
+		},
+		removeLogo() {
+			this.logoFile = null;
+			this.logoPreview = null;
+			this.editedStore.logo_url = "";
 		},
 		showSnackbar(message, color = "success") {
 			this.snackbar.message = message;

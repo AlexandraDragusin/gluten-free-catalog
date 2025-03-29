@@ -13,6 +13,8 @@ export default {
 					{ address: "", city: "", county: "", country: "România" }
 				],
 			},
+			logoFile: null,
+			logoPreview: null,
 			isSubmitting: false,
 			snackbar: {
 				show: false,
@@ -48,6 +50,30 @@ export default {
 			try {
 				const token = localStorage.getItem("token");
 
+				// Check if a logo file is selected and upload it to Cloudinary
+				if (this.logoFile) {
+					const token = localStorage.getItem("token");
+					const formData = new FormData();
+					formData.append("logo", this.logoFile);
+
+					const uploadRes = await fetch("http://localhost:5000/api/stores/upload-logo", {
+						method: "POST",
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+						body: formData,
+					});
+
+					const uploadData = await uploadRes.json();
+
+					if (!uploadRes.ok || !uploadData.logoUrl) {
+						throw new Error(uploadData.error || "Eroare la încărcarea logo-ului.");
+					}
+
+					this.store.logo_url = uploadData.logoUrl;
+				}
+
+				// Send the store data to the backend
 				const response = await fetch("http://localhost:5000/api/stores", {
 					method: "POST",
 					headers: {
@@ -75,6 +101,56 @@ export default {
 				this.isSubmitting = false;
 			}
 		},
+		uploadLogo(event) {
+			const file = event.target.files[0];
+			if (file) {
+				this.logoFile = file;
+				this.logoPreview = URL.createObjectURL(file);
+				this.showSnackbar("Imaginea a fost selectată.");
+			}
+		},
+		async removeLogo() {
+			// If the logo was not saved yet, just remove the file from the input
+			if (this.logoFile) {
+				this.logoFile = null;
+				this.logoPreview = null;
+				this.store.logo_url = "";
+				this.showSnackbar("Logo-ul a fost eliminat.");
+				return;
+			}
+
+			// If the store was not saved yet
+			if (!this.store.id) {
+				this.logoFile = null;
+				this.logoPreview = null;
+				this.store.logo_url = "";
+				this.showSnackbar("Logo-ul a fost eliminat.");
+				return;
+			}
+
+			// If the store was saved, send a request to delete the logo from the server
+			try {
+				const token = localStorage.getItem("token");
+		
+				const response = await fetch(`http://localhost:5000/api/stores/${this.store.id}/logo`, {
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				});
+		
+				if (!response.ok) throw new Error("Eroare la ștergerea logo-ului");
+
+				this.logoFile = null;
+				this.logoPreview = null;
+				this.store.logo_url = "";
+
+				this.showSnackbar("Logo șters cu succes");
+			} catch (err) {
+				console.error(err);
+				this.showSnackbar("Eroare la ștergerea logo-ului", "error");
+			}
+		},
 		resetForm() {
 			this.store = {
 				name: "",
@@ -88,7 +164,12 @@ export default {
 					{ address: "", city: "", county: "", country: "România" }
 				],
 			};
+			this.logoPreview = null;
+			this.logoFile = null; 
 			this.$refs.form.resetValidation();
+		},
+		triggerLogoUpload() {
+			this.$refs.logoInput.click();
 		},
 		showSnackbar(message, color = "success") {
 			this.snackbar.message = message;
