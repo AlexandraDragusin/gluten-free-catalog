@@ -1,6 +1,7 @@
 import LoginButton from "@/components/LoginButton/LoginButton.vue";
 
 export default {
+	name: "HeaderComponent",
 	components: {
 		LoginButton,
 	},
@@ -20,6 +21,13 @@ export default {
 			//
 		};
 	},
+	emits: [
+		"navigate-to-home",
+		"navigate-to-stores",
+		"navigate-to-login",
+		"navigate-to-profile",
+		"navigate-to-admin",
+	],
 	methods: {
 		handleLoginClick() {
 			if (this.isLoggedIn && this.userRole === 'admin') {

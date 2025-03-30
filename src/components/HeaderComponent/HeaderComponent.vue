@@ -50,6 +50,7 @@
 					label="Caută un produs, categorie sau brand..."
 					hide-details="auto"
 					single-line
+					variant="outlined"
 					:style="{
 						cursor: 'pointer',
 						minWidth: '400px',
