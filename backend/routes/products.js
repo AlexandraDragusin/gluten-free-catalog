@@ -9,6 +9,9 @@ const authenticateToken = require("../middleware/authMiddleware");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
+
 // Get all products
 router.get("/", async (req, res) => {
 	try {
@@ -398,6 +401,42 @@ router.put("/:id", authenticateToken, async (req, res) => {
 	} catch (err) {
 		console.error("Eroare la actualizare produs:", err.message);
 		res.status(500).json({ error: "Eroare la server" });
+	}
+});
+
+// Upload product image to Cloudinary
+router.post("/upload-image", authenticateToken, upload.single("image"), async (req, res) => {
+	if (!req.user || req.user.role !== "admin") {
+		return res.status(403).json({ error: "Acces interzis." });
+	}
+
+	if (!req.file) {
+		return res.status(400).json({ error: "Fișier lipsă." });
+	}
+
+	try {
+		const streamUpload = () => {
+			return new Promise((resolve, reject) => {
+				const stream = cloudinary.uploader.upload_stream(
+					{ folder: "product_images" },
+					(error, result) => {
+						if (result) {
+							resolve(result);
+						} else {
+							reject(error);
+						}
+					}
+				);
+				streamifier.createReadStream(req.file.buffer).pipe(stream);
+			});
+		};
+
+		const result = await streamUpload();
+		res.json({ imageUrl: result.secure_url });
+
+	} catch (error) {
+		console.error("Eroare la upload imagine produs:", error);
+		res.status(500).json({ error: "Eroare la încărcarea imaginii." });
 	}
 });
 

@@ -232,10 +232,9 @@
 				/>
 				</v-card-text>
 
-				<v-card-actions>
-				<v-spacer />
-				<v-btn text @click="showFilterDialog = false">Anulează</v-btn>
-				<v-btn color="primary" @click="applyFilterDialog">Aplică</v-btn>
+				<v-card-actions class="sticky-actions">
+					<v-btn text @click="showFilterDialog = false">Anulează</v-btn>
+					<v-btn color="primary" @click="applyFilterDialog">Aplică</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-dialog>

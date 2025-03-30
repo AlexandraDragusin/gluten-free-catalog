@@ -26,6 +26,8 @@ export default {
 					!v || !isNaN(parseFloat(v)) || "Trebuie să fie un număr valid.",
 				requiredSelect: (v) => v !== null && v !== "" || "Selectează o opțiune.",
 			},
+			logoPreview: null,
+			imageFile: null,
 			isSubmitting: false,
 			snackbar: {
 				show: false,
@@ -72,7 +74,30 @@ export default {
 
 			try {
 				const token = localStorage.getItem("token");
+
+				// Check if the image file is selected and upload it
+				if (this.imageFile) {
+					const formData = new FormData();
+					formData.append("image", this.imageFile);
+				
+					const uploadRes = await fetch("http://localhost:5000/api/products/upload-image", {
+						method: "POST",
+						headers: {
+							Authorization: `Bearer ${token}`
+						},
+						body: formData
+					});
+
+					const uploadData = await uploadRes.json();
+
+					if (!uploadRes.ok || !uploadData.imageUrl) {
+						throw new Error(uploadData.error || "Eroare la încărcarea imaginii.");
+					}
+
+					this.product.image_url = uploadData.imageUrl;
+				}
 		
+				// Send the product data to the server
 				const response = await fetch("http://localhost:5000/api/products", {
 					method: "POST",
 					headers: {
@@ -99,6 +124,23 @@ export default {
 			} finally {
 				this.isSubmitting = false;
 			}
+		},
+		triggerImageUpload() {
+			this.$refs.imageInput.click();
+		},
+		handleImageFile(event) {
+			const file = event.target.files[0];
+			if (file) {
+				this.imageFile = file;
+				this.logoPreview = URL.createObjectURL(file);
+				this.showSnackbar("Imagine selectată.");
+			}
+		},
+		removeImage() {
+			this.imageFile = null;
+			this.logoPreview = null;
+			this.product.image_url = "";
+			this.showSnackbar("Imaginea a fost eliminată.");
 		},
 		resetForm() {
 			this.product = {

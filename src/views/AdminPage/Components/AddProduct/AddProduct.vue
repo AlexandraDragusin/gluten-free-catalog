@@ -3,6 +3,34 @@
 		<v-card-title class="section-title">Adaugă un produs nou</v-card-title>
 
 		<v-card-text>
+			<!-- Logo -->
+			<div class="edit-logo-container">
+				<div class="logo-preview-box">
+					<v-img
+						v-if="logoPreview || product.image_url"
+						:src="logoPreview || product.image_url"
+						alt="Imagine produs"
+						class="edit-logo-img"
+						cover
+					/>
+					<v-icon v-else class="default-avatar">mdi-image-off</v-icon>
+				</div>
+
+				<div class="logo-buttons">
+					<v-btn variant="outlined" class="logo-btn" @click="triggerImageUpload">Încarcă</v-btn>
+					<v-btn
+						v-if="logoPreview || product.image_url"
+						variant="outlined"
+						@click="removeImage"
+						class="logo-btn"
+					>
+						Șterge
+					</v-btn>
+				</div>
+
+				<input type="file" ref="imageInput" accept="image/*" @change="handleImageFile" hidden />
+			</div>
+
 			<v-form ref="form" @submit.prevent="submitForm" validate-on="submit">
 				<v-text-field
 					v-model="product.name"
@@ -117,6 +145,49 @@
 	color: #312B1D;
 	font-size: 16px;
 	text-transform: none;
+}
+
+.edit-logo-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+
+.logo-preview-box {
+	width: 140px;
+	height: 140px;
+	border: 2px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #f9f9f9;
+}
+
+.logo-preview-box .v-img {
+	object-fit: contain;
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.logo-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.logo-btn {
+	text-transform: none;
+	font-size: 14px;
+	width: 150px;
+}
+
+.default-avatar {
+	font-size: 80px;
+	color: #aaa;
 }
 </style>
   

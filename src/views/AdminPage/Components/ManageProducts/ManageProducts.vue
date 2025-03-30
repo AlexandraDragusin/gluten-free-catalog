@@ -74,6 +74,10 @@
 				<v-icon small class="mr-2" @click="editProduct(item)">mdi-pencil</v-icon>
 			</template>
 
+			<template v-slot:[`item.image_url`]="{ item }">
+				<v-img :src="item.image_url" max-width="80" max-height="40" contain />
+			</template>
+
 			<template v-slot:[`item.producer_gluten_declaration`]="{ item }">
 				{{ item.producer_gluten_declaration ? 'da' : 'nu' }}
 			</template>
@@ -106,6 +110,36 @@
 			<v-card-title>Editare produs: {{ editedProduct.name }}</v-card-title>
 
 			<v-card-text>
+				<!-- Upload and preview product image -->
+				<div class="edit-logo-container">
+					<div class="logo-preview-box">
+						<v-img
+							v-if="productImagePreview || editedProduct.image_url"
+							:src="productImagePreview || editedProduct.image_url"
+							alt="Imagine produs"
+							ref="editImage"
+							class="edit-logo-img"
+							cover
+						/>
+						<v-icon v-else class="default-avatar">mdi-image-off</v-icon>
+					</div>
+
+					<div class="logo-buttons">
+						<v-btn variant="outlined" class="logo-btn" @click="triggerImageUpload">Încarcă</v-btn>
+						<v-btn
+							v-if="productImagePreview || editedProduct.image_url"
+							variant="outlined"
+							@click="removeImage"
+							class="logo-btn"
+						>
+							Șterge
+						</v-btn>
+					</div>
+
+					<input type="file" ref="imageInput" accept="image/*" @change="handleImageFile" hidden />
+				</div>
+
+				<!-- Edit product form -->
 				<v-form @submit.prevent="updateProduct">
 					<v-text-field v-model="editedProduct.name" label="Nume" required variant="outlined"/>
 					<v-text-field v-model="editedProduct.brand" label="Brand" variant="outlined"/>
@@ -134,8 +168,7 @@
 				</v-form>
 			</v-card-text>
 
-			<v-card-actions>
-				<v-spacer />
+			<v-card-actions class="sticky-actions">
 				<v-btn text @click="cancelEdit">Anulează</v-btn>
 				<v-btn color="primary" @click="updateProduct">Salvează</v-btn>
 			</v-card-actions>
@@ -230,10 +263,10 @@
 				variant="outlined"
 			/>
 			</v-card-text>
-			<v-card-actions>
-			<v-spacer />
-			<v-btn text @click="showFilterDialog = false">Anulează</v-btn>
-			<v-btn color="primary" @click="applyFilterDialog">Aplică</v-btn>
+			<v-card-actions class="sticky-actions">
+				<v-spacer />
+				<v-btn text @click="showFilterDialog = false">Anulează</v-btn>
+				<v-btn color="primary" @click="applyFilterDialog">Aplică</v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-dialog>
@@ -314,6 +347,57 @@
 	font-size: 14px;
 	font-weight: 500;
 	color: #333;
+}
+
+.sticky-actions {
+	position: sticky;
+	bottom: 0;
+	background-color: white;
+	border-top: 1px solid #eee;
+	padding: 12px 16px;
+	z-index: 10;
+}
+
+.edit-logo-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.logo-preview-box {
+	width: 120px;
+	height: 120px;
+	border: 2px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #f9f9f9;
+}
+
+.logo-preview-box .v-img {
+	object-fit: contain;
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.default-avatar {
+	font-size: 48px;
+	color: #aaa;
+}
+
+.logo-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.logo-btn {
+	text-transform: none;
+	font-size: 13px;
 }
 
 </style>

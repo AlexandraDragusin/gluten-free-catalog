@@ -2,17 +2,17 @@
 	<v-card class="form-card">
 		<v-card-title class="section-title">Adaugă un magazin nou</v-card-title>
 
-		<v-card-text class="logo-wrapper">
-			<div class="logo-center">
-				<v-avatar size="200" class="logo-avatar">
+		<v-card-text>
+			<div class="edit-logo-container">
+				<div class="logo-preview-box">
 					<v-img
 						v-if="logoPreview"
 						:src="logoPreview"
+						class="edit-logo-img"
 						alt="Logo magazin"
 					/>
 					<v-icon v-else class="default-avatar">mdi-image-off</v-icon>
-				</v-avatar>
-
+				</div>
 				<div class="logo-buttons">
 					<v-btn variant="outlined" @click="triggerLogoUpload" class="logo-btn">Încarcă logo</v-btn>
 					<v-btn
@@ -33,9 +33,7 @@
 					hidden
 				/>
 			</div>
-		</v-card-text>
 
-		<v-card-text>
 			<v-form ref="form" @submit.prevent="submitForm" validate-on="submit lazy">
 				<v-text-field
 					v-model="store.name"
@@ -142,29 +140,36 @@
 	text-transform: none;
 }
 
-.logo-wrapper {
-	display: flex;
-	justify-content: center;
-	margin-bottom: 24px;
-	margin-top: 12px;
-}
-
-.logo-center {
+.edit-logo-container {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 16px;
+	justify-content: center;
+	gap: 12px;
+	margin-bottom: 20px;
 }
 
-.logo-avatar {
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.logo-preview-box {
+	width: 160px;
+	height: 160px;
+	border: 2px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #f9f9f9;
+}
+
+.logo-preview-box .v-img {
+	object-fit: contain;
+	max-width: 100%;
+	max-height: 100%;
 }
 
 .logo-buttons {
 	display: flex;
-	flex-direction: row;
 	gap: 8px;
-	align-items: center;
 }
 
 .logo-btn {

@@ -42,6 +42,8 @@ export default {
 			},
 			filteredProducts: [],
 			showFilterDialog: false,
+			productImageFile: null,
+			productImagePreview: null,
 			headers: [
 				{ title: "", value: "placeholder", sortable: false, width: "56px"},
 				{ title: "Nume", value: "name", sortable: true },
@@ -155,6 +157,8 @@ export default {
 		cancelEdit() {
 			this.editedProduct = null;
 			this.editDialog = false;
+			this.productImageFile = null;
+			this.productImagePreview = null;
 		},
 		cancelSelection() {
 			this.selectionMode = false;
@@ -162,6 +166,26 @@ export default {
 		},
 		async updateProduct() {
 			try {
+				// 
+				if (this.productImageFile) {
+					const formData = new FormData();
+					formData.append("image", this.productImageFile);
+
+					const uploadRes = await fetch("http://localhost:5000/api/products/upload-image", {
+						method: "POST",
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem("token")}`
+						},
+						body: formData
+					});
+				
+					const uploadData = await uploadRes.json();
+					if (!uploadRes.ok || !uploadData.imageUrl) {
+						throw new Error("Eroare la upload imagine.");
+					}
+					this.editedProduct.image_url = uploadData.imageUrl;
+				}				
+
 				const payload = {
 					...this.editedProduct,
 					allergen_tags: Array.isArray(this.editedProduct.allergen_tags)
@@ -306,6 +330,37 @@ export default {
 			} else {
 				this.filterDraft[field] = null;
 			}
+		},
+		triggerImageUpload() {
+			this.$refs.imageInput.click();
+		},
+		handleImageFile(event) {
+			const file = event.target.files[0];
+			if (!file) return;
+		
+			this.productImageFile = file;
+			this.productImagePreview = URL.createObjectURL(file);
+		
+			const img = new Image();
+			img.src = this.productImagePreview;
+			img.onload = () => {
+				const el = this.$refs.editImage?.$el;
+				if (el) {
+					const isLandscape = img.width > img.height;
+					if (isLandscape) {
+						el.style.width = "100%";
+						el.style.height = "auto";
+					} else {
+						el.style.height = "100%";
+						el.style.width = "auto";
+					}
+				}
+			};
+		},
+		removeImage() {
+			this.productImageFile = null;
+			this.productImagePreview = null;
+			this.editedProduct.image_url = "";
 		},
 	}
 };
