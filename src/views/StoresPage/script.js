@@ -31,13 +31,16 @@ export default {
 		};
 	},
 	watch: {
-		"$route.query.type"(newType) {
+		"$route.params.type"(newType) {
 			if (this.filterOptions.types.includes(newType)) {
 				this.filters.type = newType;
 				this.filterDraft.type = newType;
 				this.pagination.page = 1;
+			} else {
+				this.filters.type = '';
+				this.filterDraft.type = '';
 			}
-		}
+		} 
 	},
 	computed: {
 		pageCount() {
@@ -63,10 +66,10 @@ export default {
 		},
 	},
 	created() {
-		const typeFromQuery = this.$route.query.type;
-		if (this.filterOptions.types.includes(typeFromQuery)) {
-			this.filters.type = typeFromQuery;
-			this.filterDraft.type = typeFromQuery;
+		const typeFromParams = this.$route.params.type;
+		if (this.filterOptions.types.includes(typeFromParams)) {
+			this.filters.type = typeFromParams;
+			this.filterDraft.type = typeFromParams;
 		}
 
 		this.fetchStores();
@@ -108,6 +111,8 @@ export default {
 			this.filters = JSON.parse(JSON.stringify(this.filterDraft));
 			this.pagination.page = 1;
 			this.showFilterDialog = false;
+
+			this.$emit("navigate-to-stores", this.filters.type || null);
 		},
 		openFilterDialog() {
 			this.filterDraft = JSON.parse(JSON.stringify(this.filters));
@@ -124,6 +129,8 @@ export default {
 
 			this.filterDraft = JSON.parse(JSON.stringify(this.filters));
 			this.pagination.page = 1;
+
+			this.$emit("navigate-to-stores");
 		}
 	},
 };

@@ -2,6 +2,7 @@
   <v-app>
 	<!-- Header -->
 	<Header
+		:breadcrumbs="breadcrumbs"
 		:isLoggedIn="isLoggedIn"
 		:userRole="userRole"
 		@navigate-to-admin="goToAdminPage"

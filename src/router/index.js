@@ -8,7 +8,7 @@ import AdminPage from "@/views/AdminPage/AdminPage.vue";
 
 const routes = [
 	{ path: "/", name: "Home", component: HomePage },
-	{ path: "/stores", name: "Stores", component: StorePage },
+	{ path: "/stores/:type?", name: "Stores", component: StorePage },
 	{ path: "/login", name: "Login", component: LoginPage },
 	{ path: "/register", name: "Register", component: RegisterPage },
 	{ path: "/profile", name: "Profile", component: ProfilePage },

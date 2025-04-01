@@ -11,8 +11,15 @@ export default {
 	data() {
 		return {
 			isLoggedIn: false,
-			userRole: null
+			userRole: null,
+			breadcrumbs: []
 		};
+	},
+	watch: {
+		'$route': {
+			handler: 'updateBreadcrumbs',
+			immediate: true,
+		}
 	},
 	created() {
 		this.isLoggedIn = checkLoginStatus();
@@ -63,7 +70,11 @@ export default {
 			this.goToLoginPage();
 		},
 		goToStoresPage(type = '') {
-			this.$router.push({ path: '/stores', query: { type } });
+			if (type) {
+				this.$router.push(`/stores/${type}`);
+			} else {
+				this.$router.push('/stores');
+			}
 		},
 		goToProfilePage() {
 			this.$router.push("/profile");
@@ -79,6 +90,38 @@ export default {
 		},
 		goToHomePage() {
 			this.$router.push("/");
+		},
+		translateStoreType(type) {
+			const types = {
+				online: "Online",
+				physical: "Fizic",
+				mixed: "Mixt",
+				restaurant: "Restaurant"
+			};
+			return types[type] || type;
+		},
+		updateBreadcrumbs() {
+			const { name, params } = this.$route;
+
+			if (name !== 'Stores') {
+				this.breadcrumbs = [];
+				return;
+			}
+
+			let crumbs = [
+				{ label: 'Acasă', route: '/' },
+				{ label: 'Magazine', route: '/stores' },
+			];
+
+			if (params.type) {
+				const translatedType = this.translateStoreType(params.type);
+				crumbs.push({
+					label: translatedType,
+					route: `/stores/${params.type}`
+				});
+			}
+
+			this.breadcrumbs = crumbs;
 		}
 	},
 };

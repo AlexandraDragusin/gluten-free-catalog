@@ -1,4 +1,5 @@
 <template>
+	<!-- App Bar -->
 	<v-app-bar
 		app
 		height="fit-content"
@@ -66,6 +67,12 @@
 			</div>
 		</template>
 	</v-app-bar>
+
+	<!-- Breadcrumbs -->
+	<Breadcrumb
+		:crumbs="breadcrumbs"
+		class="breadcrumb-bar"
+	/>
 </template>
 
 <script src="./script.js"></script>
@@ -80,6 +87,12 @@
 	font-weight: 400;
 	font-size: 24px !important;
 	text-transform: none;
+}
+
+.breadcrumb-bar {
+	position: sticky;
+	top: 88px;
+	z-index: 10;
 }
 
 </style>

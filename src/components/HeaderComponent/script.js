@@ -1,8 +1,10 @@
 import LoginButton from "@/components/LoginButton/LoginButton.vue";
+import Breadcrumb from "../BreadcrumbComponent/BreadcrumbComponent.vue";
 
 export default {
 	name: "HeaderComponent",
 	components: {
+		Breadcrumb,
 		LoginButton,
 	},
 	props: {
@@ -14,8 +16,12 @@ export default {
 		userRole: {
 			type: String,
 			default: null
-		}
-	},
+		},
+		breadcrumbs: {
+			type: Array,
+			default: () => [],
+		},
+	},	
 	data() {
 		return {
 			//

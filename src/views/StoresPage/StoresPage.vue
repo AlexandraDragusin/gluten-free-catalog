@@ -27,7 +27,7 @@
 		</v-row>
 
 		<!-- Stores list -->
-		<v-row>
+		<v-row v-if="filteredStores.length > 0">
 			<v-col
 				v-for="store in paginatedStores"
 				:key="store.id"
@@ -71,8 +71,19 @@
 			</v-col>
 		</v-row>
 
+		<!-- Fallback if no stores present -->
+		<v-row v-else justify="center" class="no-results-row"
+		>
+			<v-col cols="12" class="text-center">
+				<v-icon color="grey" size="48">mdi-store-off</v-icon>
+				<p class="no-results-msg">
+					Nu există magazine care să corespundă criteriilor de filtrare.
+				</p>
+			</v-col>
+		</v-row>
+
 		<!-- Pagination -->
-		<v-row justify="center" class="pagination-row">
+		<v-row v-if="filteredStores.length > 0" justify="center" class="pagination-row">
 			<span class="pagination-label">Pagina anterioară</span>
 			<v-pagination
 				v-model="pagination.page"
@@ -245,5 +256,18 @@
   font-weight: 500;
   font-size: 14px;
   color: #555;
+}
+
+.no-results-row {
+	min-height: 50vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.no-results-msg {
+	color: #888;
+	font-size: 20px;
+	padding-bottom: 64px;
 }
 </style>
