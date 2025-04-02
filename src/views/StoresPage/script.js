@@ -3,6 +3,7 @@ export default {
 	data() {
 		return {
 			stores: [],
+			sortOrder: 'asc',
 			filters: {
 				type: '',
 				arig_partner: null,
@@ -52,7 +53,7 @@ export default {
 			return this.filteredStores.slice(start, end);
 		},
 		filteredStores() {
-			return this.stores.filter(store => {
+			const filtered =  this.stores.filter(store => {
 				const matchesType = !this.filters.type || store.type === this.filters.type;
 				const matchesPartner = this.filters.arig_partner === null || store.arig_partner === this.filters.arig_partner;
 				const matchesCity = !this.filters.city || (store.addresses || []).some(addr => addr.city === this.filters.city);
@@ -62,6 +63,16 @@ export default {
 					this.filters.categories.some(cat => store.categories?.includes(cat));
 				
 				return matchesType && matchesPartner && matchesCity && matchesCountry && matchesCategories;
+			});
+
+			return filtered.sort((a, b) => {
+				if (!a.name || !b.name) return 0;
+		
+				if (this.sortOrder === 'asc') {
+					return a.name.localeCompare(b.name);
+				} else {
+					return b.name.localeCompare(a.name);
+				}
 			});
 		},
 	},
@@ -131,6 +142,9 @@ export default {
 			this.pagination.page = 1;
 
 			this.$emit("navigate-to-stores");
+		},
+		toggleSortOrder() {
+			this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
 		}
 	},
 };

@@ -8,6 +8,16 @@
 						color="grey"
 						variant="outlined"
 						class="filter-btn"
+						@click="toggleSortOrder"
+					>
+						<v-icon left>mdi-sort-alphabetical-variant</v-icon>
+						Sortare: {{ sortOrder === 'asc' ? 'A-Z' : 'Z-A' }}
+					</v-btn>
+
+					<v-btn
+						color="grey"
+						variant="outlined"
+						class="filter-btn"
 						@click="openFilterDialog"
 					>
 						<v-icon left>mdi-filter-variant</v-icon>Filtrează
