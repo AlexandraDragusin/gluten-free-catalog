@@ -82,6 +82,20 @@ export default {
 		goToAdminPage() {
 			this.$router.push("/admin");
 		},
+		goToCategoriesPage() {
+			if (this.$route.name === 'Home') {
+				this.scrollToCategoriesSection();
+			} else {
+				this.$router.push('/')
+					.then(() => {
+						this.$nextTick(() => {
+							setTimeout(() => {
+								this.scrollToCategoriesSection();
+							}, 300);
+						});
+					});
+			}
+		},
 		goToLoginPage() {
 			this.$router.push("/login");
 		},
@@ -122,6 +136,12 @@ export default {
 			}
 
 			this.breadcrumbs = crumbs;
+		},
+		scrollToCategoriesSection() {
+			const el = document.getElementById("categories-section");
+			if (el) {
+				el.scrollIntoView({ behavior: "smooth" });
+			}
 		}
 	},
 };

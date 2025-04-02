@@ -53,7 +53,7 @@
 		</div>
 
 		<!-- Categories -->
-		<div class="categories-section">
+		<div id="categories-section" class="categories-section">
 			<h2 class="section-title"> Categorii principale de produse</h2>
 			<v-row class="categories-grid" justify="center" no-gutters >
 				<v-col

@@ -29,7 +29,7 @@
 					}"
 					@click="navigateToHome"
 				/>
-				<v-btn text class="nav-button"> Categorii de produse </v-btn>
+				<v-btn text class="nav-button" @click="navigateToCategories"> Categorii de produse</v-btn>
 
 				<v-btn text class="nav-button" @click="navigateToStores" > Magazine </v-btn>
 			</div>

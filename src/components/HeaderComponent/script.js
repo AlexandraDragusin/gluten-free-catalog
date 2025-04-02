@@ -33,6 +33,7 @@ export default {
 		"navigate-to-login",
 		"navigate-to-profile",
 		"navigate-to-admin",
+		"navigate-to-categories"
 	],
 	methods: {
 		handleLoginClick() {
@@ -49,6 +50,9 @@ export default {
 		},
 		navigateToStores() {
 			this.$emit("navigate-to-stores");
+		},
+		navigateToCategories() {
+			this.$emit("navigate-to-categories");
 		},
 	},
 };
