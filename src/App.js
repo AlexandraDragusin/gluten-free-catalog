@@ -76,13 +76,20 @@ export default {
 				this.$router.push('/stores');
 			}
 		},
+		goToProductsPage(category) {
+			if (category) {
+				this.$router.push({ name: 'Products', params: { category } });
+			} else {
+				this.$router.push({ name: 'Products' });
+			}
+		},
 		goToProfilePage() {
 			this.$router.push("/profile");
 		},
 		goToAdminPage() {
 			this.$router.push("/admin");
 		},
-		goToCategoriesPage() {
+		goToCategories() {
 			if (this.$route.name === 'Home') {
 				this.scrollToCategoriesSection();
 			} else {
@@ -117,25 +124,42 @@ export default {
 		updateBreadcrumbs() {
 			const { name, params } = this.$route;
 
-			if (name !== 'Stores') {
-				this.breadcrumbs = [];
+			if (name === 'Stores') {
+				let crumbs = [
+					{ label: 'Acasă', route: '/' },
+					{ label: 'Magazine', route: '/stores' },
+				];
+				
+				if (params.type) {
+					const translatedType = this.translateStoreType(params.type);
+					crumbs.push({
+						label: translatedType,
+						route: `/stores/${params.type}`
+					});
+				}
+
+				this.breadcrumbs = crumbs;
 				return;
 			}
 
-			let crumbs = [
-				{ label: 'Acasă', route: '/' },
-				{ label: 'Magazine', route: '/stores' },
-			];
+			if (name === 'Products') {
+				let crumbs = [
+					{ label: 'Acasă', route: '/' },
+					{ label: 'Produse', route: '/products' },
+				];
 
-			if (params.type) {
-				const translatedType = this.translateStoreType(params.type);
-				crumbs.push({
-					label: translatedType,
-					route: `/stores/${params.type}`
-				});
+				if (params.category) {
+					crumbs.push({
+						label: params.category,
+						route: `/products/${params.category}`
+					});
+				}
+
+				this.breadcrumbs = crumbs;
+				return;
 			}
 
-			this.breadcrumbs = crumbs;
+			this.breadcrumbs = [];
 		},
 		scrollToCategoriesSection() {
 			const el = document.getElementById("categories-section");

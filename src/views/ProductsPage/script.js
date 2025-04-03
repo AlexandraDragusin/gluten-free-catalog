@@ -1,150 +1,215 @@
+import { groupedCategories } from "@/utils/categories";
+
 export default {
-	name: "StoresPage",
+	name: 'ProductsPage',
 	data() {
 		return {
-			stores: [],
+			products: [],
+			filteredProducts: [],
+			categories: [],
 			sortOrder: 'asc',
-			filters: {
-				type: '',
-				arig_partner: null,
-				city: '',
-				country: '',
-				categories: []
-			},
-			filterDraft: {
-				type: '',
-				arig_partner: null,
-				city: '',
-				country: '',
-				categories: []
-			},
-			filterOptions: {
-				types: ['physical', 'online', 'mixed', 'restaurant'],
-				cities: [],
-				countries: [],
-				categories: []
-			},
 			showFilterDialog: false,
+			cardSize: 0,
 			pagination: {
 				page: 1,
-				itemsPerPage: 5,
+				itemsPerPage: 30,
 			},
+			filterDraft: {
+				name: '',
+				brand: '',
+				categories: [],
+				made_in_romania: null,
+				certified_arig: null,
+				producer_gluten_declaration: null,
+				excluded_allergens: [],
+				stores: []
+			},
+			filters: {
+				name: '',
+				brand: '',
+				categories: [],
+				made_in_romania: null,
+				certified_arig: null,
+				producer_gluten_declaration: null,
+				excluded_allergens: [],
+				stores: []
+			},
+			allergens: [],
+			storeOptions: [],
 		};
-	},
-	watch: {
-		"$route.params.type"(newType) {
-			if (this.filterOptions.types.includes(newType)) {
-				this.filters.type = newType;
-				this.filterDraft.type = newType;
-				this.pagination.page = 1;
-			} else {
-				this.filters.type = '';
-				this.filterDraft.type = '';
-			}
-		} 
 	},
 	computed: {
 		pageCount() {
-			return Math.ceil(this.filteredStores.length / this.pagination.itemsPerPage);
+			return Math.ceil(this.filteredProducts.length / this.pagination.itemsPerPage);
 		},
-		paginatedStores() {
+		paginatedProducts() {
 			const start = (this.pagination.page - 1) * this.pagination.itemsPerPage;
 			const end = start + this.pagination.itemsPerPage;
-			return this.filteredStores.slice(start, end);
+			return this.filteredProducts.slice(start, end);
 		},
-		filteredStores() {
-			const filtered =  this.stores.filter(store => {
-				const matchesType = !this.filters.type || store.type === this.filters.type;
-				const matchesPartner = this.filters.arig_partner === null || store.arig_partner === this.filters.arig_partner;
-				const matchesCity = !this.filters.city || (store.addresses || []).some(addr => addr.city === this.filters.city);
-				const matchesCountry = !this.filters.country || (store.addresses || []).some(addr => addr.country === this.filters.country);
-				const matchesCategories =
-					this.filters.categories.length === 0 ||
-					this.filters.categories.some(cat => store.categories?.includes(cat));
-				
-				return matchesType && matchesPartner && matchesCity && matchesCountry && matchesCategories;
-			});
-
-			return filtered.sort((a, b) => {
-				if (!a.name || !b.name) return 0;
-		
-				if (this.sortOrder === 'asc') {
-					return a.name.localeCompare(b.name);
-				} else {
-					return b.name.localeCompare(a.name);
-				}
-			});
-		},
+		hasActiveFilters() {
+			return this.filters.name || this.filters.brand || this.filters.categories.length > 0;
+		}
+	},
+	watch: {
+		'$route.params.category'(newVal) {
+			if (newVal && groupedCategories[newVal.toLowerCase()]) {
+				const subcategories = groupedCategories[newVal.toLowerCase()];
+				this.filters.categories = subcategories;
+				this.filterDraft.categories = subcategories;
+			} else {
+				this.filters.categories = [];
+				this.filterDraft.categories = [];
+			}
+			this.applyFilters();
+		}
 	},
 	created() {
-		const typeFromParams = this.$route.params.type;
-		if (this.filterOptions.types.includes(typeFromParams)) {
-			this.filters.type = typeFromParams;
-			this.filterDraft.type = typeFromParams;
-		}
+		const routeCategory = this.$route.params.category;
 
+		this.fetchProducts();
+		this.fetchCategories();
+		this.fetchAllergens();
 		this.fetchStores();
+
+		if (routeCategory && groupedCategories[routeCategory.toLowerCase()]) {
+			const subcategories = groupedCategories[routeCategory.toLowerCase()];
+			this.filters.categories = subcategories;
+			this.filterDraft.categories = subcategories;
+		}
+	},
+	mounted() {
+		this.updateCardSize();
+		window.addEventListener('resize', this.updateCardSize);
+	},
+	beforeUnmount() {
+		window.removeEventListener('resize', this.updateCardSize);
 	},
 	methods: {
-		async fetchStores() {
+		async fetchProducts() {
 			try {
-				const res = await fetch("http://localhost:5000/api/stores");
-
+				const res = await fetch('http://localhost:5000/api/products');
 				const data = await res.json();
-				this.stores = data;
-
-				this.filterOptions.cities = [
-					...new Set(data.flatMap(store => store.addresses?.map(addr => addr.city).filter(Boolean)))
-				];
-				this.filterOptions.countries = [
-					...new Set(data.flatMap(store => store.addresses?.map(addr => addr.country).filter(Boolean)))
-				];
-				this.filterOptions.categories = [
-					...new Set(data.flatMap(store => store.categories || []))
-				];
-
+				this.products = data;
+				this.applyFilters();
 			} catch (err) {
-				console.error("Eroare la încărcarea magazinelor:", err);
+				console.error('Eroare la încărcarea produselor:', err);
 			}
 		},
-		formatAddress(address) {
-			if (!address) return "-";
-			return `${address.address || ""}, ${address.city || ""}, ${address.country || ""}`.trim();
+		async fetchCategories() {
+			try {
+				const res = await fetch('http://localhost:5000/api/categories');
+				const data = await res.json();
+				this.categories = data;
+			} catch (err) {
+				console.error('Eroare la încărcarea categoriilor:', err);
+			}
 		},
-		extractUniqueCities(addresses) {
-			return [...new Set(
-				addresses
-					.map(addr => addr.city)
-					.filter(Boolean)
-			)];
+		async fetchAllergens() {
+			const res = await fetch("http://localhost:5000/api/allergens");
+			this.allergens = await res.json();
+		},
+		async fetchStores() {
+			const res = await fetch("http://localhost:5000/api/stores");
+			this.storeOptions = await res.json();
 		},
 		applyFilters() {
-			this.filters = JSON.parse(JSON.stringify(this.filterDraft));
-			this.pagination.page = 1;
-			this.showFilterDialog = false;
+			const filteredProducts = this.products.filter(product => {
+				const {
+					name,
+					brand,
+					categories,
+					made_in_romania,
+					certified_arig,
+					producer_gluten_declaration,
+					excluded_allergens,
+					stores
+				} = this.filters;
 
-			this.$emit("navigate-to-stores", this.filters.type || null);
+				let validCategories = categories;
+				const routeCategory = this.$route.params.category;
+				if (routeCategory && groupedCategories[routeCategory.toLowerCase()] && validCategories.length === 0) {
+					validCategories = groupedCategories[routeCategory.toLowerCase()];
+				}
+
+				const matchesName = !name || product.name?.toLowerCase().includes(name.toLowerCase());
+				const matchesBrand = !brand || product.brand?.toLowerCase().includes(brand.toLowerCase());
+				const matchesMadeInRo = made_in_romania === null || product.made_in_romania === made_in_romania;
+				const matchesCertArig = certified_arig === null || product.certified_arig === certified_arig;
+				const matchesDecl = producer_gluten_declaration === null || product.producer_gluten_declaration === producer_gluten_declaration;
+				const matchesCategory = validCategories.length === 0 || validCategories.includes(product.category);
+				const excludedCodes = (excluded_allergens || []).map(tag =>
+					typeof tag === 'string' ? tag : tag.code
+				);
+				const matchesAllergens = excludedCodes.length === 0 || !excludedCodes.some(code => (product.allergen_tags || []).includes(code));
+				const matchesStores = stores.length === 0 || stores.some(storeId => (product.stores || []).includes(storeId));
+
+				return matchesName && matchesBrand && matchesMadeInRo && matchesCertArig &&
+					matchesDecl && matchesCategory &&
+					matchesAllergens && matchesStores;
+			});
+
+			this.filteredProducts = filteredProducts.sort((a, b) => {
+				if (!a.name || !b.name) return 0;
+				return this.sortOrder === 'asc'
+					? a.name.localeCompare(b.name)
+					: b.name.localeCompare(a.name);
+			});
+		},
+		toggleSortOrder() {
+			this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+			this.applyFilters();
+		},
+		toggleSwitch(field) {
+			if (this.filterDraft[field] === null) {
+				this.filterDraft[field] = true;
+			} else if (this.filterDraft[field] === true) {
+				this.filterDraft[field] = false;
+			} else {
+				this.filterDraft[field] = null;
+			}
 		},
 		openFilterDialog() {
 			this.filterDraft = JSON.parse(JSON.stringify(this.filters));
 			this.showFilterDialog = true;
 		},
+		applyFilterDialog() {
+			this.filters = JSON.parse(JSON.stringify(this.filterDraft));
+			this.showFilterDialog = false;
+			this.applyFilters();
+		},
 		resetFilters() {
 			this.filters = {
-				type: '',
-				arig_partner: null,
-				city: '',
-				country: '',
-				categories: []
+				name: '',
+				brand: '',
+				categories: [],
+				made_in_romania: null,
+				certified_arig: null,
+				producer_gluten_declaration: null,
+				excluded_allergens: [],
+				stores: []
 			};
-
-			this.filterDraft = JSON.parse(JSON.stringify(this.filters));
-			this.pagination.page = 1;
-
-			this.$emit("navigate-to-stores");
+			this.applyFilters();
+			this.$emit('navigate-to-products');
 		},
-		toggleSortOrder() {
-			this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-		}
-	},
+		updateCardSize() {
+			const containerEl = this.$refs.productContainer?.$el;
+			if (!containerEl) return;
+
+			const containerWidth = containerEl.getBoundingClientRect().width;
+			const availableWidth = containerWidth * 0.9; // păstrăm 90%
+
+			let itemsPerRow = 5;
+			if (availableWidth < 1200) itemsPerRow = 4;
+			if (availableWidth < 900) itemsPerRow = 3;
+			if (availableWidth < 600) itemsPerRow = 2;
+			if (availableWidth < 400) itemsPerRow = 1;
+
+			const spacing = 24 * (itemsPerRow - 1);
+			const totalCardWidth = availableWidth - spacing;
+			const cardSize = Math.floor(totalCardWidth / itemsPerRow);
+
+			this.cardSize = cardSize;
+		},
+	}
 };

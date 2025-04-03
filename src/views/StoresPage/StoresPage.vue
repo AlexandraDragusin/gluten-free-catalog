@@ -46,7 +46,7 @@
 			>
 				<div class="store-card">
 					<v-row>
-						<v-col cols="2">
+						<v-col cols="2" class="store-logo-col">
 							<v-img :src="store.logo_url" alt="store logo" class="store-logo" />
 						</v-col>
 						<v-col cols="10">
@@ -161,6 +161,12 @@
 <script src="./script.js"></script>
 
 <style scoped>
+.stores-page {
+  background-color: #fef9ed;
+  padding-top: 120px;
+  padding-bottom: 40px;
+}
+
 .filter-actions {
 	display: flex;
 	gap: 12px;
@@ -184,10 +190,6 @@
 	margin: 0 auto;
 }
 
-.stores-page {
-  background-color: #fef9ed;
-  padding: 120px 16px 40px;
-}
 
 .store-card-wrapper {
 	display: flex;
@@ -208,36 +210,66 @@
 }
 
 .store-card > .v-row {
-  height: 100%;
-  align-items: center;
+	height: 100%;
+	align-items: center;
 }
 
 .store-logo {
-  object-fit: contain;
-  height: 100%;
-  width: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	object-fit: contain;
+	height: 200px;
+	width: 200px;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.store-card .v-col:nth-child(2) {
+  padding-right: 24px;
+  padding-left: 24px;
+  max-width: calc(100% - 200px);
+}
+
+.store-logo-col {
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .store-name {
-  font-size: 32px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
+	font-size: 32px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
 }
 
 .open-icon {
-  margin-left: 6px;
-  color: #444;
+	margin-left: 6px;
+	color: #444;
 }
 
 .store-address,
 .store-description,
 .store-categories {
-  font-size: 16px;
-  margin-top: 18px;
-  width: 85%;
+	font-size: 16px;
+	margin-top: 18px;
+}
+
+.store-categories {
+	font-size: 16px;
+	margin-top: 18px;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 1.6em;
+	max-height: 4.8em;
+}
+
+.v-col {
+	overflow: hidden;
 }
 
 .store-description {
@@ -252,20 +284,20 @@
 }
 
 .store-address {
-  font-weight: 600;
+	font-weight: 600;
 }
 
 .pagination-row {
-  margin-top: 24px;
-  gap: 12px;
-  justify-content: center;
-  align-items: center;
+	margin-top: 24px;
+	gap: 12px;
+	justify-content: center;
+	align-items: center;
 }
 
 .pagination-label {
-  font-weight: 500;
-  font-size: 14px;
-  color: #555;
+	font-weight: 500;
+	font-size: 14px;
+	color: #555;
 }
 
 .no-results-row {

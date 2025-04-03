@@ -60,7 +60,10 @@
 					v-for="(category, index) in categories"
 					:key="index" cols="6" sm="4" md="3" :style="{ padding: '24px' }" 
 				>
-					<v-card class="categories-card">
+					<v-card
+						class="categories-card"
+						@click="$emit('navigate-to-products', category.name)"
+					>
 						<v-img :src="category.image" contain height="200px" width="auto" ></v-img>
 						<p class="categories-title">{{ category.name }}</p>
 					</v-card>
@@ -210,6 +213,7 @@
 	font-size: 24px;
 	font-weight: 500;
 	margin-top: 12px;
+	text-transform: uppercase;
 }
 
 </style>

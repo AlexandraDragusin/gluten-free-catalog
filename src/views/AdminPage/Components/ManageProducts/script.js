@@ -362,5 +362,9 @@ export default {
 			this.productImagePreview = null;
 			this.editedProduct.image_url = "";
 		},
+		formatWeight(value) {
+			if (value == null) return '';
+			return parseFloat(value).toFixed(value % 1 === 0 ? 0 : 2);
+		}
 	}
 };

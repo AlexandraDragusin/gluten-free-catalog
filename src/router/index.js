@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomePage from "@/views/HomePage/HomePage.vue";
-import StorePage from "@/views/StoresPage/StoresPage.vue";
+import StoresPage from "@/views/StoresPage/StoresPage.vue";
+import ProductsPage from "@/views/ProductsPage/ProductsPage.vue";
 import LoginPage from "@/views/LoginPage/LoginPage.vue";
 import RegisterPage from "@/views/RegisterPage/RegisterPage.vue";
 import ProfilePage from "@/views/ProfilePage/ProfilePage.vue";
@@ -8,7 +9,8 @@ import AdminPage from "@/views/AdminPage/AdminPage.vue";
 
 const routes = [
 	{ path: "/", name: "Home", component: HomePage },
-	{ path: "/stores/:type?", name: "Stores", component: StorePage },
+	{ path: "/stores/:type?", name: "Stores", component: StoresPage },
+	{ path: "/products/:category?", name: "Products", component: ProductsPage},
 	{ path: "/login", name: "Login", component: LoginPage },
 	{ path: "/register", name: "Register", component: RegisterPage },
 	{ path: "/profile", name: "Profile", component: ProfilePage },

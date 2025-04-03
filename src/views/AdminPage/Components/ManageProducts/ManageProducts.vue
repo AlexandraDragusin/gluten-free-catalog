@@ -78,6 +78,14 @@
 				<v-img :src="item.image_url" max-width="80" max-height="40" contain />
 			</template>
 
+			<template v-slot:[`item.weight`]="{ item }">
+				{{ formatWeight(item.weight) }}
+			</template>
+
+			<template v-slot:[`item.ean_code`]="{ item }">
+				{{ item.ean_code }}
+			</template>
+
 			<template v-slot:[`item.producer_gluten_declaration`]="{ item }">
 				{{ item.producer_gluten_declaration ? 'da' : 'nu' }}
 			</template>
