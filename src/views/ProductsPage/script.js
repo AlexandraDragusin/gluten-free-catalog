@@ -48,19 +48,37 @@ export default {
 			return this.filteredProducts.slice(start, end);
 		},
 		hasActiveFilters() {
-			return this.filters.name || this.filters.brand || this.filters.categories.length > 0;
+			const f = this.filters;
+			return (
+				f.categories.length > 0 ||
+				f.excluded_allergens.length > 0 ||
+				f.stores.length > 0 ||
+				f.made_in_romania !== null ||
+				f.certified_arig !== null ||
+				f.producer_gluten_declaration !== null
+			);
 		}
 	},
 	watch: {
 		'$route.params.category'(newVal) {
-			if (newVal && groupedCategories[newVal.toLowerCase()]) {
-				const subcategories = groupedCategories[newVal.toLowerCase()];
-				this.filters.categories = subcategories;
-				this.filterDraft.categories = subcategories;
+			if (!this.categories.length) return;
+
+			const key = newVal?.toLowerCase();
+
+			if (key && groupedCategories[key]) {
+				const subcategoryNames = groupedCategories[key];
+	
+				const matchedIds = this.categories
+					.filter(cat => subcategoryNames.includes(cat.name))
+					.map(cat => cat.id);
+	
+				this.filters.categories = matchedIds;
+				this.filterDraft.categories = matchedIds;
 			} else {
 				this.filters.categories = [];
 				this.filterDraft.categories = [];
 			}
+
 			this.applyFilters();
 		}
 	},
@@ -72,10 +90,15 @@ export default {
 		this.fetchAllergens();
 		this.fetchStores();
 
-		if (routeCategory && groupedCategories[routeCategory.toLowerCase()]) {
-			const subcategories = groupedCategories[routeCategory.toLowerCase()];
-			this.filters.categories = subcategories;
-			this.filterDraft.categories = subcategories;
+		if (routeCategory && groupedCategories[routeCategory]) {
+			const subcategoryNames = groupedCategories[routeCategory];
+	
+			const matchedIds = this.categories
+				.filter(cat => subcategoryNames.includes(cat.name))
+				.map(cat => cat.id);
+	
+			this.filters.categories = matchedIds;
+			this.filterDraft.categories = matchedIds;
 		}
 	},
 	mounted() {
@@ -101,6 +124,21 @@ export default {
 				const res = await fetch('http://localhost:5000/api/categories');
 				const data = await res.json();
 				this.categories = data;
+
+				// If a category is passed in the route, filter the products based on that category
+				const routeCategory = this.$route.params.category;
+				if (routeCategory) {
+					const key = routeCategory.toLowerCase();
+					const subcategoryNames = groupedCategories[key] || [];
+
+					const matchedIds = data
+						.filter(cat => subcategoryNames.includes(cat.name))
+						.map(cat => cat.id);
+
+					this.filters.categories = matchedIds;
+					this.filterDraft.categories = matchedIds;
+					this.applyFilters();
+				}
 			} catch (err) {
 				console.error('Eroare la încărcarea categoriilor:', err);
 			}
@@ -116,8 +154,6 @@ export default {
 		applyFilters() {
 			const filteredProducts = this.products.filter(product => {
 				const {
-					name,
-					brand,
 					categories,
 					made_in_romania,
 					certified_arig,
@@ -132,19 +168,17 @@ export default {
 					validCategories = groupedCategories[routeCategory.toLowerCase()];
 				}
 
-				const matchesName = !name || product.name?.toLowerCase().includes(name.toLowerCase());
-				const matchesBrand = !brand || product.brand?.toLowerCase().includes(brand.toLowerCase());
 				const matchesMadeInRo = made_in_romania === null || product.made_in_romania === made_in_romania;
 				const matchesCertArig = certified_arig === null || product.certified_arig === certified_arig;
 				const matchesDecl = producer_gluten_declaration === null || product.producer_gluten_declaration === producer_gluten_declaration;
-				const matchesCategory = validCategories.length === 0 || validCategories.includes(product.category);
+				const matchesCategory = validCategories.length === 0 || validCategories.includes(product.category_id);
 				const excludedCodes = (excluded_allergens || []).map(tag =>
 					typeof tag === 'string' ? tag : tag.code
 				);
 				const matchesAllergens = excludedCodes.length === 0 || !excludedCodes.some(code => (product.allergen_tags || []).includes(code));
-				const matchesStores = stores.length === 0 || stores.some(storeId => (product.stores || []).includes(storeId));
+				const matchesStores = stores.length === 0 || stores.includes(product.store_id);
 
-				return matchesName && matchesBrand && matchesMadeInRo && matchesCertArig &&
+				return  matchesMadeInRo && matchesCertArig &&
 					matchesDecl && matchesCategory &&
 					matchesAllergens && matchesStores;
 			});
@@ -174,7 +208,19 @@ export default {
 			this.showFilterDialog = true;
 		},
 		applyFilterDialog() {
-			this.filters = JSON.parse(JSON.stringify(this.filterDraft));
+			this.filters = {
+				...this.filterDraft,
+				categories: this.filterDraft.categories.map(cat =>
+					typeof cat === 'object' ? cat.id : cat
+				),
+				excluded_allergens: this.filterDraft.excluded_allergens.map(tag =>
+					typeof tag === 'string' ? tag : tag.code
+				),
+				stores: this.filterDraft.stores.map(store =>
+					typeof store === 'object' ? store.id : store
+				)
+			};
+
 			this.showFilterDialog = false;
 			this.applyFilters();
 		},

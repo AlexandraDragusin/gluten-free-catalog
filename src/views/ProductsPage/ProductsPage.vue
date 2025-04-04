@@ -68,75 +68,72 @@
 
 		<!-- Filter Dialog -->
 		<v-dialog v-model="showFilterDialog" max-width="500">
-			<v-card>
-			<v-card-title>Filtrare produse</v-card-title>
-			<v-card-text>
-				<v-text-field v-model="filterDraft.name" label="Nume" variant="outlined" />
-				<v-text-field v-model="filterDraft.brand" label="Brand" variant="outlined" />
+			<v-card class="filter-dialog-card">
+				<v-card-title>Filtrare produse</v-card-title>
+				<v-card-text>
+					<v-select
+						v-model="filterDraft.categories"
+						:items="categories"
+						item-title="name"
+						item-value="id"
+						label="Categorii"
+						variant="outlined"
+						clearable
+						multiple
+					/>
 
-				<v-select
-					v-model="filterDraft.categories"
-					:items="categories"
-					item-title="name"
-					item-value="name"
-					label="Categorii"
-					variant="outlined"
-					clearable
-					multiple
-				/>
+					<v-switch
+						v-model="filterDraft.made_in_romania"
+						label="Fabricat în România"
+						inset
+						:indeterminate="filterDraft.made_in_romania === null"
+						@click="toggleSwitch('made_in_romania')"
+					/>
 
-				<v-switch
-					v-model="filterDraft.made_in_romania"
-					label="Fabricat în România"
-					inset
-					:indeterminate="filterDraft.made_in_romania === null"
-					@click="toggleSwitch('made_in_romania')"
-				/>
+					<v-switch
+						v-model="filterDraft.certified_arig"
+						label="Certificat ARIG"
+						inset
+						:indeterminate="filterDraft.certified_arig === null"
+						@click="toggleSwitch('certified_arig')"
+					/>
 
-				<v-switch
-					v-model="filterDraft.certified_arig"
-					label="Certificat ARIG"
-					inset
-					:indeterminate="filterDraft.certified_arig === null"
-					@click="toggleSwitch('certified_arig')"
-				/>
+					<v-switch
+						v-model="filterDraft.producer_gluten_declaration"
+						label="Declarație producător fără gluten"
+						inset
+						:indeterminate="filterDraft.producer_gluten_declaration === null"
+						@click="toggleSwitch('producer_gluten_declaration')"
+					/>
 
-				<v-switch
-					v-model="filterDraft.producer_gluten_declaration"
-					label="Declarație producător fără gluten"
-					inset
-					:indeterminate="filterDraft.producer_gluten_declaration === null"
-					@click="toggleSwitch('producer_gluten_declaration')"
-				/>
+					<v-combobox
+						v-model="filterDraft.excluded_allergens"
+						:items="allergens"
+						item-title="name"
+						item-value="code"
+						label="Exclude alergeni"
+						multiple
+						chips
+						clearable
+						variant="outlined"
+					/>
 
-				<v-combobox
-					v-model="filterDraft.excluded_allergens"
-					:items="allergens"
-					item-title="name"
-					item-value="code"
-					label="Exclude alergeni"
-					multiple
-					chips
-					clearable
-					variant="outlined"
-				/>
-
-				<v-select
-					v-model="filterDraft.stores"
-					:items="storeOptions"
-					item-title="name"
-					item-value="id"
-					label="Magazine"
-					multiple
-					clearable
-					variant="outlined"
-				/>
-			</v-card-text>
-			<v-card-actions>
-				<v-spacer />
-				<v-btn text @click="showFilterDialog = false">Anulează</v-btn>
-				<v-btn color="primary" @click="applyFilterDialog">Aplică</v-btn>
-			</v-card-actions>
+					<v-select
+						v-model="filterDraft.stores"
+						:items="storeOptions"
+						item-title="name"
+						item-value="id"
+						label="Magazine"
+						multiple
+						clearable
+						variant="outlined"
+					/>
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer />
+					<v-btn text @click="showFilterDialog = false">Anulează</v-btn>
+					<v-btn color="primary" @click="applyFilterDialog">Aplică</v-btn>
+				</v-card-actions>
 			</v-card>
 		</v-dialog>
 	</v-container>
@@ -179,11 +176,11 @@
 	text-align: left;
 	display: grid;
 	grid-template-rows: auto auto 1fr auto;
-	row-gap: 12px;
+	row-gap: 8px;
 }
 
 .product-image {
-	flex: 0 0 50%;
+	flex: 0 0 60%;
 	object-fit: contain;
 	background-color: #fcf8e3;
 }
@@ -191,7 +188,6 @@
 .product-brand {
 	font-size: 14px;
 	color: #777;
-	margin-bottom: 6px;
 }
 
 .product-weight {
@@ -209,7 +205,6 @@
 }
 
 .product-card-wrapper {
-	flex: 0 1 280px;
 	max-width: 100%;
 	padding: 0;
 	height: 360px;
@@ -263,5 +258,15 @@
 	font-size: 14px;
 	color: #555;
 }
+
+.filter-dialog-card {
+  height: 600px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-dialog-card .v-card-text {
+  flex: 1;
+  overflow-y: auto;
+}
 </style>
-  

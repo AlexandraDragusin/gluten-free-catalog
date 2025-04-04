@@ -1,14 +1,14 @@
 export const groupedCategories = {
 	"făină și panificație": [
 		"Pâine",
-		"Alte produse de panificatie",
-		"Făina și mixuri de făinuri"
+		"Alte produse de panificație",
+		"Făină și mixuri de făinuri"
 	],
 	"ingrediente de gătit": [
-		"Ingrediente gatit",
+		"Ingrediente gătit",
 		"Condimente"
 	],
-	"produse de bază": ["Produse de baza"],
+	"produse de bază": ["Produse de bază"],
 	"paste și cereale": [
 		"Paste",
 		"Cereale mic dejun"
@@ -30,7 +30,7 @@ export const groupedCategories = {
 	"lactate": [
 		"Lapte și derivate",
 		"Lapte vegetal și derivate",
-		"Inghetata"
+		"Înghețată"
 	],
 	"fructe și legume": [
 		"Fructe uscate și semințe",
@@ -39,8 +39,8 @@ export const groupedCategories = {
 	"semipreparate": ["Semipreparate"],
 	"sosuri": ["Sosuri"],
 	"mezeluri": ["Mezeluri"],
-	"ulei și oțet": ["Ulei și otet"],
-		"băuturi": [
+	"ulei și oțet": ["Ulei si oțet"],
+	"băuturi": [
 		"Bere",
 		"Sucuri și siropuri"
 	],

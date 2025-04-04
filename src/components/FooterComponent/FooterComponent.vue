@@ -31,7 +31,8 @@
 	font-weight: 500;
 	width: 100%;
 	position: relative !important;
-	/* bottom: 0; */
+	margin-bottom: 0;
+	bottom: 0 !important;
 }
 
 .footer-container {
