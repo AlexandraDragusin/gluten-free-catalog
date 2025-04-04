@@ -138,11 +138,6 @@
 							variant="outlined"
 						/>
 						<v-text-field v-model="editedStore.website" label="Website" variant="outlined"/>
-						<v-text-field
-							v-model="editedStore.logo_url"
-							label="Logo URL"
-							variant="outlined"
-						/>
 						<v-switch
 							v-model="editedStore.arig_partner"
 							label="Partener ARIG"
@@ -225,6 +220,8 @@
 				<v-combobox
 					v-model="filterDraft.categories"
 					:items="filterOptions.categories"
+					item-title="name"
+					item-value="id"
 					label="Categorii"
 					multiple
 					variant="outlined"

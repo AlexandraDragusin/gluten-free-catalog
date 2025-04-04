@@ -44,7 +44,7 @@
 			:headers="headersToUse"
 			:items="categories"
 			class="custom-table"
-			item-value="name"
+			item-value="id"
 			return-object
 			v-model="selectedCategories"
 			:show-select="selectionMode"

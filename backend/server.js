@@ -21,7 +21,6 @@ const storeRoutes = require("./routes/stores");
 const favoriteRoutes = require("./routes/favorites");
 const reviewRoutes = require("./routes/reviews");
 const storeCategoryRoutes = require("./routes/store_categories");
-const productStoreRoutes = require("./routes/product_stores");
 const categoriesRouter = require("./routes/categories");
 const allergensRouter = require("./routes/allergens");
 
@@ -34,7 +33,6 @@ app.use("/api/favorites", favoriteRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/allergens", allergensRouter);
 app.use("/api/store_categories", storeCategoryRoutes);
-app.use("/api/product_stores", productStoreRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -52,7 +52,8 @@ export default {
 				{ title: "Unitate de masura", value: "unit" },
 				{ title: "Imagine", value: "image_url" },
 				{ title: "Cod EAN", value: "ean_code" },
-				{ title: "Categorie", value: "category" },
+				{ title: "Categorie", value: "category_name" },
+				{ title: "Magazin", value: "store_name" },
 				{ title: "Acțiuni", value: "actions", sortable: false, width: "112px" },
 			]
 		};
@@ -71,10 +72,10 @@ export default {
 		}
 	},
 	created() {
-		this.fetchProducts();
+		this.fetchStores();
 		this.fetchAllergens();
 		this.fetchCategories();
-		this.fetchStores();
+		this.fetchProducts();
 	},
 	methods: {
 		async fetchProducts() {
@@ -82,34 +83,23 @@ export default {
 				const res = await fetch("http://localhost:5000/api/products");
 				const data = await res.json();
 
-				const mappedProducts  = data.map(p => {
-					const names = p.allergen_tags
-						.map(code => {
-							const found = this.allergens.find(a => a.code === code);
-							return found ? found.name : code;
-						});
+				const mappedProducts = data.map(p => {
+					const allergenNames = p.allergen_tags.map(code => {
+						const found = this.allergens.find(a => a.code === code);
+						return found ? found.name : code;
+					});
+					const store = this.storeOptions.find(s => s.id === p.store_id);
+					const category = this.categories.find(c => c.id === p.category_id);
+				
 					return {
 						...p,
-						allergen_tags_display: names.join(", "),
-						stores: []
+						allergen_tags_display: allergenNames.join(", "),
+						store_name: store?.name || "Nespecificat",
+						category_name: category?.name || "Nespecificat"
 					};
 				});
 
-				// Fetch stores for each product
-				await Promise.all(mappedProducts.map(async (product) => {
-					try {
-						const resStores = await fetch(`http://localhost:5000/api/product_stores/${product.id}`);
-						if (!resStores.ok) return;
-		
-						const storeData = await resStores.json();
-						product.stores = storeData.map(s => s.id);
-					} catch (err) {
-						console.error("Eroare la fetch stores for product", product.id, err);
-					}
-				}));
-
 				this.products = mappedProducts;
-
 				this.applyFilters();
 			} catch (err) {
 				console.error("Eroare la preluarea produselor:", err);
@@ -237,6 +227,8 @@ export default {
 				this.products = this.products.filter(
 					p => !this.selectedProducts.some(sel => sel.id === p.id)
 				);
+
+				this.applyFilters();
 		
 				this.showSnackbar(`${this.selectedProducts.length} produs(e) șters(e).`);
 				this.cancelSelection();
@@ -266,10 +258,10 @@ export default {
 				const matchesMadeInRo = made_in_romania === null || product.made_in_romania === made_in_romania;
 				const matchesCertArig = certified_arig === null || product.certified_arig === certified_arig;
 				const matchesDecl = producer_gluten_declaration === null || product.producer_gluten_declaration === producer_gluten_declaration;
-				const matchesCategory = categories.length === 0 || categories.includes(product.category);
+				const matchesCategory = categories.length === 0 || categories.includes(product.category_id);
 				const excludedCodes = excluded_allergens.map(tag => typeof tag === 'string' ? tag : tag.code);
 				const matchesAllergens = excludedCodes.length === 0 || !excludedCodes.some(code => product.allergen_tags.includes(code));
-				const matchesStores = stores.length === 0 || stores.some(storeId => product.stores?.includes(storeId));
+				const matchesStores = stores.length === 0 || stores.includes(product.store_id);
 				return matchesName && matchesBrand && matchesMadeInRo && matchesCertArig &&
 					matchesDecl && matchesCategory &&
 					matchesAllergens && matchesStores;
@@ -282,6 +274,7 @@ export default {
 		applyFilterDialog() {
 			this.filters = {
 				...this.filterDraft,
+				categories: this.filterDraft.categories.map(cat => typeof cat === 'object' ? cat.id : cat),
 				excluded_allergens: this.filterDraft.excluded_allergens.map(tag =>
 					typeof tag === 'string' ? tag : tag.code
 				)

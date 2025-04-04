@@ -42,7 +42,7 @@ export default {
 			try {
 				const res = await fetch("http://localhost:5000/api/categories");
 				const data = await res.json();
-				this.categories = data.map((name) => ({ name }));
+				this.categories = data;
 			} catch (err) {
 				console.error("Eroare la preluarea categoriilor:", err);
 			}
@@ -63,11 +63,11 @@ export default {
 		},
 		async updateCategory() {
 			try {
-				const res = await fetch(`http://localhost:5000/api/categories/${this.originalName}`, {
+				const res = await fetch(`http://localhost:5000/api/categories/${this.editedCategory.id}`, {
 					method: "PUT",
 					headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${localStorage.getItem("token")}`
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem("token")}`
 					},
 					body: JSON.stringify({ name: this.editedCategory.name })
 				});
@@ -92,7 +92,7 @@ export default {
 		
 				await Promise.all(
 					this.selectedCategories.map(async (cat) => {
-						const res = await fetch(`http://localhost:5000/api/categories/${cat.name}`, {
+						const res = await fetch(`http://localhost:5000/api/categories/${cat.id}`, {
 							method: "DELETE",
 							headers: {
 								Authorization: `Bearer ${token}`,
@@ -101,11 +101,11 @@ export default {
 						if (!res.ok) throw new Error("Eroare la ștergere");
 					})
 				);
-		
+
 				this.categories = this.categories.filter(
-					(c) => !this.selectedCategories.some((sel) => sel.name === c.name)
+					(c) => !this.selectedCategories.some((sel) => sel.id === c.id)
 				);
-		
+
 				this.showSnackbar(`${this.selectedCategories.length} categorie(i) șters(e).`);
 				this.cancelSelection();
 				this.showConfirmDialog = false;

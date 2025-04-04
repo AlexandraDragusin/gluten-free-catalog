@@ -93,9 +93,12 @@ export default {
 				const matchesPartner = this.filters.arig_partner === null || store.arig_partner === this.filters.arig_partner;
 				const matchesCity = !this.filters.city || (store.addresses || []).some(addr => addr.city === this.filters.city);
 				const matchesCountry = !this.filters.country || (store.addresses || []).some(addr => addr.country === this.filters.country);
+
 				const matchesCategories =
 					this.filters.categories.length === 0 ||
-					(this.filters.categories.some(cat => store.categories?.includes(cat)));
+					this.filters.categories.some(filterCat => 
+						store.categories.includes(filterCat.id)
+					);
 				return matchesSearch && matchesType && matchesPartner && matchesCity && matchesCountry && matchesCategories;
 			});
 		},
@@ -110,10 +113,31 @@ export default {
 		},
 		async fetchStores() {
 			try {
-				const res = await fetch("http://localhost:5000/api/stores");
-				const data  = await res.json();
+				// Fetch categories from the backend
+				const categoriesRes = await fetch("http://localhost:5000/api/categories");
+				const categories = await categoriesRes.json();
+				this.filterOptions.categories = categories;
 
-				this.stores = data.map(store => ({
+				// Fetch stores from the backend
+				const categoriesSet = new Set();
+				const storesRes = await fetch("http://localhost:5000/api/stores");
+				const storesData = await storesRes.json();
+
+				// Fetch categories for each store and add them to the store object
+				const storesWithCategories = await Promise.all(
+					storesData.map(async (store) => {
+						const storeCategoriesRes = await fetch(`http://localhost:5000/api/store_categories/${store.id}`);
+						const storeCategories = await storeCategoriesRes.json();
+						store.categories = storeCategories.map(cat => cat.category_id);
+
+						// Adăugăm categoriile magazinului la setul de categorii unice
+						store.categories.forEach(catId => categoriesSet.add(catId));
+
+						return store;
+					})
+				);
+
+				this.stores = storesWithCategories.map(store => ({
 					...store,
 					type_display: {
 							physical: "Fizic",
@@ -124,16 +148,15 @@ export default {
 				}));
 
 				this.filterOptions.cities = [
-					...new Set(data.flatMap(store => store.addresses?.map(addr => addr.city).filter(Boolean)))
+					...new Set(storesData.flatMap(store => store.addresses?.map(addr => addr.city).filter(Boolean)))
 				];
 				
 				this.filterOptions.countries = [
-					...new Set(data.flatMap(store => store.addresses?.map(addr => addr.country).filter(Boolean)))
+					...new Set(storesData.flatMap(store => store.addresses?.map(addr => addr.country).filter(Boolean)))
 				];
 
-				const allCategories = data.flatMap(store => store.categories || []);
-				this.filterOptions.categories = [...new Set(allCategories)];
-
+				this.filterOptions.categories = categories.filter(category => categoriesSet.has(category.id));
+				this.stores = storesWithCategories;
 			} catch (err) {
 				console.error("Eroare la preluarea magazinelor:", err);
 			}

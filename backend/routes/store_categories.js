@@ -4,12 +4,12 @@ const router = express.Router();
 
 // Add a category to a store
 router.post("/", async (req, res) => {
-    const { store_id, category } = req.body;
+    const { store_id, category_id } = req.body;
 
     try {
         await pool.query(
-            "INSERT INTO store_categories (store_id, category) VALUES ($1, $2)",
-            [store_id, category]
+            "INSERT INTO store_categories (store_id, category_id) VALUES ($1, $2)",
+            [store_id, category_id]
         );
         res.status(201).json({ message: "Category added to store" });
     } catch (err) {
@@ -24,7 +24,7 @@ router.get("/:store_id", async (req, res) => {
 
     try {
         const result = await pool.query(
-            "SELECT category FROM store_categories WHERE store_id = $1",
+            "SELECT category_id FROM store_categories WHERE store_id = $1",
             [store_id]
         );
         res.json(result.rows);
@@ -36,12 +36,12 @@ router.get("/:store_id", async (req, res) => {
 
 // Remove a category from a store
 router.delete("/", async (req, res) => {
-    const { store_id, category } = req.body;
+    const { store_id, category_id } = req.body;
 
     try {
         await pool.query(
-            "DELETE FROM store_categories WHERE store_id = $1 AND category = $2",
-            [store_id, category]
+            "DELETE FROM store_categories WHERE store_id = $1 AND category_id = $2",
+            [store_id, category_id]
         );
         res.json({ message: "Category removed from store" });
     } catch (err) {

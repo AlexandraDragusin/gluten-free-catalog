@@ -73,7 +73,12 @@
 							<p class="store-description">{{ store.description }}</p>
 							<p class="store-categories">
 								<strong>Categorii de produse: </strong>
-								<span>{{ (store.categories || []).join(", ") || "Nespecificat" }}</span>
+								<span>
+									{{ (store.categories || [])
+										.map(catId => filterOptions.categories.find(c => c.id === catId)?.name)
+										.filter(Boolean)
+										.join(", ") || "Nespecificat" }}
+								</span>							
 							</p>
 						</v-col>
 					</v-row>
@@ -142,6 +147,8 @@
 					<v-combobox
 						v-model="filterDraft.categories"
 						:items="filterOptions.categories"
+						item-title="name"
+						item-value="id"
 						label="Categorii"
 						variant="outlined"
 						clearable

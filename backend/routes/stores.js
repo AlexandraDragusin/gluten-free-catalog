@@ -25,21 +25,10 @@ router.get("/", async (req, res) => {
 			addressesByStore[addr.store_id].push(addr);
 		}
 
-		// Get categories for all stores
-		const categoriesResult = await pool.query("SELECT store_id, category FROM store_categories");
-		const categoriesByStore = {};
-		for (const row of categoriesResult.rows) {
-			if (!categoriesByStore[row.store_id]) {
-				categoriesByStore[row.store_id] = [];
-			}
-			categoriesByStore[row.store_id].push(row.category);
-		}
-
-		// Attach addresses and categories to each store
+		// Attach addresses to each store
 		const enrichedStores = stores.map(store => ({
 			...store,
-			addresses: addressesByStore[store.id] || [],
-			categories: categoriesByStore[store.id] || []
+			addresses: addressesByStore[store.id] || []
 		}));
 
 		res.json(enrichedStores);

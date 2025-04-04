@@ -13,7 +13,7 @@ export default {
 				image_url: "",
 				description: "",
 				cross_grain_cert_code: "",
-				category: "",
+				category_id: null,
 				store_id: null,
 				allergen_tags: [],
 			},
@@ -46,7 +46,8 @@ export default {
 				const response = await fetch("http://localhost:5000/api/categories");
 				const data = await response.json();
 				this.categories = data.map(category => ({
-					category
+					id: category.id,
+					name: category.name
 				}));
 			} catch (error) {
 				console.error("Eroare la preluarea categoriilor:", error);
@@ -155,10 +156,13 @@ export default {
 				image_url: "",
 				description: "",
 				cross_grain_cert_code: "",
-				category: "",
-				store: "",
+				category_id: null,
+				store_id: null,
 				allergen_tags: [],
 			};
+
+			this.logoPreview = null;
+			this.imageFile = null;
 
 			this.$refs.form.reset();
 		},

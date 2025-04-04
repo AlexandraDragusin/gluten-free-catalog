@@ -11,7 +11,6 @@
 						:src="logoPreview || product.image_url"
 						alt="Imagine produs"
 						class="edit-logo-img"
-						cover
 					/>
 					<v-icon v-else class="default-avatar">mdi-image-off</v-icon>
 				</div>
@@ -67,8 +66,6 @@
 					variant="outlined"
 				></v-text-field>
 
-				<v-text-field v-model="product.image_url" label="URL imagine" variant="outlined"></v-text-field>
-
 				<v-textarea v-model="product.description" label="Descriere" variant="outlined"></v-textarea>
 				<v-text-field v-model="product.cross_grain_cert_code" label="Cod certificat Cross Grain" variant="outlined"></v-text-field>
 
@@ -84,10 +81,10 @@
 				></v-select>
 
 				<v-select
-					v-model="product.category"
+					v-model="product.category_id"
 					:items="categories"
-					item-title="category"
-					item-value="category"
+					item-title="name"
+					item-value="id"
 					label="Categorie"
 					:rules="[rules.requiredSelect]"
 					variant="outlined"
@@ -157,8 +154,8 @@
 }
 
 .logo-preview-box {
-	width: 140px;
-	height: 140px;
+	width: 160px;
+	height: 160px;
 	border: 2px solid #ddd;
 	border-radius: 8px;
 	overflow: hidden;

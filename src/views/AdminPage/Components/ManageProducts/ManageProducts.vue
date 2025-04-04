@@ -150,14 +150,14 @@
 				<!-- Edit product form -->
 				<v-form @submit.prevent="updateProduct">
 					<v-text-field v-model="editedProduct.name" label="Nume" required variant="outlined"/>
+					<v-select v-model="editedProduct.store_id" :items="storeOptions" item-title="name" item-value="id" label="Magazin" required variant="outlined"/>
 					<v-text-field v-model="editedProduct.brand" label="Brand" variant="outlined"/>
 					<v-text-field v-model="editedProduct.ean_code" label="Cod EAN" required variant="outlined"/>
-					<v-select v-model="editedProduct.category" :items="categories" label="Categorie" required variant="outlined"/>
+					<v-select v-model="editedProduct.category_id" :items="categories" item-title="name" item-value="id" label="Categorie" required variant="outlined"/>
 					<v-textarea v-model="editedProduct.description" label="Descriere" variant="outlined"/>
 					<v-text-field v-model.number="editedProduct.weight" label="Greutate" type="number" variant="outlined"/>
 					<v-text-field v-model="editedProduct.unit" label="Unitate" variant="outlined"/>
 					<v-text-field v-model="editedProduct.cross_grain_cert_code" label="Certificat Crossed Grain" variant="outlined"/>
-					<v-text-field v-model="editedProduct.image_url" label="Imagine URL" variant="outlined"/>
 
 					<v-combobox
 						v-model="editedProduct.allergen_tags"
@@ -177,8 +177,8 @@
 			</v-card-text>
 
 			<v-card-actions class="sticky-actions">
-				<v-btn text @click="cancelEdit">Anulează</v-btn>
-				<v-btn color="primary" @click="updateProduct">Salvează</v-btn>
+				<v-btn text variant="outlined"  @click="cancelEdit">Anulează</v-btn>
+				<v-btn variant="outlined" @click="updateProduct">Salvează</v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-dialog>
@@ -218,6 +218,8 @@
 			<v-select
 				v-model="filterDraft.categories"
 				:items="categories"
+				item-title="name"
+				item-value="id"
 				label="Categorii"
 				variant="outlined"
 				multiple
