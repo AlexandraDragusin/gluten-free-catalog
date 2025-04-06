@@ -38,3 +38,4 @@ export function checkTokenExpiration(logoutCallback) {
 		logoutCallback();
 	}
 }
+

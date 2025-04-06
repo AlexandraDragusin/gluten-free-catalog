@@ -1,42 +1,110 @@
 <template>
-	<v-card class="shopping-lists-card">
-		<v-card-title class="section-title">Liste de Cumpărături</v-card-title>
-		<v-card-text>
-		<v-list>
-			<v-list-item v-for="list in shoppingLists" :key="list.id">
-			<v-list-item>
-				<v-list-item-title>{{ list.name }}</v-list-item-title>
-			</v-list-item>
-			<v-btn color="error" variant="text" @click="deleteShoppingList(list.id)">Șterge</v-btn>
-			</v-list-item>
-		</v-list>
+	<div class="shopping-lists-page">
+	<!-- Toolbar -->
+	<v-row class="toolbar" justify="space-between">
+		<v-col cols="12" sm="4">
+			<v-text-field v-model="searchQuery" variant="outlined" density="compact" label="Caută listă..." hide-details clearable class="input-field"/>
+		</v-col>
+		<v-col cols="12" sm="4">
+			<v-select
+				v-model="sortOption"
+				:items="sortOptions"
+				item-title="text"
+				item-value="value"
+				label="Sortează după"
+				variant="outlined"
+				density="compact"
+				class="input-field"
+				hide-details
+			/>
+		</v-col>
+		<v-col cols="12" sm="4" class="d-flex justify-end align-center">
+			<v-btn color="secondary" variant="flat" class="add-button" @click="showAddListDialog = true">
+				<v-icon left>mdi-plus</v-icon> Listă nouă
+			</v-btn>
+		</v-col>
+	</v-row>
 
-		<v-text-field v-model="newShoppingList" label="Adaugă listă nouă" variant="outlined"></v-text-field>
-		<v-btn class="add-list-button" color="primary" @click="addShoppingList">Adaugă listă</v-btn>
+	<!-- List of shopping lists -->
+	<v-row>
+		<v-col
+		v-for="list in filteredAndSortedLists"
+		:key="list.id"
+		cols="12"
+		sm="6"
+		md="4"
+		>
+		<v-card class="shopping-list-card" @click="openListDialog(list)">
+			<v-card-title>{{ list.name }}</v-card-title>
+			<v-card-subtitle>Creată la: {{ formatDate(list.created_at) }}</v-card-subtitle>
+			<v-card-actions>
+			<v-spacer />
+			<v-btn icon @click.stop.prevent="deleteList(list.id)">
+				<v-icon>mdi-delete</v-icon>
+			</v-btn>
+			<v-btn icon @click.stop.prevent="exportToPDF(list.id)">
+				<v-icon>mdi-file-pdf-box</v-icon>
+			</v-btn>
+			<v-btn icon @click.stop.prevent="shareList(list)">
+				<v-icon>mdi-share-variant</v-icon>
+			</v-btn>
+			</v-card-actions>
+		</v-card>
+		</v-col>
+	</v-row>
+
+	<!-- Dialog pentru adăugare listă -->
+	<v-dialog v-model="showAddListDialog" max-width="400">
+		<v-card>
+		<v-card-title>Adaugă o nouă listă</v-card-title>
+		<v-card-text>
+			<v-text-field v-model="newListName" variant="outlined" label="Nume listă" />
 		</v-card-text>
-	</v-card>
+		<v-card-actions>
+			<v-spacer />
+			<v-btn text @click="showAddListDialog = false">Anulează</v-btn>
+			<v-btn @click="createList">Salvează</v-btn>
+		</v-card-actions>
+		</v-card>
+	</v-dialog>
+
+	<!-- Dialog cu detalii despre listă (vine în pasul 2) -->
+	<ShoppingListDialog
+		v-if="selectedList"
+		:list="selectedList"
+		v-model="showListDialog"
+		@updated="fetchLists"
+	/>
+	</div>
 </template>
 
 <script src="./script.js"></script>
 
 <style scoped>
-.shopping-lists-card {
-	padding: 24px;
-	border-radius: 12px;
+.shopping-lists-page {
+	width: 80%;
+	margin-bottom: 60px;
 }
 
-.add-list-button {
-	margin-top: 16px;
-	background-color: #F7B41A;
-	color: #312B1D;
-	font-size: 16px;
-	text-transform: none;
+.toolbar {
+	margin-bottom: 20px;
+}
+
+.shopping-list-card {
+	background-color: #fffbe6;
+	transition: 0.3s ease;
+	cursor: pointer;
+}
+
+.shopping-list-card:hover {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-field {
 	width: 100%;
 }
 
-.section-title {
-	font-size: 20px;
-	color: #312B1D;
-	margin-bottom: 16px;
+.add-button {
+	min-width: 180px;
 }
 </style>

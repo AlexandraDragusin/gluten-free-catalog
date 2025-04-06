@@ -1,76 +1,105 @@
+import ShoppingListDialog from '../ShoppingListDialog/ShoppingListDialog.vue';
+
 export default {
+	name: "ShoppingLists",
+	components: { ShoppingListDialog },
 	data() {
 		return {
-			shoppingLists: [],
-			newShoppingList: "",
+			lists: [],
+			searchQuery: "",
+			sortOption: "recent",
+			sortOptions: [
+				{ text: "Cele mai recente", value: "recent" },
+				{ text: "Cele mai vechi", value: "oldest" },
+				{ text: "Alfabetic", value: "alpha" },
+			],
+			showAddListDialog: false,
+			newListName: "",
+			selectedList: null,
+			showListDialog: false,
 		};
 	},
+	computed: {
+		filteredAndSortedLists() {
+			let filtered = this.lists.filter(list => {
+				const name = list?.name ?? "";
+				const query = this.searchQuery ?? "";
+				return name.toLowerCase().includes(query.toLowerCase());
+			});
+
+			switch (this.sortOption) {
+				case "alpha":
+					return filtered.sort((a, b) => a.name.localeCompare(b.name));
+				case "oldest":
+					return filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+				default:
+					return filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+			}
+		},
+	},
 	created() {
-		this.fetchShoppingLists();
+		this.fetchLists();
 	},
 	methods: {
-		async fetchShoppingLists() {
+		async fetchLists() {
 		try {
 			const token = localStorage.getItem("token");
 			const response = await fetch("http://localhost:5000/api/shopping-lists", {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${token}`,
-			},
+				headers: { Authorization: `Bearer ${token}` },
 			});
 
-			if (!response.ok) {
-				throw new Error("Failed to load shopping lists");
-			}
-
-			this.shoppingLists = await response.json();
-		} catch (error) {
-			console.error("Error fetching shopping lists:", error);
+			this.lists = await response.json();
+		} catch (err) {
+			console.error("Eroare la încărcarea listelor:", err);
 		}
 		},
-		async addShoppingList() {
-		if (!this.newShoppingList.trim()) return;
+		async createList() {
 		try {
 			const token = localStorage.getItem("token");
 			const response = await fetch("http://localhost:5000/api/shopping-lists", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${token}`,
-			},
-			body: JSON.stringify({ name: this.newShoppingList }),
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({ name: this.newListName }),
 			});
 
-			if (!response.ok) {
-				throw new Error("Failed to add shopping list");
-			}
+			if (!response.ok) throw new Error("Eroare la creare listă");
 
-			this.shoppingLists.push(await response.json());
-			this.newShoppingList = "";
-		} catch (error) {
-			console.error("Error adding shopping list:", error);
+			this.showAddListDialog = false;
+			this.newListName = "";
+			this.fetchLists();
+		} catch (err) {
+			console.error("Eroare la creare listă:", err);
 		}
 		},
-		async deleteShoppingList(listId) {
+		async deleteList(id) {
 		try {
 			const token = localStorage.getItem("token");
-			const response = await fetch(`http://localhost:5000/api/shopping-lists/${listId}`, {
-			method: "DELETE",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${token}`,
-			},
+			await fetch(`http://localhost:5000/api/shopping-lists/${id}`, {
+				method: "DELETE",
+				headers: { Authorization: `Bearer ${token}` },
 			});
-
-			if (!response.ok) {
-				throw new Error("Failed to delete shopping list");
-			}
-
-			this.shoppingLists = this.shoppingLists.filter(list => list.id !== listId);
-		} catch (error) {
-			console.error("Error deleting shopping list:", error);
+			this.fetchLists();
+		} catch (err) {
+			console.error("Eroare la ștergere listă:", err);
 		}
+		},
+		formatDate(dateStr) {
+			return new Date(dateStr).toLocaleDateString("ro-RO");
+		},
+		openListDialog(list) {
+			this.selectedList = list;
+			this.showListDialog = true;
+		},
+		exportToPDF(id) {
+			// Placeholder – va fi implementat mai jos
+			console.log("Export to PDF list ID:", id);
+		},
+		shareList(list) {
+			// Placeholder – deschide dialog / copiază link
+			console.log("Partajează lista:", list);
 		},
 	},
 };

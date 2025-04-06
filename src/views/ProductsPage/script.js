@@ -1,4 +1,5 @@
 import { groupedCategories } from "@/utils/categories";
+import { jwtDecode } from "jwt-decode";
 
 export default {
 	name: 'ProductsPage',
@@ -36,6 +37,10 @@ export default {
 			},
 			allergens: [],
 			storeOptions: [],
+			favoriteProductIds: [],
+			userId: null,
+			userRole: null,
+			showLoginPrompt: false,
 		};
 	},
 	computed: {
@@ -85,10 +90,26 @@ export default {
 	created() {
 		const routeCategory = this.$route.params.category;
 
+		const token = localStorage.getItem("token");
+
+		if (token) {
+			try {
+				const decoded = jwtDecode(token);
+
+				this.userId = decoded.id;
+				this.userRole = decoded.role;
+			} catch (e) {
+				console.error("Token invalid sau expirat", e);
+				this.userId = null;
+				this.userRole = null;
+			}
+		}
+
 		this.fetchProducts();
 		this.fetchCategories();
 		this.fetchAllergens();
 		this.fetchStores();
+		this.fetchFavorites();
 
 		if (routeCategory && groupedCategories[routeCategory]) {
 			const subcategoryNames = groupedCategories[routeCategory];
@@ -150,6 +171,50 @@ export default {
 		async fetchStores() {
 			const res = await fetch("http://localhost:5000/api/stores");
 			this.storeOptions = await res.json();
+		},
+		async fetchFavorites() {
+			if (!this.userId || this.userRole === "admin") return;
+
+			try {
+				const res = await fetch(`http://localhost:5000/api/favorites`, {
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem("token")}`,
+					},
+				});
+				const data = await res.json();
+				this.favoriteProductIds = data.map(p => p.id);
+			} catch (err) {
+				console.error("Eroare la încărcarea favoritelor:", err);
+			}
+		},
+		async toggleFavorite(productId) {
+			if (!this.userId || this.userRole === "admin") {
+				this.showLoginPrompt = true;
+				return;
+			}
+	
+			const isFavorite = this.favoriteProductIds.includes(productId);
+			const url = `http://localhost:5000/api/favorites`;
+			const method = isFavorite ? 'DELETE' : 'POST';
+
+			try {
+				await fetch(url, {
+					method,
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${localStorage.getItem("token")}`,
+					},
+					body: JSON.stringify({ product_id: productId }),
+				});
+
+				if (isFavorite) {
+					this.favoriteProductIds = this.favoriteProductIds.filter(id => id !== productId);
+				} else {
+					this.favoriteProductIds.push(productId);
+				}
+			} catch (err) {
+				console.error("Eroare la toggle favorite:", err);
+			}
 		},
 		applyFilters() {
 			const filteredProducts = this.products.filter(product => {
@@ -257,5 +322,14 @@ export default {
 
 			this.cardSize = cardSize;
 		},
+		goToLogin() {
+			this.showLoginPrompt = false;
+			this.$emit('navigate-to-login');
+
+		},
+		goToRegister() {
+			this.showLoginPrompt = false;
+			this.$emit('navigate-to-register');
+		}
 	}
 };

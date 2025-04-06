@@ -34,14 +34,23 @@
 				:style="{ width: cardSize + 'px' }"
 			>
 				<v-card class="product-card">
-				<v-img :src="product.image_url || require('@/assets/no-image.png')" class="product-image" cover></v-img>
-				<v-card-text class="product-info">
-					<p class="product-brand">{{ product.brand || 'EAN: ' + product.ean }}</p>
-					<h3 class="product-name">{{ product.name }}</h3>
-					<p v-if="product.weight && product.unit" class="product-weight">
-						{{ product.weight }} {{ product.unit }}
-					</p>
-				</v-card-text>
+					<v-btn
+						icon
+						class="favorite-icon"
+						@click="toggleFavorite(product.id)"
+					>
+						<v-icon :color="favoriteProductIds.includes(product.id) ? 'red' : 'grey'">
+							{{ favoriteProductIds.includes(product.id) ? 'mdi-heart' : 'mdi-heart-outline' }}
+						</v-icon>
+					</v-btn>
+					<v-img :src="product.image_url || require('@/assets/no-image.png')" class="product-image" cover></v-img>
+					<v-card-text class="product-info">
+						<p class="product-brand">{{ product.brand || 'EAN: ' + product.ean }}</p>
+						<h3 class="product-name">{{ product.name }}</h3>
+						<p v-if="product.weight && product.unit" class="product-weight">
+							{{ product.weight }} {{ product.unit }}
+						</p>
+					</v-card-text>
 				</v-card>
 			</div>
 		</div>
@@ -136,6 +145,22 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
+
+		<!-- Favorites Dialog -->
+		<v-dialog v-model="showLoginPrompt" max-width="400">
+			<v-card>
+				<v-card-title class="headline">Conectare necesară</v-card-title>
+				<v-card-text>
+					Trebuie să fii logat pentru a salva produse ca favorite.
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer />
+					<v-btn text @click="showLoginPrompt = false">Închide</v-btn>
+					<v-btn color="primary" @click="goToLogin">Loghează-te</v-btn>
+					<v-btn color="secondary" @click="goToRegister">Înregistrează-te</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 	</v-container>
 </template>
 
@@ -218,6 +243,23 @@
 	flex-direction: column;
 	overflow: hidden;
 	justify-content: flex-start;
+	position: relative;
+	/* box-shadow: 0 2px 4px rgba(0,0,0,0.05); CU SAU FARA SHADOW?*/
+	transition: transform 0.2s ease;
+}
+
+.product-card:hover {
+	transform: translateY(-2px);
+}
+
+.favorite-icon {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 2;
+	background-color: white;
+	border-radius: 50%;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .product-name {
