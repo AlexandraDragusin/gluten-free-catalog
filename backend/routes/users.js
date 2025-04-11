@@ -113,10 +113,7 @@ router.put("/update", authenticateToken, async (req, res) => {
 
 		console.log("Updated User:", updatedUser.rows[0]);
 
-		let newToken = null;
-		if (password) {
-			newToken = generateToken(updatedUser.rows[0]);
-		}
+		const newToken = generateToken(updatedUser.rows[0]);
 
 		res.json({
 			message: "Profile updated successfully",

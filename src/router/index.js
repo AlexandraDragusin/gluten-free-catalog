@@ -6,6 +6,7 @@ import LoginPage from "@/views/LoginPage/LoginPage.vue";
 import RegisterPage from "@/views/RegisterPage/RegisterPage.vue";
 import ProfilePage from "@/views/ProfilePage/ProfilePage.vue";
 import AdminPage from "@/views/AdminPage/AdminPage.vue";
+import VerifyPage from "@/views/VerifyPage/VerifyPage.vue";
 
 const routes = [
 	{ path: "/", name: "Home", component: HomePage },
@@ -13,6 +14,7 @@ const routes = [
 	{ path: "/products/:category?", name: "Products", component: ProductsPage},
 	{ path: "/login", name: "Login", component: LoginPage },
 	{ path: "/register", name: "Register", component: RegisterPage },
+	{ path: "/verify/:email", name: "Verify", component: VerifyPage, props: true },
 	{ path: "/profile", name: "Profile", component: ProfilePage },
 	{ path: '/admin', name: 'AdminPage', component: AdminPage, meta: { requiresAuth: true, requiresAdmin: true } }
 ];

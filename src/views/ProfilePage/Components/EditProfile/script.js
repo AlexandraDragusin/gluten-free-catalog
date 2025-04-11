@@ -47,11 +47,12 @@ export default {
 
 			this.$emit("profile-updated");
 
-			alert("Profil actualizat cu succes!");
+			this.showSnackbar("Profil actualizat cu succes!");
 			this.password = "";
 
 			} catch (error) {
 				console.error("Error updating profile:", error);
+				this.showSnackbar("Eroare la actualizarea profilului", "error");
 			}
 		},
 		async uploadProfilePicture(event) {

@@ -10,6 +10,7 @@
 				<v-form ref="loginForm" @submit.prevent="handleLogin">
 					<!-- Email input -->
 					<v-text-field
+						autocomplete="email"
 						v-model="email"
 						label="Email"
 						variant="outlined"
@@ -20,6 +21,7 @@
 
 					<!-- Password input -->
 					<v-text-field
+						autocomplete="current-password"
 						v-model="password"
 						label="Parolă"
 						variant="outlined"
@@ -32,7 +34,7 @@
 					/>
 
 					<!-- Error message -->
-					<p v-if="loginError" class="error-text">Email sau parolă incorectă!</p>
+					<p v-if="loginError" class="error-text"> {{ loginError }}</p>
 
 					<button type="submit" @click.prevent="handleLogin" style="display: none;"></button>
 				</v-form>

@@ -18,6 +18,7 @@
 			@logout="handleLogout"
 			@register-success="handleLoginSuccess"
 			@login-success="handleLoginSuccess"
+			@navigate-to-verify="goToVerifyPage"
 			@navigate-to-products="goToProductsPage"
 			@navigate-to-stores="goToStoresPage"
 			@navigate-to-register="goToRegisterPage"

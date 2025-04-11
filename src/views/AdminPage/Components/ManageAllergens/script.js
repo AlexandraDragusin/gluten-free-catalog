@@ -54,7 +54,7 @@ export default {
 			);
 
 			if (duplicate) {
-				alert("Alergenul cu acest cod sau nume există deja.");
+				console.error("Alergenul există deja:", duplicate);
 				return;
 			}
 

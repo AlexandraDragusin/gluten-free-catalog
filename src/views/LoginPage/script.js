@@ -15,6 +15,12 @@ export default {
 		async handleLogin() {
 			if (localStorage.getItem("token")) return;
 
+			// Validate email and password
+			if (!this.email || !this.password) {
+				this.loginError = "Te rugăm să completezi toate câmpurile";
+				return;
+			}
+
 			this.loginError = false;
 			this.loading = true;
 

@@ -7,9 +7,10 @@
 				<v-card-title class="register-title">Înregistrare</v-card-title>
 
 				<v-card-text>
-					<v-form ref="registerForm" @submit.prevent="handleRegister">
+					<v-form ref="registerForm" v-model="formValid" @submit.prevent="handleRegister">
 						<!-- Username input -->
 						<v-text-field
+							autocomplete="username"
 							v-model="username"
 							label="Nume utilizator"
 							variant="outlined"
@@ -20,6 +21,7 @@
 
 						<!-- Email input -->
 						<v-text-field
+							autocomplete="email"
 							v-model="email"
 							label="Email"
 							variant="outlined"
@@ -30,6 +32,7 @@
 
 						<!-- Password input -->
 						<v-text-field
+							autocomplete="new-password"
 							v-model="password"
 							label="Parolă"
 							variant="outlined"
@@ -43,6 +46,7 @@
 
 						<!-- Confirm Password input -->
 						<v-text-field
+							autocomplete="new-password"
 							v-model="confirmPassword"
 							label="Confirmă parola"
 							variant="outlined"
@@ -55,7 +59,7 @@
 						/>
 
 						<!-- Error message -->
-						<p v-if="registerError" class="error-text">Eroare la înregistrare! Verifică datele introduse.</p>
+						<p v-if="registerError" class="error-text">{{ registerError }}</p>
 
 						<button type="submit" @click.prevent="handleRegister" style="display: none;"></button>
 					</v-form>

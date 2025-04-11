@@ -8,6 +8,7 @@ export default {
 			showPassword: false,
 			showConfirmPassword: false,
 			loading: false,
+			formValid: false,
 			registerError: false,
 			rules: {
 				required: (value) => !!value || "Câmp obligatoriu",
@@ -20,10 +21,14 @@ export default {
 	methods: {
 		async handleRegister() {
 			const isValid = await this.$refs.registerForm.validate();
-			if (!isValid) return;
+
+			if (!isValid || !this.username || !this.email || !this.password || !this.confirmPassword) {
+				this.registerError = "Te rog să completezi toate câmpurile.";
+				return;
+			}
 
 			if (this.password !== this.confirmPassword) {
-				this.registerError = true;
+				this.registerError = "Parolele nu coincid.";
 				return;
 			}
 
@@ -47,10 +52,9 @@ export default {
 					throw new Error(data.error || "Înregistrarea a eșuat");
 				}
 
-				// Save the token in the local storage
-				localStorage.setItem("token", data.token);
+				this.$emit("navigate-to-verify", this.email);
 
-				this.$emit("register-success");
+				this.resetForm();
 
 			} catch (error) {
 				this.registerError = error.message;
@@ -61,5 +65,15 @@ export default {
 		navigateToLogin() {
 			this.$emit("navigate-to-login");
 		},
+		resetForm() {
+			this.username = "";
+			this.email = "";
+			this.password = "";
+			this.confirmPassword = "";
+			this.registerError = false;
+		
+			this.$refs.registerForm.reset();
+			this.$refs.registerForm.resetValidation();
+		}
 	},
 };
