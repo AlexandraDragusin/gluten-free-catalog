@@ -20,6 +20,7 @@
 			@login-success="handleLoginSuccess"
 			@navigate-to-verify="goToVerifyPage"
 			@navigate-to-products="goToProductsPage"
+			@navigate-to-product-detail="goToProductDetailPage"
 			@navigate-to-stores="goToStoresPage"
 			@navigate-to-register="goToRegisterPage"
 			@navigate-to-login="goToLoginPage"

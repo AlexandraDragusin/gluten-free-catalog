@@ -13,7 +13,7 @@
 						comercializează produse fără gluten.
 					</p>
 				</div>
-				<v-btn class="favorites-btn" @click="$emit('navigate-to-profile-favorites')">	
+				<v-btn class="favorites-btn" @click="handleFavoritesClick">	
 					<div
 						:style="{
 							display: 'flex',
@@ -70,6 +70,9 @@
 				</v-col>
 			</v-row>
 		</div>
+
+		<!-- Login prompt -->
+		<LoginRequiredPrompt v-model="showLoginPrompt" />
 	</v-container>
 </template>
 

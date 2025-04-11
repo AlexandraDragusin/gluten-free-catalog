@@ -33,15 +33,15 @@
 				class="product-card-wrapper"
 				:style="{ width: cardSize + 'px' }"
 			>
-				<v-card class="product-card">
+				<v-card class="product-card" @click="$emit('navigate-to-product-detail', product.id)">
 					<div class="action-buttons">
-						<v-btn icon @click="toggleFavorite(product.id)">
+						<v-btn icon @click.stop="toggleFavorite(product.id)">
 							<v-icon :color="favoriteProductIds.includes(product.id) ? 'red' : 'grey'">
 								{{ favoriteProductIds.includes(product.id) ? 'mdi-heart' : 'mdi-heart-outline' }}
 							</v-icon>
 						</v-btn>
 
-						<v-btn icon @click="openListDialog(product.id)">
+						<v-btn icon @click.stop="openListDialog(product.id)">
 							<v-icon color="green">mdi-cart-plus</v-icon>
 						</v-btn>
 					</div>
@@ -149,57 +149,14 @@
 		</v-dialog>
 
 		<!-- Favorites Dialog -->
-		<v-dialog v-model="showLoginPrompt" max-width="400">
-			<v-card>
-				<v-card-title class="headline">Conectare necesară</v-card-title>
-				<v-card-text>
-					Trebuie să fii logat pentru a salva produse ca favorite.
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer />
-					<v-btn text @click="showLoginPrompt = false">Închide</v-btn>
-					<v-btn color="primary" @click="goToLogin">Loghează-te</v-btn>
-					<v-btn color="secondary" @click="goToRegister">Înregistrează-te</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		<LoginRequiredPrompt v-model="showLoginPrompt" />
 
 		<!-- Cart Dialog -->
-		<v-dialog v-model="showListDialog" max-width="400">
-			<v-card>
-				<v-card-title>
-					Adaugă <strong>{{ getProductName(productToAdd) }}</strong> într-o listă
-				</v-card-title>
-				<v-card-text v-if="shoppingLists.length">
-					<v-select
-						v-model="selectedListId"
-						:items="shoppingLists"
-						item-title="name"
-						item-value="id"
-						label="Liste disponibile"
-						variant="outlined"
-					/>
-				</v-card-text>
-				<v-card-text v-else>
-					Nu ai nicio listă. Creează una mai întâi.
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer />
-					<v-btn text @click="showListDialog = false">Anulează</v-btn>
-					<v-btn :disabled="!selectedListId" @click="confirmAddToList">Adaugă</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<!-- Snackbar -->
-		<v-snackbar
-			v-model="snackbar"
-			:color="snackbarColor"
-			timeout="3000"
-			location="bottom"
-		>
-			{{ snackbarMessage }}
-		</v-snackbar>
+		<AddToListDialog
+			v-model="showAddDialog"
+			:productId="productToAdd"
+			:productName="getProductName(productToAdd)"
+		/>
 	</v-container>
 </template>
 
@@ -286,6 +243,7 @@
 	position: relative;
 	/* box-shadow: 0 2px 4px rgba(0,0,0,0.05); CU SAU FARA SHADOW?*/
 	transition: transform 0.2s ease;
+	cursor: pointer;
 }
 
 .product-card:hover {

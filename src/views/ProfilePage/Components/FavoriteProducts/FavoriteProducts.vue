@@ -10,7 +10,7 @@
 				md="4"
 				lg="3"
 			>
-			<v-card class="product-card">
+			<v-card class="product-card" @click="$emit('navigate-to-product-detail', product.id)">
 				<div class="product-image-wrapper">
 					<v-img
 						:src="product.image_url || noImage"
@@ -20,11 +20,11 @@
 
 					<!-- Actions -->
 					<div class="action-buttons">
-						<v-btn icon @click="removeFromFavorites(product.id)">
+						<v-btn icon @click.stop="removeFromFavorites(product.id)">
 							<v-icon color="red">mdi-heart</v-icon>
 						</v-btn>
 
-						<v-btn icon @click="openListDialog(product.id)">
+						<v-btn icon @click.stop="openListDialog(product.id)">
 							<v-icon color="green">mdi-cart-plus</v-icon>
 						</v-btn>
 					</div>
@@ -45,41 +45,12 @@
 	</div>
 
 	<!--Shopping list Dialog -->
-	<v-dialog v-model="showListDialog" max-width="400">
-			<v-card>
-				<v-card-title>
-					Adaugă <strong>{{ getProductName(productToAdd) }}</strong> într-o listă de cumpărături
-				</v-card-title>
-				<v-card-text v-if="shoppingLists.length">
-					<v-select
-						v-model="selectedListId"
-						:items="shoppingLists"
-						item-title="name"
-						item-value="id"
-						label="Liste disponibile"
-						variant="outlined"
-					/>
-				</v-card-text>
-				<v-card-text v-else>
-					Nu ai nicio listă de cumpărături. Creează una mai întâi.
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer />
-					<v-btn text @click="showListDialog = false">Anulează</v-btn>
-					<v-btn :disabled="!selectedListId" @click="confirmAddToList">Adaugă</v-btn>
-				</v-card-actions>
-			</v-card>
-	</v-dialog>
+	<AddToListDialog
+		v-model="showListDialog"
+		:productId="productToAdd"
+		:productName="getProductName(productToAdd)"
+	/>
 
-	<!-- Snackbar -->
-	<v-snackbar
-		v-model="snackbar"
-		:color="snackbarColor"
-		timeout="3000"
-		location="bottom"
-	>
-		{{ snackbarMessage }}
-	</v-snackbar>
 </template>
 
 <script src="./script.js"></script>

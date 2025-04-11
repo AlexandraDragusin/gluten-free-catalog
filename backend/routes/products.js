@@ -23,6 +23,71 @@ router.get("/", async (req, res) => {
 	}
 });
 
+// Get a single product by ID with all details
+router.get("/:id", async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const result = await pool.query(`
+			SELECT 
+				p.*,
+				c.id AS category_id,
+				c.name AS category_name,
+				s.id AS store_id,
+				s.name AS store_name,
+				s.type AS store_type,
+				s.website AS store_website,
+				s.logo_url AS store_logo
+			FROM products p
+			LEFT JOIN categories c ON p.category_id = c.id
+			LEFT JOIN stores s ON p.store_id = s.id
+			WHERE p.id = $1
+		`, [id]);
+
+		if (result.rows.length === 0) {
+			return res.status(404).json({ error: "Produsul nu a fost găsit." });
+		}
+
+		const p = result.rows[0];
+
+		// Pregătim răspunsul pentru frontend
+		const fullProduct = {
+			id: p.id,
+			name: p.name,
+			brand: p.brand,
+			description: p.description,
+			ean: p.ean_code,
+			image_url: p.image_url,
+			weight: p.weight,
+			unit: p.unit,
+			certified_arig: p.certified_arig,
+			made_in_romania: p.made_in_romania,
+			producer_gluten_declaration: p.producer_gluten_declaration,
+			cross_grain_cert_code: p.cross_grain_cert_code,
+
+			allergen_tags: Array.isArray(p.allergen_tags) ? p.allergen_tags : [],
+
+			category: {
+				id: p.category_id,
+				name: p.category_name
+			},
+
+			stores: p.store_id ? [{
+				id: p.store_id,
+				name: p.store_name,
+				type: p.store_type,
+				website: p.store_website,
+				logo: p.store_logo
+			}] : []
+		};
+
+		res.json(fullProduct);
+	} catch (err) {
+		console.error("Eroare la fetch produs:", err.message);
+		res.status(500).json({ error: "Eroare la server" });
+	}
+});
+
 // Add a new product
 router.post("/", authenticateToken, async (req, res) => {
 	const {

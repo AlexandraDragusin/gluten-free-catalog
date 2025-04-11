@@ -23,13 +23,13 @@
 				<v-list density="comfortable">
 					<v-list-item>
 						<v-icon class="profile-icon">mdi-account</v-icon>
-						<v-text-field v-model="user.username" label="Nume utilizator" variant="outlined" hide-details="auto"
+						<v-text-field v-model="user.username" autocomplete="username" label="Nume utilizator" variant="outlined" hide-details="auto"
 						></v-text-field>
 					</v-list-item>
 
 					<v-list-item>
 						<v-icon class="profile-icon">mdi-email</v-icon>
-						<v-text-field v-model="user.email" readonly label="Email" variant="outlined" hide-details="auto"
+						<v-text-field v-model="user.email" autocomplete="email" readonly label="Email" variant="outlined" hide-details="auto"
 						></v-text-field>
 					</v-list-item>
 

@@ -1,5 +1,9 @@
+import LoginRequiredPrompt from "@/components/LoginRequiredPrompt/LoginRequiredPrompt.vue";
+import { jwtDecode } from 'jwt-decode';
+
 export default {
 	name: "HomePage",
+	components: { LoginRequiredPrompt },
 	data() {
 		return {
 			categories: [
@@ -20,6 +24,28 @@ export default {
 				{ name: "Suplimente", image: require("@/assets/categories/supplements.png") },
 				{ name: "Semipreparate", image: require("@/assets/categories/readymeals.png") },
 			],
+			showLoginPrompt: false,
+			userId: null
 		};
 	},
+	created() {
+		const token = localStorage.getItem("token");
+		if (token) {
+			try {
+				const decoded = jwtDecode(token);
+				this.userId = decoded.id;
+			} catch {
+				this.userId = null;
+			}
+		}
+	},
+	methods: {
+		handleFavoritesClick() {
+			if (!this.userId) {
+				this.showLoginPrompt = true;
+			} else {
+				this.$emit('navigate-to-profile-favorites');
+			}
+		}
+	}
 };

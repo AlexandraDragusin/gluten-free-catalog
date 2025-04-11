@@ -1,8 +1,11 @@
+import LoginRequiredPrompt from "@/components/LoginRequiredPrompt/LoginRequiredPrompt.vue";
+import AddToListDialog from "@/components/AddToListDialog/AddToListDialog.vue";
 import { groupedCategories } from "@/utils/categories";
 import { jwtDecode } from "jwt-decode";
 
 export default {
 	name: 'ProductsPage',
+	components: { LoginRequiredPrompt, AddToListDialog },
 	data() {
 		return {
 			products: [],
@@ -41,13 +44,8 @@ export default {
 			userId: null,
 			userRole: null,
 			showLoginPrompt: false,
-			shoppingLists: [],
-			showListDialog: false,
-			selectedListId: null,
-			productToAdd: null,
-			snackbar: false,
-			snackbarMessage: '',
-			snackbarColor: 'success',
+			showAddDialog: false,
+			productToAdd: null
 		};
 	},
 	computed: {
@@ -223,66 +221,6 @@ export default {
 				console.error("Eroare la toggle favorite:", err);
 			}
 		},
-		async fetchShoppingLists() {
-			try {
-				const token = localStorage.getItem("token");
-				const response = await fetch("http://localhost:5000/api/shopping-lists", {
-					headers: { Authorization: `Bearer ${token}` },
-				});
-				this.shoppingLists = await response.json();
-			} catch (err) {
-				console.error("Eroare la fetch shopping lists:", err);
-			}
-		},
-		async confirmAddToList() {
-			try {
-				const alreadyInList = await this.isProductInList(this.productToAdd, this.selectedListId);
-				if (alreadyInList) {
-					this.snackbarMessage = "Produsul este deja în listă!";
-					this.snackbarColor = "warning";
-					this.snackbar = true;
-					this.showListDialog = false;
-					return;
-				}
-		
-				const token = localStorage.getItem("token");
-				await fetch(`http://localhost:5000/api/shopping-lists/${this.selectedListId}/items`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-					body: JSON.stringify({ product_id: this.productToAdd }),
-				});
-		
-				this.snackbarMessage = "Produsul a fost adăugat!";
-				this.snackbarColor = "success";
-				this.snackbar = true;
-		
-			} catch (err) {
-				console.error("Eroare la adăugare în listă:", err);
-				this.snackbarMessage = "Eroare la adăugare!";
-				this.snackbarColor = "error";
-				this.snackbar = true;
-			} finally {
-				this.showListDialog = false;
-				this.productToAdd = null;
-				this.selectedListId = null;
-			}
-		},
-		async isProductInList(productId, listId) {
-			try {
-				const token = localStorage.getItem("token");
-				const response = await fetch(`http://localhost:5000/api/shopping-lists/${listId}/items`, {
-					headers: { Authorization: `Bearer ${token}` },
-				});
-				const items = await response.json();
-				return items.some(item => item.product_id === productId);
-			} catch (err) {
-				console.error("Eroare la verificare produs:", err);
-				return false;
-			}
-		},
 		getProductName(id) {
 			const product = this.products.find(p => p.id === id);
 			return product?.name || "produs";
@@ -366,8 +304,7 @@ export default {
 				return;
 			}
 			this.productToAdd = productId;
-			this.fetchShoppingLists();
-			this.showListDialog = true;
+			this.showAddDialog = true;
 		},
 		resetFilters() {
 			this.filters = {
@@ -401,15 +338,6 @@ export default {
 			const cardSize = Math.floor(totalCardWidth / itemsPerRow);
 
 			this.cardSize = cardSize;
-		},
-		goToLogin() {
-			this.showLoginPrompt = false;
-			this.$emit('navigate-to-login');
-
-		},
-		goToRegister() {
-			this.showLoginPrompt = false;
-			this.$emit('navigate-to-register');
 		}
 	}
 };

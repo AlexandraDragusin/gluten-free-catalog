@@ -30,7 +30,7 @@
 				<p class="loading-text">Se încarcă profilul...</p>
 			</div>
 			<EditProfile v-else-if="selectedTab === 'edit-profile'" :user="user" @profile-updated="fetchUserProfile" />
-			<FavoriteProducts v-else-if="selectedTab === 'favorite-products'" />
+			<FavoriteProducts v-else-if="selectedTab === 'favorite-products'" 	@navigate-to-product-detail="$emit('navigate-to-product-detail', $event)"/>
 			<ShoppingLists v-else-if="selectedTab === 'shopping-lists'" />
 		</div>
 	</v-container>

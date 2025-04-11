@@ -83,6 +83,9 @@ export default {
 				this.$router.push({ name: 'Products' });
 			}
 		},
+		goToProductDetailPage(productId) {
+			this.$router.push({ name: 'ProductDetail', params: { id: productId } });
+		},
 		goToProfilePage() {
 			this.$router.push("/profile");
 		},
@@ -163,6 +166,15 @@ export default {
 				}
 
 				this.breadcrumbs = crumbs;
+				return;
+			}
+
+			if (name === 'ProductDetail') {
+				this.breadcrumbs = [
+					{ label: 'Acasă', route: '/' },
+					{ label: 'Produse', route: '/products' },
+					{ label: 'Detalii produs', route: this.$route.fullPath }
+				];
 				return;
 			}
 
