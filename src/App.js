@@ -86,6 +86,9 @@ export default {
 		goToProfilePage() {
 			this.$router.push("/profile");
 		},
+		goToProfileFavoritesPage() {
+			this.$router.push({ path: '/profile', query: { tab: 'favorite-products' } });
+		},
 		goToAdminPage() {
 			this.$router.push("/admin");
 		},

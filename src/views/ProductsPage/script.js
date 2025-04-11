@@ -41,6 +41,13 @@ export default {
 			userId: null,
 			userRole: null,
 			showLoginPrompt: false,
+			shoppingLists: [],
+			showListDialog: false,
+			selectedListId: null,
+			productToAdd: null,
+			snackbar: false,
+			snackbarMessage: '',
+			snackbarColor: 'success',
 		};
 	},
 	computed: {
@@ -216,6 +223,70 @@ export default {
 				console.error("Eroare la toggle favorite:", err);
 			}
 		},
+		async fetchShoppingLists() {
+			try {
+				const token = localStorage.getItem("token");
+				const response = await fetch("http://localhost:5000/api/shopping-lists", {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				this.shoppingLists = await response.json();
+			} catch (err) {
+				console.error("Eroare la fetch shopping lists:", err);
+			}
+		},
+		async confirmAddToList() {
+			try {
+				const alreadyInList = await this.isProductInList(this.productToAdd, this.selectedListId);
+				if (alreadyInList) {
+					this.snackbarMessage = "Produsul este deja în listă!";
+					this.snackbarColor = "warning";
+					this.snackbar = true;
+					this.showListDialog = false;
+					return;
+				}
+		
+				const token = localStorage.getItem("token");
+				await fetch(`http://localhost:5000/api/shopping-lists/${this.selectedListId}/items`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ product_id: this.productToAdd }),
+				});
+		
+				this.snackbarMessage = "Produsul a fost adăugat!";
+				this.snackbarColor = "success";
+				this.snackbar = true;
+		
+			} catch (err) {
+				console.error("Eroare la adăugare în listă:", err);
+				this.snackbarMessage = "Eroare la adăugare!";
+				this.snackbarColor = "error";
+				this.snackbar = true;
+			} finally {
+				this.showListDialog = false;
+				this.productToAdd = null;
+				this.selectedListId = null;
+			}
+		},
+		async isProductInList(productId, listId) {
+			try {
+				const token = localStorage.getItem("token");
+				const response = await fetch(`http://localhost:5000/api/shopping-lists/${listId}/items`, {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				const items = await response.json();
+				return items.some(item => item.product_id === productId);
+			} catch (err) {
+				console.error("Eroare la verificare produs:", err);
+				return false;
+			}
+		},
+		getProductName(id) {
+			const product = this.products.find(p => p.id === id);
+			return product?.name || "produs";
+		},
 		applyFilters() {
 			const filteredProducts = this.products.filter(product => {
 				const {
@@ -288,6 +359,15 @@ export default {
 
 			this.showFilterDialog = false;
 			this.applyFilters();
+		},
+		openListDialog(productId) {
+			if (!this.userId || this.userRole === "admin") {
+				this.showLoginPrompt = true;
+				return;
+			}
+			this.productToAdd = productId;
+			this.fetchShoppingLists();
+			this.showListDialog = true;
 		},
 		resetFilters() {
 			this.filters = {

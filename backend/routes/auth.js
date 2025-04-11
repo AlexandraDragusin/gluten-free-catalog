@@ -18,7 +18,7 @@ const generateToken = (user) => {
 			role: user.role,
 		},
         process.env.JWT_SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "24h" }
     );
 };
 
@@ -88,6 +88,11 @@ router.post("/login", async (req, res) => {
 		}
 
 		const token = generateToken(user.rows[0]);
+
+		// Print expired date of the token
+		const decodedToken = jwt.decode(token);
+		const expirationDate = new Date(decodedToken.exp * 1000);
+		console.log("Token expires at:", expirationDate.toLocaleString());
 
 		res.json({ message: "Login successful", token, user: { id: user.rows[0].id, username: user.rows[0].username } });
 	} catch (err) {

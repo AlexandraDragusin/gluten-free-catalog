@@ -13,7 +13,7 @@
 						comercializează produse fără gluten.
 					</p>
 				</div>
-				<v-btn class="favorites-btn">	
+				<v-btn class="favorites-btn" @click="$emit('navigate-to-profile-favorites')">	
 					<div
 						:style="{
 							display: 'flex',
@@ -214,6 +214,11 @@
 	font-weight: 500;
 	margin-top: 12px;
 	text-transform: uppercase;
+	min-height: 80px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
 }
 
 </style>

@@ -98,7 +98,7 @@
 		</v-row>
 
 		<!-- Pagination -->
-		<v-row v-if="filteredStores.length > 0" justify="center" class="pagination-row">
+		<v-row v-if="filteredStores.length > pagination.itemsPerPage" justify="center" class="pagination-row">
 			<span class="pagination-label">Pagina anterioară</span>
 			<v-pagination
 				v-model="pagination.page"
@@ -169,9 +169,10 @@
 
 <style scoped>
 .stores-page {
-  background-color: #fef9ed;
-  padding-top: 120px;
-  padding-bottom: 40px;
+	background-color: #fef9ed;
+	padding-top: 120px;
+	padding-bottom: 40px;
+	min-height: 100vh;
 }
 
 .filter-actions {

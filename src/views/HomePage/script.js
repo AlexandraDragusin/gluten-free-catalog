@@ -1,4 +1,5 @@
 export default {
+	name: "HomePage",
 	data() {
 		return {
 			categories: [
@@ -21,4 +22,4 @@ export default {
 			],
 		};
 	},
-  };
+};

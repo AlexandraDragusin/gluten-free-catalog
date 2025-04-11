@@ -3,17 +3,17 @@
 		<!-- Sidebar -->
 		<div class="sidebar">
 			<v-list nav dense class="sidebar-list">
-				<v-list-item @click="selectedTab = 'edit-profile'" :class="{ 'active-tab': selectedTab === 'edit-profile' }">
+				<v-list-item @click="navigateToTab('edit-profile')" :class="{ 'active-tab': selectedTab === 'edit-profile' }">
 					<v-icon class="mr-2">mdi-account</v-icon>
 					<v-list-item-title>Editează profilul</v-list-item-title>
 				</v-list-item>
 
-				<v-list-item @click="selectedTab = 'favorite-products'" :class="{ 'active-tab': selectedTab === 'favorite-products' }">
+				<v-list-item @click="navigateToTab('favorite-products')" :class="{ 'active-tab': selectedTab === 'favorite-products' }">
 					<v-icon class="mr-2">mdi-heart</v-icon>
 					<v-list-item-title>Produsele mele favorite</v-list-item-title>
 				</v-list-item>
 
-				<v-list-item @click="selectedTab = 'shopping-lists'" :class="{ 'active-tab': selectedTab === 'shopping-lists' }">
+				<v-list-item @click="navigateToTab('shopping-lists')" :class="{ 'active-tab': selectedTab === 'shopping-lists' }">
 					<v-icon class="mr-2">mdi-cart</v-icon>
 					<v-list-item-title>Liste de cumpărături</v-list-item-title>
 				</v-list-item>

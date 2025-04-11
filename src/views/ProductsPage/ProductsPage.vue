@@ -34,15 +34,17 @@
 				:style="{ width: cardSize + 'px' }"
 			>
 				<v-card class="product-card">
-					<v-btn
-						icon
-						class="favorite-icon"
-						@click="toggleFavorite(product.id)"
-					>
-						<v-icon :color="favoriteProductIds.includes(product.id) ? 'red' : 'grey'">
-							{{ favoriteProductIds.includes(product.id) ? 'mdi-heart' : 'mdi-heart-outline' }}
-						</v-icon>
-					</v-btn>
+					<div class="action-buttons">
+						<v-btn icon @click="toggleFavorite(product.id)">
+							<v-icon :color="favoriteProductIds.includes(product.id) ? 'red' : 'grey'">
+								{{ favoriteProductIds.includes(product.id) ? 'mdi-heart' : 'mdi-heart-outline' }}
+							</v-icon>
+						</v-btn>
+
+						<v-btn icon @click="openListDialog(product.id)">
+							<v-icon color="green">mdi-cart-plus</v-icon>
+						</v-btn>
+					</div>
 					<v-img :src="product.image_url || require('@/assets/no-image.png')" class="product-image" cover></v-img>
 					<v-card-text class="product-info">
 						<p class="product-brand">{{ product.brand || 'EAN: ' + product.ean }}</p>
@@ -64,7 +66,7 @@
 		</v-row>
 
 		<!-- Pagination -->
-		<v-row v-if="filteredProducts.length > 0" justify="center" class="pagination-row">
+		<v-row v-if="filteredProducts.length > pagination.itemsPerPage" justify="center" class="pagination-row">
 			<span class="pagination-label">Pagina anterioară</span>
 			<v-pagination
 				v-model="pagination.page"
@@ -161,6 +163,43 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
+
+		<!-- Cart Dialog -->
+		<v-dialog v-model="showListDialog" max-width="400">
+			<v-card>
+				<v-card-title>
+					Adaugă <strong>{{ getProductName(productToAdd) }}</strong> într-o listă
+				</v-card-title>
+				<v-card-text v-if="shoppingLists.length">
+					<v-select
+						v-model="selectedListId"
+						:items="shoppingLists"
+						item-title="name"
+						item-value="id"
+						label="Liste disponibile"
+						variant="outlined"
+					/>
+				</v-card-text>
+				<v-card-text v-else>
+					Nu ai nicio listă. Creează una mai întâi.
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer />
+					<v-btn text @click="showListDialog = false">Anulează</v-btn>
+					<v-btn :disabled="!selectedListId" @click="confirmAddToList">Adaugă</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
+		<!-- Snackbar -->
+		<v-snackbar
+			v-model="snackbar"
+			:color="snackbarColor"
+			timeout="3000"
+			location="bottom"
+		>
+			{{ snackbarMessage }}
+		</v-snackbar>
 	</v-container>
 </template>
 
@@ -171,6 +210,7 @@
 	background-color: #fef9ed;
 	padding-top: 120px;
 	padding-bottom: 40px;
+	min-height: 100vh;
 }
 
 .filter-actions {
@@ -252,14 +292,19 @@
 	transform: translateY(-2px);
 }
 
-.favorite-icon {
+.action-buttons {
 	position: absolute;
 	top: 8px;
 	right: 8px;
+	display: flex;
+	gap: 8px;
 	z-index: 2;
+}
+
+.action-buttons .v-btn {
 	background-color: white;
 	border-radius: 50%;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .product-name {

@@ -24,6 +24,7 @@
 			@navigate-to-register="goToRegisterPage"
 			@navigate-to-login="goToLoginPage"
 			@navigate-to-home="goToHomePage"
+			@navigate-to-profile-favorites="goToProfileFavoritesPage"
 		/>
 	</v-main>
 

@@ -23,9 +23,16 @@ export default {
 				this.logout();
 			}
 		});
+
+		this.selectTabFromQuery();
 	},
 	beforeUnmount() {
 		window.removeEventListener("storage", this.handleStorageChange);
+	},
+	watch: {
+		'$route.query.tab'() {
+			this.selectTabFromQuery();
+		}
 	},
 	methods: {
 		async fetchUserProfile() {
@@ -70,6 +77,26 @@ export default {
 		},
 		logout() {
 			this.$emit("logout");
+		},
+		selectTabFromQuery() {
+			const tab = this.$route.query.tab;
+	
+			if (tab === 'favorite-products') {
+				this.selectedTab = 'favorite-products';
+			} else if (tab === 'shopping-lists') {
+				this.selectedTab = 'shopping-lists';
+			} else {
+				this.selectedTab = 'edit-profile';
+			}
+		},
+		navigateToTab(tabKey) {
+			this.selectedTab = tabKey;
+
+			let queryTab = '';
+			if (tabKey === 'favorite-products') queryTab = 'favorite-products';
+			else if (tabKey === 'shopping-lists') queryTab = 'shopping-lists';
+
+			this.$router.replace({ query: { tab: queryTab } });
 		}
 	}
 };

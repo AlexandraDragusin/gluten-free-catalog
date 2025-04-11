@@ -29,7 +29,7 @@
 
 					<v-list-item>
 						<v-icon class="profile-icon">mdi-email</v-icon>
-						<v-text-field v-model="user.email" label="Email" variant="outlined" hide-details="auto"
+						<v-text-field v-model="user.email" readonly label="Email" variant="outlined" hide-details="auto"
 						></v-text-field>
 					</v-list-item>
 
