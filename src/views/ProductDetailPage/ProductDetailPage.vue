@@ -1,6 +1,6 @@
 <template>
 	<v-container fluid class="product-detail-container">
-	<v-row class="product-detail-row" no-gutters>
+	<v-row no-gutters>
 		<v-col cols="12">
 		<v-card class="full-card-layout">
 			<v-row>
@@ -36,7 +36,6 @@
 
 				<h1 class="product-name">{{ product.name }}</h1>
 
-				<!-- Detalii -->
 				<section class="info-section">
 				<h2 class="section-title">Detalii produs</h2>
 				<p><strong>Brand:</strong> {{ product.brand || 'Necunoscut' }}</p>
@@ -101,6 +100,88 @@
 	<!-- Login prompt dialog -->
 	<LoginRequiredPrompt v-model="showLoginPrompt" />
 
+	<!-- Review Section -->
+	<section class="info-section">
+		<h2 class="section-title">Recenzii</h2>
+
+		<!-- Add review -->
+		<div v-if="userId && userRole !== 'admin'" class="review-form">
+			<v-rating v-model="newReview.rating" color="orange" background-color="grey" dense></v-rating>
+			<v-textarea
+				v-model="newReview.comment"
+				:counter="1000"
+				maxlength="1000"
+				label="Scrie o recenzie..."
+				rows="3"
+				variant="outlined"
+			/>
+			<v-btn
+				class="white-button"
+				:disabled="!newReview.comment || !newReview.rating"
+				@click="submitReview"
+			>
+				Adaugă o recenzie
+			</v-btn>
+		</div>
+		<div v-else class="text-grey">Trebuie să fii autentificat pentru a scrie o recenzie.</div>
+
+		<!-- Existing reviews -->
+		<div v-if="reviews.length" class="reviews-list mt-4">
+			<v-card
+				v-for="review in reviews"
+				:key="review.id"
+				class="mb-3 review-card"
+			>
+				<div class="review-top">
+					<div class="review-user">
+						<strong>{{ review.user_name || 'Utilizator' }}</strong>
+					</div>
+
+					<div class="review-actions">
+						<v-rating
+							:model-value="review.rating"
+							color="yellow darken-2"
+							background-color="grey lighten-1"
+							readonly
+							dense
+							size="28"
+							class="mr-2"
+						/>
+						<v-btn
+							v-if="userId === review.user_id"
+							class="white-button"
+							icon
+							size="small"
+							:style="{ marginLeft: '20px' }"
+							@click="deleteReview(review.id)"
+						>
+							<v-icon>mdi-delete</v-icon>
+						</v-btn>
+					</div>
+				</div>
+
+				<v-card-text class="review-comment">
+					{{ review.comment }}
+				</v-card-text>
+
+				<v-card-subtitle class="text-caption text-grey mt-n2">
+					{{ new Date(review.created_at).toLocaleString() }}
+				</v-card-subtitle>
+			</v-card>
+		</div>
+		<div v-else class="text-grey">Acest produs nu are încă recenzii.</div>
+	</section>
+
+	<!-- Snackbar -->
+	<v-snackbar
+		v-model="snackbar"
+		:color="snackbarColor"
+		timeout="3000"
+		location="bottom"
+	>
+		{{ snackbarMessage }}
+	</v-snackbar>
+
 	</v-container>
 </template>
   
@@ -112,11 +193,7 @@
 	padding-bottom: 40px;
 	background-color: #FEF9ED;
 	min-height: 100vh;
-}
-
-.product-detail-row {
-	max-width: 1400px;
-	margin: auto;
+	max-width: 90%;
 }
 
 .image-col {
@@ -192,6 +269,46 @@
 	justify-content: flex-end;
 	margin-bottom: 16px;
 	gap: 12px;
+}
+
+.review-form {
+	margin-bottom: 24px;
+}
+
+.review-card {
+	padding: 12px;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.review-comment {
+	font-size: 15px;
+	color: #333;
+}
+
+.review-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.review-actions {
+	display: flex;
+	align-items: center;
+}
+
+.review-user {
+	font-size: 16px;
+	color: #312B1D;
+}
+
+.white-button {
+	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+	color: #444 !important;
+}
+
+.white-button:hover {
+	background-color: #f0f0f0;
 }
 
 </style>

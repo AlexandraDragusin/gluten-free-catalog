@@ -13,7 +13,15 @@ export default {
 			userRole: null,
 			showListDialog: false,
 			showLoginPrompt: false,
-			imageStyle: {}
+			imageStyle: {},
+			reviews: [],
+			newReview: {
+				rating: null,
+				comment: ''
+			},
+			snackbar: false,
+			snackbarMessage: '',
+			snackbarColor: 'success'
 		};
 	},
 	async created() {
@@ -32,6 +40,8 @@ export default {
 			const res = await fetch(`http://localhost:5000/api/products/${productId}`);
 			const data = await res.json();
 			this.product = data;
+
+			await this.fetchReviews();
 		} catch (err) {
 			console.error('Eroare la încărcarea produsului:', err);
 		}
@@ -75,6 +85,77 @@ export default {
 			});
 			const data = await res.json();
 			this.isFavorite = data.some(p => p.id === parseInt(productId));
+		},
+		async fetchReviews() {
+			try {
+				const res = await fetch(`http://localhost:5000/api/reviews/${this.product.id}`);
+				this.reviews = await res.json();
+			} catch (err) {
+				console.error("Eroare la încărcarea recenziilor:", err);
+			}
+		},
+		async submitReview() {
+			if (!this.newReview.rating || !this.newReview.comment) {
+				this.snackbarMessage = 'Te rog să completezi toate câmpurile.';
+				this.snackbarColor = 'error';
+				this.snackbar = true;
+				return;
+			}
+
+			try {
+				const token = localStorage.getItem("token");
+				const res = await fetch(`http://localhost:5000/api/reviews`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`
+					},
+					body: JSON.stringify({
+						product_id: this.product.id,
+						user_id: this.userId,
+						rating: this.newReview.rating,
+						comment: this.newReview.comment
+					})
+				});
+				if (!res.ok) throw new Error("Eroare la trimiterea recenziei");
+
+				this.snackbarMessage = 'Recenzia a fost adăugată!';
+				this.snackbarColor = 'success';
+				this.snackbar = true;
+
+				this.newReview.rating = null;
+				this.newReview.comment = '';
+
+				await this.fetchReviews();
+
+				this.$nextTick(() => {
+					const section = document.querySelector('.reviews-list');
+					if (section) section.scrollIntoView({ behavior: 'smooth' });
+				});
+
+			} catch (err) {
+				console.error("Eroare la adăugarea recenziei:", err);
+			}
+		},
+		async deleteReview(id) {
+			try {
+				const res = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem("token")}`,
+					},
+				});
+				if (!res.ok) throw new Error("Eroare la ștergere.");
+				this.snackbarText = "Recenzia a fost ștearsă.";
+				this.snackbarColor = "success";
+				this.snackbar = true;
+				await this.fetchReviews();
+			} catch (err) {
+				console.error("Eroare la ștergerea recenziei:", err);
+				this.snackbarText = "Eroare la ștergere.";
+				this.snackbarColor = "error";
+				this.snackbar = true;
+			}
 		},
 		openListDialog() {
 			if (!this.userId || this.userRole === 'admin') {
