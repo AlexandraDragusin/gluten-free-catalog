@@ -153,6 +153,7 @@
 
 		<!-- Cart Dialog -->
 		<AddToListDialog
+			v-if="userId"
 			v-model="showAddDialog"
 			:productId="productToAdd"
 			:productName="getProductName(productToAdd)"

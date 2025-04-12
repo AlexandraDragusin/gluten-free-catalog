@@ -92,6 +92,7 @@
 
 	<!-- Dialog Add to list-->
 	<AddToListDialog
+		v-if="userId"
 		v-model="showListDialog"
 		:productId="product.id"
 		:productName="product.name"

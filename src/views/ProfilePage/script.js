@@ -14,7 +14,7 @@ export default {
 			user: null,
 		};
 	},
-	emits: ["navigate-to-product-detail"],
+	emits: ["navigate-to-product-detail", "logout"],
 	created() {
 		this.fetchUserProfile();
 	},

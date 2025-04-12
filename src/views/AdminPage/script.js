@@ -23,6 +23,7 @@ export default {
 			selectedTab: "add-store",
 		};
 	},
+	emits: ["logout"],
 	watch: {
 		selectedTab() {
 			window.scrollTo({ top: 0, behavior: "auto" });
