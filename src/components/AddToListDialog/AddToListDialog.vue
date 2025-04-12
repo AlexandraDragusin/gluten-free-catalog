@@ -1,10 +1,19 @@
 <template>
-	<v-dialog v-model="modelValue" max-width="460" persistent>
+	<v-dialog
+		:model-value="modelValue"
+		@update:modelValue="$emit('update:modelValue', $event)"
+		max-width="460"
+	>
 		<v-card class="dialog-card">
-			<v-card-title class="dialog-title">
-				Adaugă<br />
-				<span class="product-name">{{ productName }}</span><br />
-				într-o listă de cumpărături
+			<v-card-title class="dialog-title d-flex justify-space-between align-start">
+				<div class="dialog-title-text">
+					<div>Adaugă</div>
+					<div class="product-name" :title="productName">{{ productName }}</div>
+					<div>într-o listă de cumpărături</div>
+				</div>
+				<v-btn icon size="x-small" variant="plain" @click="cancel">
+					<v-icon size="24">mdi-close</v-icon>
+				</v-btn>
 			</v-card-title>
 
 			<v-card-text class="dialog-content">
@@ -20,9 +29,7 @@
 			</v-card-text>
 
 			<v-card-actions class="dialog-actions">
-				<v-spacer />
-				<v-btn variant="text" @click="cancel">Anulează</v-btn>
-				<v-btn color="primary" variant="flat" :disabled="!selected" @click="confirm">
+				<v-btn variant="flat" :disabled="!selected" @click="confirm">
 				Adaugă
 				</v-btn>
 			</v-card-actions>
@@ -52,11 +59,19 @@
 	padding-bottom: 8px;
 }
 
+.dialog-title-text {
+	display: flex;
+	flex-direction: column;
+}
+
 .product-name {
-	color: #f7b41a;
 	font-weight: 700;
 	display: inline-block;
 	margin: 4px 0;
+	max-width: 300px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .dialog-content {
@@ -67,4 +82,17 @@
 .dialog-actions {
 	padding-bottom: 8px;
 }
+
+.close-btn-wrapper {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 2;
+}
+
+.close-btn {
+	background-color: white;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 </style>
