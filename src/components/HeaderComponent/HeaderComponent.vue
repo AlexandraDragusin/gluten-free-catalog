@@ -45,6 +45,7 @@
 				}"
 			>
 				<v-text-field
+					v-if="isSearchVisible"
 					append-inner-icon="mdi-magnify"
 					clearable
 					dense

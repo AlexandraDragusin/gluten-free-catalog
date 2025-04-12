@@ -35,6 +35,12 @@ export default {
 		"navigate-to-admin",
 		"navigate-to-categories"
 	],
+	computed: {
+		isSearchVisible() {
+			const hiddenRoutes = ['Admin', 'Profile'];
+			return !hiddenRoutes.includes(this.$route.name);
+		}
+	},
 	methods: {
 		handleLoginClick() {
 			if (this.isLoggedIn && this.userRole === 'admin') {

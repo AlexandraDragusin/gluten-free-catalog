@@ -146,9 +146,7 @@ export default {
 					},
 				});
 				if (!res.ok) throw new Error("Eroare la ștergere.");
-				this.snackbarText = "Recenzia a fost ștearsă.";
-				this.snackbarColor = "success";
-				this.snackbar = true;
+
 				await this.fetchReviews();
 			} catch (err) {
 				console.error("Eroare la ștergerea recenziei:", err);
