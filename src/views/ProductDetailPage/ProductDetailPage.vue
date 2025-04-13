@@ -114,13 +114,16 @@
 				label="Scrie o recenzie..."
 				rows="3"
 				variant="outlined"
-			/>
+			> 
+			</v-textarea>
 			<v-btn
-				class="white-button"
-				:disabled="!newReview.comment || !newReview.rating"
 				@click="submitReview"
-			>
-				Adaugă o recenzie
+				:class=" !newReview.comment || !newReview.rating ? 'send-review-button-disabled' : '' "
+				>
+				<div :style="{ gap: '8px' }">
+					<span> Adaugă recenzie </span>
+					<v-icon left>mdi-send</v-icon>
+				</div>
 			</v-btn>
 		</div>
 		<div v-else class="text-grey">Trebuie să fii autentificat pentru a scrie o recenzie.</div>
@@ -197,6 +200,7 @@
 }
 
 .image-col {
+	padding-top: 32px;
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
@@ -309,6 +313,11 @@
 
 .white-button:hover {
 	background-color: #f0f0f0;
+}
+
+.send-review-button-disabled {
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 </style>

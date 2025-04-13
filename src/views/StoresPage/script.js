@@ -31,6 +31,7 @@ export default {
 			},
 		};
 	},
+	emits: ["navigate-to-store-detail"],
 	watch: {
 		"$route.params.type"(newType) {
 			if (this.filterOptions.types.includes(newType)) {
@@ -162,6 +163,9 @@ export default {
 		},
 		toggleSortOrder() {
 			this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+		},
+		goToStoreDetail(storeId) {
+			this.$emit("navigate-to-store-detail", storeId);
 		}
 	},
 };

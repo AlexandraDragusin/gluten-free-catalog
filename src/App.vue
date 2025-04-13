@@ -22,6 +22,7 @@
 			@navigate-to-products="goToProductsPage"
 			@navigate-to-product-detail="goToProductDetailPage"
 			@navigate-to-stores="goToStoresPage"
+			@navigate-to-store-detail="goToStoreDetailPage"
 			@navigate-to-register="goToRegisterPage"
 			@navigate-to-login="goToLoginPage"
 			@navigate-to-home="goToHomePage"

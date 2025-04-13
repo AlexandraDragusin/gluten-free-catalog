@@ -76,6 +76,9 @@ export default {
 				this.$router.push('/stores');
 			}
 		},
+		goToStoreDetailPage(storeId) {
+			this.$router.push({ name: 'StoreDetail', params: { id: storeId } });
+		},
 		goToProductsPage(category) {
 			if (category) {
 				this.$router.push({ name: 'Products', params: { category } });

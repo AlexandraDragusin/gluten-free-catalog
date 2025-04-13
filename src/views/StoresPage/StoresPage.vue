@@ -44,7 +44,7 @@
 				cols="12"
 				class="store-card-wrapper"
 			>
-				<div class="store-card">
+				<div class="store-card" @click="goToStoreDetail(store.id)" style="cursor: pointer;">
 					<v-row>
 						<v-col cols="2" class="store-logo-col">
 							<v-img :src="store.logo_url" alt="store logo" class="store-logo" />

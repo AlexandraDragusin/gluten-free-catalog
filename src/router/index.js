@@ -8,6 +8,7 @@ import ProfilePage from "@/views/ProfilePage/ProfilePage.vue";
 import AdminPage from "@/views/AdminPage/AdminPage.vue";
 import VerifyPage from "@/views/VerifyPage/VerifyPage.vue";
 import ProductDetailPage from "@/views/ProductDetailPage/ProductDetailPage.vue";
+import StoreDetailPage from "@/views/StoreDetailPage/StoreDetailPage.vue";
 
 const routes = [
 	{ path: "/", name: "Home", component: HomePage },
@@ -18,7 +19,8 @@ const routes = [
 	{ path: "/verify/:email", name: "Verify", component: VerifyPage, props: true },
 	{ path: "/profile", name: "Profile", component: ProfilePage },
 	{ path: '/admin', name: 'AdminPage', component: AdminPage, meta: { requiresAuth: true, requiresAdmin: true } },
-	{ path: '/products/detail/:id', name: 'ProductDetail', component: ProductDetailPage, props: true }
+	{ path: '/products/detail/:id', name: 'ProductDetail', component: ProductDetailPage, props: true },
+	{ path: '/stores/detail/:id', name: 'StoreDetail', component: StoreDetailPage, props: true },
 ];
 
 const router = createRouter({
