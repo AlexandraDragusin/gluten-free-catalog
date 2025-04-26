@@ -76,8 +76,12 @@ export default {
 				this.$router.push('/stores');
 			}
 		},
-		goToStoreDetailPage(storeId) {
-			this.$router.push({ name: 'StoreDetail', params: { id: storeId } });
+		goToStoreDetailPage(storeId, storeName) {
+			this.$router.push({
+				name: 'StoreDetail',
+				params: { id: storeId },
+				query: { name: storeName }
+			});
 		},
 		goToProductsPage(category) {
 			if (category) {
@@ -151,6 +155,28 @@ export default {
 					});
 				}
 
+				this.breadcrumbs = crumbs;
+				return;
+			}
+
+			if (name === 'StoreDetail') {
+				let crumbs = [
+					{ label: 'Acasă', route: '/' },
+					{ label: 'Magazine', route: '/stores' },
+				];
+
+				const storeName = this.$route.query.name;
+				if (storeName) {
+					crumbs.push({
+						label: decodeURIComponent(storeName),
+						route: this.$route.fullPath
+					});
+				} else {
+					crumbs.push({
+						label: 'Detalii magazin',
+						route: this.$route.fullPath
+					});
+				}
 				this.breadcrumbs = crumbs;
 				return;
 			}

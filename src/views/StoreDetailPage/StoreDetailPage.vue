@@ -2,114 +2,148 @@
 	<v-container fluid class="store-detail-container">
 	<v-row>
 		<v-col cols="12">
-			<v-card class="full-card-layout">
-				<!-- Logo -->
-				<div class="logo-top-right">
-					<v-img
-						:src="store.logo_url || require('@/assets/no-image.png')"
-						alt="Logo magazin"
-						class="store-image"
-						:style="imageStyle"
-					/>
+			<v-card class="store-card">
+				<!-- Header with logo and basic info -->
+				<div class="store-header">
+					<div class="logo-container">
+						<v-img
+							:src="store.logo_url || require('@/assets/no-image.png')"
+							alt="Logo magazin"
+							class="store-logo"
+							contain
+						/>
+					</div>
+
+					<div class="store-info">
+						<h1 class="store-name">{{ store.name }}
+							<a
+								v-if="store.website"
+								:href="store.website.startsWith('http') ? store.website : 'https://' + store.website"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<v-icon class="website-icon">mdi-open-in-new</v-icon>
+							</a>
+						</h1>
+						<div class="store-meta">
+							<div class="store-type">
+								<v-icon left small>mdi-storefront</v-icon>
+								{{ translateType(store.type) }}
+							</div>
+
+							<div class="store-arig" v-if="store.arig_partner">
+								<v-icon left small>mdi-certificate</v-icon>
+								Partener ARIG
+							</div>
+
+							<div class="store-discount" v-if="store.discount_percentage">
+								<v-icon left small>mdi-percent</v-icon>
+								{{ store.discount_percentage }}% discount
+							</div>
+						</div>
+					</div>
 				</div>
 
-				<!-- Store info -->
-				<v-col cols="12" md="8" class="info-col">
-					<h1 class="store-name">{{ store.name }}</h1>
+				<v-divider class="my-4" />
 
-					<p><strong>Tip magazin: </strong> {{ translateType(store.type) }}</p>
-					<p><strong>Partener ARIG: </strong> {{ store.arig_partner ? 'Da' : 'Nu' }}</p>
-					<p><strong>Discount oferit de magazin: </strong> {{ store.discount_percentage || 0 }}%</p>
-					<p v-if="store.website">
-						<strong>Website: </strong>
-						<a
-							v-if="store.website"
-							:href="store.website.startsWith('http') ? store.website : 'https://' + store.website"
-							target="_blank"
-							rel="noopener noreferrer"
-						>{{ store.website }}</a>
-						<span v-else>-</span>
-					</p>
-
-					<div v-if="store.description">
-						<h3 class="section-title">Descriere</h3>
+				<!-- Description -->
+				<div v-if="store.description" class="store-description">
+					<h2 class="section-title">
+						<!-- put space between  -->
+						<v-icon left>mdi-text</v-icon>
+						Despre magazin
+					</h2>
+					<div class="description-content">
 						<p>{{ store.description }}</p>
 					</div>
+				</div>
 
-					<div>
-						<h3 class="section-title">Categorii de produse</h3>
-						<p v-if="categories.length">{{ categories.map(c => c.name).join(', ') }}</p>
-						<p v-else class="text-grey">Nu sunt categorii disponibile</p>
+				<!-- Categories -->
+				<div class="store-section">
+					<h2 class="section-title">
+						<v-icon left>mdi-tag-multiple</v-icon>
+						Categorii disponibile
+					</h2>
+					<div v-if="categories.length" class="categories-list">
+						<v-chip v-for="category in categories" :key="category.id" class="mr-2 mb-2">
+							{{ category.name }}
+						</v-chip>
 					</div>
+					<p v-else class="text-grey">Nu sunt categorii disponibile</p>
+				</div>
 
-					<div v-if="availableAddresses.length === 1 && selectedAddress" class="mt-6">
-						<h3 class="section-title">Adresă magazin</h3>
-						<p>{{ formatAddress(selectedAddress) }}</p>
-					</div>
-				</v-col>
-			
-				<v-row v-if="availableAddresses.length > 1" class="mt-4">
-					<v-col cols="12" md="8">
-						<v-select
-							v-model="selectedAddress"
-							:items="availableAddresses"
-							item-title="text"
-							item-value="value"
-							label="Selectează adresa"
-							variant="outlined"
-							clearable
-							return-object
-							hide-details
-							density="compact"
-							@update:modelValue="onAddressSelected"
-						/>
-					</v-col>
-				</v-row>
+				<!-- Address selector -->
+				<div v-if="availableAddresses.length > 0" class="store-section">
+					<h2 class="section-title">
+						<v-icon left>mdi-map-marker</v-icon>
+						Locații
+					</h2>
 
-				<!-- Map-->
-				<v-row v-show="mapReady" class="mt-6">
-					<v-col cols="12">
-						<h3 class="section-title1" style="display: flex; justify-content: center; width: 100%;" >Locația magazinului pe hartă</h3>
+					<v-select
+						v-if="availableAddresses.length > 1"
+						v-model="selectedAddress"
+						:items="availableAddresses"
+						item-title="text"
+						item-value="value"
+						label="Selectează adresa"
+						variant="outlined"
+						density="comfortable"
+						class="mb-4"
+						hide-details
+						@update:modelValue="onAddressSelected"
+				/>
+
+				<div v-if="selectedAddress" class="address-info">					
+					<!-- Map -->
+					<div v-show="mapReady" class="store-map">
 						<l-map
 							v-if="mapReady && mapCenter && mapCenter.length === 2"
 							:zoom="15"
 							:center="mapCenter"
-							style="height: 300px; border-radius: 12px; overflow: hidden;"
-							>
-							<l-tile-layer
-								url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-								attribution="&copy; OpenStreetMap contributors"
-							/>
-							<l-marker v-if="mapCenter" :lat-lng="mapCenter" />
-						</l-map>
-					</v-col>
-				</v-row>
-
-				<!-- Categories -->
-				<h3 class="section-title1 mt-10" style="display: flex; justify-content: center; width: 100%;">Descoperă categoriile magazinului</h3>
-				<div v-for="category in categories" :key="category.id">
-					<h4 class="mb-2">{{ category.name }}</h4>
-
-					<v-slide-group
-						show-arrows
-						class="product-carousel"
-					>
-						<v-slide-group-item
-							v-for="product in categoryProducts[category.id]"
-							:key="product.id"
 						>
-							<v-card class="product-card" elevation="2" @click="$emit('navigate-to-product-detail', product.id)"							>
-							<v-img
-								:src="product.image_url || require('@/assets/no-image.png')"
-								alt="Imagine produs"
-								class="product-image"
-								height="120"
-								contain
+							<l-tile-layer
+							url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+							attribution="&copy; OpenStreetMap contributors"
 							/>
-							<v-card-title class="text-truncate">{{ product.name }}</v-card-title>
-							</v-card>
-						</v-slide-group-item>
-					</v-slide-group>
+							<l-marker :lat-lng="mapCenter" />
+						</l-map>
+					</div>
+					<p class="address-text">{{ formatAddress(selectedAddress) }}</p>
+				</div>
+				</div>
+
+				<!-- Products by category -->
+				<div v-if="Object.keys(categoryProducts).length > 0" class="store-section">
+					<h2 class="section-title">
+						<v-icon left>mdi-storefront</v-icon>
+						Produse disponibile
+					</h2>
+
+					<div v-for="category in categories" :key="category.id" class="category-products">
+						<h3 class="category-title">{{ category.name }}</h3>
+		
+						<v-slide-group show-arrows class="products-slider">
+							<v-slide-group-item
+								v-for="product in categoryProducts[category.id]"
+								:key="product.id"
+								v-slot="{ isSelected }"
+							>
+								<v-card
+									class="product-card"
+									:class="{ 'selected-card': isSelected }"
+									@click="$emit('navigate-to-product-detail', product.id)"
+								>
+									<v-img
+										:src="product.image_url || require('@/assets/no-image.png')"
+										height="140"
+										cover
+										class="product-image"
+									/>
+									<v-card-title class="product-name">{{ product.name }}</v-card-title>
+								</v-card>
+							</v-slide-group-item>
+						</v-slide-group>
+					</div>
 				</div>
 			</v-card>
 		</v-col>
@@ -121,87 +155,204 @@
 
 <style scoped>
 .store-detail-container {
-	padding-top: 120px;
-	background-color: #FEF9ED;
+	padding: 140px 0 40px;
 	min-height: 100vh;
 	max-width: 90%;
 }
 
-.full-card-layout {
-	position: relative;
-	padding: 32px;
-	border-radius: 16px;
-	background-color: white;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-	min-height: 300px;
+.store-card {
+	padding: 60px;
+	border-radius: 12px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.logo-top-right {
-	position: absolute;
-	top: 32px;
-	right: 32px;
-	width: 300px;
-	max-height: 300px;
+.store-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+	margin-bottom: 24px;
 }
 
-.store-image {
+.logo-container {
+	width: 160px;
+	height: 160px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 8px;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.store-logo {
 	max-width: 100%;
-	max-height: 300px;
+	max-height: 100%;
 	object-fit: contain;
-	border-radius: 16px;
-	box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.info-col {
-	padding: 24px;
+.store-info {
+	text-align: center;
 }
 
 .store-name {
-	font-size: 32px;
-	font-weight: bold;
+	font-size: 1.8rem;
+	font-weight: 600;
+	color: #312B1D;
+	margin-bottom: 12px;
+}
+
+.website-icon {
+	font-size: 24px !important;
+	line-height: 1;
+}
+
+.store-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.store-type, .store-arig, .store-discount {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #312B1D;
+  gap: 6px;
+}
+
+.section-title {
+	font-size: 20px;
+	font-weight: 500;
+	color: #312B1D;
+	margin: 24px 0 16px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.description-content {
+  line-height: 1.6;
+  text-align: left;
+  padding: 8px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  background-color: #fef9ed !important;
+  max-width: 75%;
+  line-height: 1.8;
+}
+
+.store-section {
+	margin-bottom: 32px;
+}
+
+.categories-list {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.address-info {
+	padding: 16px;
+	border-radius: 8px;
+}
+
+.address-text {
+	font-size: 0.95rem;
 	margin-bottom: 16px;
 	color: #312B1D;
 }
 
-.section-title{
-	margin-top: 24px;
-	margin-bottom: 8px;
-	font-weight: 600;
-	font-size: 18px;
+.store-map {
+	height: 300px;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-top: 12px;
+	border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.section-title1{
-	margin-top: 24px;
-	margin-bottom: 8px;
-	font-weight: 600;
-	font-size: 22px;
-}
-
-.product-carousel {
-	padding-bottom: 32px;
+.category-products {
 	margin-bottom: 32px;
-	overflow-x: auto;
+}
+
+.category-title {
+	font-size: 1.1rem;
+	font-weight: 500;
+	margin-bottom: 16px;
+	color: #312B1D;
+}
+
+.products-slider {
+	padding: 8px 0;
 }
 
 .product-card {
-	width: 240px;
+	width: 180px;
 	margin: 0 8px;
-	box-shadow: none !important;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	border-radius: 8px;
+	overflow: hidden;
+	transition: transform 0.2s, box-shadow 0.2s;
 	cursor: pointer;
-	border-radius: 12px;
-
+	background-color: white;
 }
 
 .product-card:hover {
-	transform: scale(1.05);
-	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+	transform: translateY(-4px);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .product-image {
-	object-fit: contain;
-	border-radius: 8px;
-	flex-shrink: 0;
+	background: #FEF9ED;
 }
 
+.product-name {
+	font-size: 0.9rem;
+	font-weight: 500;
+	padding: 12px;
+	white-space: normal;
+	line-height: 1.3;
+	color: #312B1D;
+}
+
+.v-chip {
+	background-color: #FEF9ED !important;
+	color: #312B1D !important;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.v-chip--small {
+	font-size: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .store-header {
+    flex-direction: row;
+    text-align: left;
+    align-items: flex-start;
+  }
+  
+  .store-info {
+    text-align: left;
+    flex: 1;
+  }
+  
+  .store-logo {
+    margin-right: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .store-detail-container {
+    padding: 16px;
+    max-width: 100%;
+  }
+  
+  .store-card {
+    padding: 16px;
+  }
+  
+  .product-card {
+    width: 160px;
+  }
+}
 </style>

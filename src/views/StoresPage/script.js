@@ -164,8 +164,8 @@ export default {
 		toggleSortOrder() {
 			this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
 		},
-		goToStoreDetail(storeId) {
-			this.$emit("navigate-to-store-detail", storeId);
+		goToStoreDetail(storeId, storeName) {
+			this.$emit("navigate-to-store-detail", storeId, storeName);
 		}
 	},
 };
