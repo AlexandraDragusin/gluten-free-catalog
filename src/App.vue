@@ -11,6 +11,8 @@
 		@navigate-to-profile="goToProfilePage"
 		@navigate-to-login="goToLoginPage"
 		@navigate-to-home="goToHomePage"
+		@navigate-to-store-detail="goToStoreDetailPage"
+		@navigate-to-product-detail="goToProductDetailPage"
 	/>
 	<!-- Main Content -->
 	<v-main class="app-main">
