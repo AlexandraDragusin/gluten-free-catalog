@@ -76,6 +76,7 @@
 						}"
 						@input="onInput"
 						@focus="onFocus"
+						@click:clear="onClear"
 						ref="searchField"
 					/>
 				</template>

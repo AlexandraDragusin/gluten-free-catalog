@@ -41,7 +41,7 @@ export default {
 	},
 	methods: {
 		handleFavoritesClick() {
-			if (!this.userId) {
+			if (!this.userId || this.userRole !== "user") {
 				this.showLoginPrompt = true;
 			} else {
 				this.$emit('navigate-to-profile-favorites');

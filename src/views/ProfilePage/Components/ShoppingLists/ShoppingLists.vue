@@ -91,7 +91,7 @@
 }
 
 .shopping-list-card {
-	background-color: #fffbe6;
+	background-color: #fff;
 	transition: 0.3s ease;
 	cursor: pointer;
 }

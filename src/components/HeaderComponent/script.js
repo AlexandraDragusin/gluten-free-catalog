@@ -64,6 +64,17 @@ export default {
 			return groups;
 		}
 	},
+	watch: {
+		isSearchVisible(newVal) {
+			if (!newVal) {
+				this.searchQuery = '';
+				this.searchResults.products = [];
+				this.searchResults.stores = [];
+				this.menuOpen = false;
+				this.loadingSearch = false;
+			}
+		},
+	},
 	created() {
 		this.fetchAllCategories();
 		this.fetchAllProducts();
@@ -158,8 +169,15 @@ export default {
 			this.performSearch();
 		}, 300),
 		onInput() {
-			this.loadingSearch = true;
-			this.handleSearch();
+			if (this.searchQuery.trim() === '') {
+				this.searchResults.products = [];
+				this.searchResults.stores = [];
+				this.menuOpen = false;
+				this.loadingSearch = false;
+			} else {
+				this.loadingSearch = true;
+				this.handleSearch();
+			}
 		},
 		onFocus() {
 			if (this.searchQuery.length > 0 && 
@@ -168,6 +186,13 @@ export default {
 			} else {
 				this.menuOpen = false;
 			}
+		},
+		onClear() {
+			this.searchQuery = '';
+			this.searchResults.products = [];
+			this.searchResults.stores = [];
+			this.menuOpen = false;
+			this.loadingSearch = false;
 		},
 		navigateToProduct(productId) {
 			this.$emit('navigate-to-product-detail', productId);
