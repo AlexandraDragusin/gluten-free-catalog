@@ -1,16 +1,10 @@
 const express = require("express");
 const pool = require("../db");
 const router = express.Router();
-const multer = require("multer");
 const xlsx = require("xlsx");
 const authenticateToken = require("../middleware/authMiddleware");
 
-// Configure multer for file uploads
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-const cloudinary = require("../utils/cloudinary");
-const streamifier = require("streamifier");
+const { upload, uploadToS3 } = require("../middleware/uploadMiddleware");
 
 // Get all products
 router.get("/", async (req, res) => {
@@ -474,40 +468,27 @@ router.put("/:id", authenticateToken, async (req, res) => {
 });
 
 // Upload product image to Cloudinary
-router.post("/upload-image", authenticateToken, upload.single("image"), async (req, res) => {
-	if (!req.user || req.user.role !== "admin") {
-		return res.status(403).json({ error: "Acces interzis." });
+router.post("/upload-image",
+	authenticateToken,
+	(req, res, next) => { req.uploadFolder = "product-images"; next(); },
+	upload.single("image"),
+	uploadToS3,
+	async (req, res) => {
+		if (!req.user || req.user.role !== "admin") {
+			return res.status(403).json({ error: "Acces interzis." });
+		}
+
+		const imageUrl = req.fileUrl;
+
+		try {
+			res.json({ imageUrl: imageUrl });
+
+		} catch (error) {
+			console.error("Eroare la upload imagine produs:", error);
+			res.status(500).json({ error: "Eroare la încărcarea imaginii." });
+		}
 	}
-
-	if (!req.file) {
-		return res.status(400).json({ error: "Fișier lipsă." });
-	}
-
-	try {
-		const streamUpload = () => {
-			return new Promise((resolve, reject) => {
-				const stream = cloudinary.uploader.upload_stream(
-					{ folder: "product_images" },
-					(error, result) => {
-						if (result) {
-							resolve(result);
-						} else {
-							reject(error);
-						}
-					}
-				);
-				streamifier.createReadStream(req.file.buffer).pipe(stream);
-			});
-		};
-
-		const result = await streamUpload();
-		res.json({ imageUrl: result.secure_url });
-
-	} catch (error) {
-		console.error("Eroare la upload imagine produs:", error);
-		res.status(500).json({ error: "Eroare la încărcarea imaginii." });
-	}
-});
+);
 
 // Delete a product
 router.delete("/:id", authenticateToken, async (req, res) => {

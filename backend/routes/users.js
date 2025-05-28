@@ -5,13 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 
-const multer = require("multer");
-const cloudinary = require("../utils/cloudinary");
-const streamifier = require("streamifier");
-
-// Multer middleware
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const { upload, uploadToS3 } = require("../middleware/uploadMiddleware");
 
 /** 
  * Generates a JWT token.
@@ -130,46 +124,30 @@ router.put("/update", authenticateToken, async (req, res) => {
 /**
  * Upload user profile picture. This route is protected and requires a valid JWT token
  */
-router.post("/upload-profile-picture", authenticateToken, upload.single("profilePicture"), async (req, res) => {
-	try {
-		const userId = req.user.id;
+router.post("/upload-profile-picture",
+	authenticateToken,
+	(req, res, next) => { req.uploadFolder = "profile-images"; next(); },
+	upload.single("profilePicture"),
+	uploadToS3,
+	async (req, res) => {
+		try {
+			const userId = req.user.id;
+			const imageUrl = req.fileUrl;
 
-		if (!req.file) {
-			return res.status(400).json({ error: "Niciun fișier trimis" });
+			// Save URL to DB
+			await pool.query(
+				"UPDATE users SET profile_picture = $1 WHERE id = $2",
+				[imageUrl, userId]
+			);
+
+			res.json({ imageUrl: imageUrl });
+
+		} catch (err) {
+			console.error("Upload error:", err);
+			res.status(500).json({ error: "Eroare la încărcarea imaginii" });
 		}
-
-		// Upload to cloudinary from buffer
-		const streamUpload = (req) => {
-			return new Promise((resolve, reject) => {
-				const stream = cloudinary.uploader.upload_stream(
-					{ folder: "profile_pictures" },
-					(error, result) => {
-						if (result) {
-							resolve(result);
-						} else {
-							reject(error);
-						}
-					}
-				);
-				streamifier.createReadStream(req.file.buffer).pipe(stream);
-			});
-		};
-
-		const result = await streamUpload(req);
-
-		// Save URL to DB
-		await pool.query(
-			"UPDATE users SET profile_picture = $1 WHERE id = $2",
-			[result.secure_url, userId]
-		);
-
-		res.json({ imageUrl: result.secure_url });
-
-	} catch (err) {
-		console.error("Upload error:", err);
-		res.status(500).json({ error: "Eroare la încărcarea imaginii" });
 	}
-});
+);
 
 /**
  * Delete user profile picture. This route is protected and requires a valid JWT token

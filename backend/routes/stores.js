@@ -3,11 +3,7 @@ const pool = require("../db");
 const router = express.Router();
 const authenticateToken = require("../middleware/authMiddleware");
 
-const multer = require("multer");
-const streamifier = require("streamifier");
-const cloudinary = require("../utils/cloudinary");
-
-const upload = multer();
+const { upload, uploadToS3 } = require("../middleware/uploadMiddleware");
 
 // Get all stores
 router.get("/", async (req, res) => {
@@ -146,8 +142,13 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 	}
 });
 
-// Upload logo to Cloudinary
-router.post("/upload-logo", authenticateToken, upload.single("logo"), async (req, res) => {
+// Upload logo to AWS S3
+router.post("/upload-logo",
+	authenticateToken,
+	(req, res, next) => { req.uploadFolder = "store-logos"; next(); },
+	upload.single("logo"),
+	uploadToS3,
+	async (req, res) => {
 	if (!req.user || req.user.role !== "admin") {
 		return res.status(403).json({ error: "Acces interzis." });
 	}
@@ -156,25 +157,10 @@ router.post("/upload-logo", authenticateToken, upload.single("logo"), async (req
 		return res.status(400).json({ error: "Fișier lipsă." });
 	}
 
-	try {
-		const streamUpload = () => {
-			return new Promise((resolve, reject) => {
-				const stream = cloudinary.uploader.upload_stream(
-					{ folder: "store_logos" },
-					(error, result) => {
-						if (result) {
-							resolve(result);
-						} else {
-							reject(error);
-						}
-					}
-				);
-				streamifier.createReadStream(req.file.buffer).pipe(stream);
-			});
-		};
+	const logoUrl = req.fileUrl;
 
-		const result = await streamUpload();
-		res.json({ logoUrl: result.secure_url });
+	try {
+		res.json({ logoUrl: logoUrl });
 
 	} catch (error) {
 		console.error("Eroare la upload logo:", error);

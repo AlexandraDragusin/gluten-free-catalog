@@ -50,7 +50,7 @@ export default {
 			try {
 				const token = localStorage.getItem("token");
 
-				// Check if a logo file is selected and upload it to Cloudinary
+				// Check if a logo file is selected and upload it to AWS S3
 				if (this.logoFile) {
 					const token = localStorage.getItem("token");
 					const formData = new FormData();
