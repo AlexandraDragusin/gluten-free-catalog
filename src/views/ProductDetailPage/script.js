@@ -25,25 +25,14 @@ export default {
 		};
 	},
 	async created() {
-		const productId = this.$route.params.id;
-		const token = localStorage.getItem("token");
-
-		if (token) {
-			const decoded = jwtDecode(token);
-			this.userId = decoded.id;
-			this.userRole = decoded.role;
-
-			await this.checkIfFavorite(productId);
-		}
-
-		try {
-			const res = await fetch(`http://localhost:5000/api/products/${productId}`);
-			const data = await res.json();
-			this.product = data;
-
-			await this.fetchReviews();
-		} catch (err) {
-			console.error('Eroare la încărcarea produsului:', err);
+		this.loadProduct(this.$route.params.id);
+	},
+	watch: {
+		'$route.params.id': {
+			immediate: true,
+			handler(newId) {
+				this.loadProduct(newId);
+			}
 		}
 	},
 	methods: {
@@ -190,6 +179,27 @@ export default {
 					};
 				}
 			});
-		}
+		},
+		async loadProduct(productId) {
+			try {
+				const token = localStorage.getItem("token");
+
+				if (token) {
+					const decoded = jwtDecode(token);
+					this.userId = decoded.id;
+					this.userRole = decoded.role;
+
+					await this.checkIfFavorite(productId);
+				}
+
+				const res = await fetch(`http://localhost:5000/api/products/${productId}`);
+				const data = await res.json();
+				this.product = data;
+
+				await this.fetchReviews();
+			} catch (err) {
+				console.error('Eroare la încărcarea produsului:', err);
+			}
+		},
 	}
 };
