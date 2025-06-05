@@ -1,4 +1,5 @@
 import { debounce } from 'lodash';
+import Fuse from 'fuse.js';
 import LoginButton from "@/components/LoginButton/LoginButton.vue";
 import Breadcrumb from "../BreadcrumbComponent/BreadcrumbComponent.vue";
 
@@ -34,7 +35,9 @@ export default {
 			allStores: [],
 			allCategories: [],
 			menuOpen: false,
-			loadingSearch: false
+			loadingSearch: false,
+			productFuse: null,
+			storeFuse: null
 		};
 	},
 	emits: [
@@ -93,6 +96,11 @@ export default {
 						categoryName: category ? category.name : 'Fără categorie'
 					};
 				});
+
+				this.productFuse = new Fuse(this.allProducts, {
+					keys: ['name', 'brand', 'categoryName'],
+					threshold: 0.3
+				});
 			} catch (err) {
 				console.error('Eroare la încărcarea produselor:', err);
 			}
@@ -101,6 +109,11 @@ export default {
 			try {
 				const res = await fetch('http://localhost:5000/api/stores');
 				this.allStores = await res.json();
+
+				this.storeFuse = new Fuse(this.allStores, {
+					keys: ['name'],
+					threshold: 0.3
+				});
 			} catch (err) {
 				console.error('Eroare la încărcarea magazinelor:', err);
 			}
@@ -133,9 +146,9 @@ export default {
 		},
 		async performSearch() {
 			this.loadingSearch = true;
-			const query = this.searchQuery.toLowerCase().trim();
+			const query = this.searchQuery.trim();
 
-			if (!query) {
+			if (!query || (!this.productFuse && !this.storeFuse)) {
 				this.searchResults.products = [];
 				this.searchResults.stores = [];
 				this.menuOpen = false;
@@ -143,19 +156,13 @@ export default {
 				return;
 			}
 
-			const matchedProducts = this.allProducts.filter(prod =>
-				prod.name.toLowerCase().includes(query) ||
-				(prod.categoryName || '').toLowerCase().includes(query)
-			);
+			const productResults = this.productFuse.search(query).map(r => r.item);
+			const storeResults = this.storeFuse.search(query).map(r => r.item);
 
-			const matchedStores = this.allStores.filter(store =>
-				store.name.toLowerCase().includes(query)
-			);
+			this.searchResults.products = productResults;
+			this.searchResults.stores = storeResults;
 
-			this.searchResults.products = matchedProducts;
-			this.searchResults.stores = matchedStores;
-
-			this.menuOpen = matchedProducts.length > 0 || matchedStores.length > 0;
+			this.menuOpen = productResults.length > 0 || storeResults.length > 0;
 
 			this.$nextTick(() => {
 				if (this.menuOpen && this.$refs.searchField) {
