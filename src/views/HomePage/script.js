@@ -30,10 +30,12 @@ export default {
 	},
 	created() {
 		const token = localStorage.getItem("token");
+
 		if (token) {
 			try {
 				const decoded = jwtDecode(token);
 				this.userId = decoded.id;
+				this.userRole = decoded.role;
 			} catch {
 				this.userId = null;
 			}
@@ -41,6 +43,7 @@ export default {
 	},
 	methods: {
 		handleFavoritesClick() {
+
 			if (!this.userId || this.userRole !== "user") {
 				this.showLoginPrompt = true;
 			} else {
