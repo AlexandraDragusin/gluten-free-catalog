@@ -164,13 +164,7 @@ export default {
 
 			this.menuOpen = productResults.length > 0 || storeResults.length > 0;
 
-			this.$nextTick(() => {
-				if (this.menuOpen && this.$refs.searchField) {
-					this.$refs.searchField.focus();
-					this.loadingSearch = false;
-					this.menuOpen = (this.searchResults.products.length || this.searchResults.stores.length) > 0;
-				}
-			});
+			this.loadingSearch = false;
 		},
 		handleSearch: debounce(function () {
 			this.performSearch();
