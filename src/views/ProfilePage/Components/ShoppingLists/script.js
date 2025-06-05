@@ -1,3 +1,5 @@
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import ShoppingListDialog from '../ShoppingListDialog/ShoppingListDialog.vue';
 
 export default {
@@ -17,6 +19,7 @@ export default {
 			newListName: "",
 			selectedList: null,
 			showListDialog: false,
+			showPdf: false,
 		};
 	},
 	computed: {
@@ -93,13 +96,77 @@ export default {
 			this.selectedList = list;
 			this.showListDialog = true;
 		},
-		exportToPDF(id) {
-			// Placeholder – va fi implementat mai jos
-			console.log("Export to PDF list ID:", id);
-		},
-		shareList(list) {
-			// Placeholder – deschide dialog / copiază link
-			console.log("Partajează lista:", list);
-		},
+		async exportToPDF(listId) {
+			const list = this.lists.find(l => l.id === listId);
+			if (!list) return;
+
+			try {
+				const token = localStorage.getItem("token");
+				const res = await fetch(`http://localhost:5000/api/shopping-lists/${listId}/items`, {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+				const items = await res.json();
+
+				this.showPdf = true;
+				await this.$nextTick();
+
+				// Populate the PDF template
+				const titleEl = document.getElementById("pdf-title");
+				const dateEl = document.getElementById("pdf-date");
+				const container = document.getElementById("pdf-items");
+				const template = document.getElementById("pdf-template");
+				
+				if (!titleEl || !dateEl || !container || !template) {
+					console.error("Template PDF lipsește din DOM.");
+					return;
+				}
+
+				titleEl.textContent = list.name;
+				dateEl.textContent = new Date(list.created_at).toLocaleDateString("ro-RO");
+				container.innerHTML = "";
+
+				items.forEach(item => {
+					const checkbox = item.checked ? "☑" : "☐";
+					const row = document.createElement("div");
+					row.style.display = "flex";
+					row.style.alignItems = "center";
+					row.style.marginBottom = "12px";
+
+					row.innerHTML = `
+						<div style="margin-right: 12px; font-size: 18px;">${checkbox}</div>
+						<div style="line-height: 1.4;">
+						<div style="font-weight: bold;">${item.name}</div>
+						<div style="font-size: 12px; color: #555;">
+							${item.brand ?? "Fără brand"} – Cantitate: ${item.quantity}
+						</div>
+						</div>
+					`;
+
+					container.appendChild(row);
+				});
+
+				await this.$nextTick();
+
+				const canvas = await html2canvas(template, {
+					scale: 2,
+					useCORS: true,
+					backgroundColor: "#ffffff"
+				});
+
+				this.showPdf = false;
+
+				const imgData = canvas.toDataURL("image/png");
+
+				const pdf = new jsPDF();
+				const margin = 10;
+				const pdfWidth = pdf.internal.pageSize.getWidth() - margin * 2;
+				const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+				pdf.addImage(imgData, "PNG", margin, margin, pdfWidth, pdfHeight);
+				pdf.save(`lista-${list.name}.pdf`);
+			} catch (err) {
+				console.error("Eroare la export PDF:", err.message);
+			}
+		}
 	},
 };

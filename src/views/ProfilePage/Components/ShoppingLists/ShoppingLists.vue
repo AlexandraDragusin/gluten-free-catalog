@@ -45,9 +45,6 @@
 			<v-btn icon @click.stop.prevent="exportToPDF(list.id)">
 				<v-icon>mdi-file-pdf-box</v-icon>
 			</v-btn>
-			<v-btn icon @click.stop.prevent="shareList(list)">
-				<v-icon>mdi-share-variant</v-icon>
-			</v-btn>
 			</v-card-actions>
 		</v-card>
 		</v-col>
@@ -75,6 +72,16 @@
 		v-model="showListDialog"
 		@updated="fetchLists"
 	/>
+	</div>
+
+	<!-- PDF Template -->
+	<div id="pdf-template"
+		v-show="showPdf"
+		style="position: absolute; top: 0; left: -9999px; width: 600px; padding: 20px; font-family: Arial; background: white; z-index: -1;">
+		<h2 style="text-align: center; margin-bottom: 5px;">Listă de cumpărături: <span id="pdf-title"></span></h2>
+		<p style="text-align: center; margin-top: 0;">Creată lan data de: <span id="pdf-date"></span></p>
+		<hr />
+		<div id="pdf-items" style="margin-top: 20px;"></div>
 	</div>
 </template>
 
