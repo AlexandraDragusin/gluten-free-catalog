@@ -58,7 +58,7 @@ export default {
 			}
 
 			const method = this.isFavorite ? 'DELETE' : 'POST';
-			await fetch('http://localhost:5000/api/favorites', {
+			await fetch(`${process.env.VUE_APP_API_URL}/api/favorites`, {
 				method,
 				headers: {
 					'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export default {
 			this.isFavorite = !this.isFavorite;
 		},
 		async checkIfFavorite(productId) {
-			const res = await fetch('http://localhost:5000/api/favorites', {
+			const res = await fetch(`${process.env.VUE_APP_API_URL}/api/favorites`, {
 				headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
 			});
 			const data = await res.json();

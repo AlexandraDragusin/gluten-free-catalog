@@ -137,7 +137,7 @@ export default {
 	methods: {
 		async fetchProducts() {
 			try {
-				const res = await fetch('http://localhost:5000/api/products');
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/products`);
 				const data = await res.json();
 				this.products = data;
 				this.applyFilters();
@@ -147,7 +147,7 @@ export default {
 		},
 		async fetchCategories() {
 			try {
-				const res = await fetch('http://localhost:5000/api/categories');
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
 				const data = await res.json();
 				this.categories = data;
 
