@@ -107,7 +107,7 @@ export default {
 		},
 		async fetchAllStores() {
 			try {
-				const res = await fetch(`${process.env.VUE_APP_API_URL}api/stores`);
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
 				this.allStores = await res.json();
 
 				this.storeFuse = new Fuse(this.allStores, {
