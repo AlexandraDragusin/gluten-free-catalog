@@ -4,6 +4,7 @@ node_modules
 .env
 
 *.env*
+*.sql*
 
 # local env files
 .env.local
