@@ -86,7 +86,7 @@ export default {
 	methods: {
 		async fetchAllProducts() {
 			try {
-				const res = await fetch('http://localhost:5000/api/products');
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/products`);
 				const products = await res.json();
 		
 				this.allProducts = products.map(prod => {
@@ -107,7 +107,7 @@ export default {
 		},
 		async fetchAllStores() {
 			try {
-				const res = await fetch('http://localhost:5000/api/stores');
+				const res = await fetch(`${process.env.VUE_APP_API_URL}api/stores`);
 				this.allStores = await res.json();
 
 				this.storeFuse = new Fuse(this.allStores, {
@@ -120,7 +120,7 @@ export default {
 		},
 		async fetchAllCategories() {
 			try {
-				const res = await fetch('http://localhost:5000/api/categories');
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
 				this.allCategories = await res.json();
 			} catch (err) {
 				console.error('Eroare la încărcarea categoriilor:', err);

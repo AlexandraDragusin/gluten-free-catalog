@@ -43,7 +43,7 @@ export default {
 			try {
 				const token = localStorage.getItem("token");
 				const res = await fetch(
-					`http://localhost:5000/api/shopping-lists/${this.list.id}/items`,
+					`${process.env.VUE_APP_API_URL}/api/shopping-lists/${this.list.id}/items`,
 					{ 
 					headers: { Authorization: `Bearer ${token}` },
 					signal: controller.signal 
@@ -68,7 +68,7 @@ export default {
 		},
 		async fetchAvailableProducts() {
 			try {
-			const res = await fetch("http://localhost:5000/api/products");
+			const res = await fetch(`${process.env.VUE_APP_API_URL}/api/products`);
 			const data = await res.json();
 			this.availableProducts = data;
 			} catch (err) {
@@ -78,7 +78,7 @@ export default {
 		async toggleChecked(item) {
 			try {
 			const token = localStorage.getItem("token");
-			await fetch(`http://localhost:5000/api/shopping-lists/items/${item.id}/check`, {
+			await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/items/${item.id}/check`, {
 				method: "PATCH",
 				headers: {
 				"Content-Type": "application/json",
@@ -94,7 +94,7 @@ export default {
 		async updateQuantity(item) {
 			try {
 				const token = localStorage.getItem("token");
-				await fetch(`http://localhost:5000/api/shopping-lists/items/${item.id}/quantity`, {
+				await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/items/${item.id}/quantity`, {
 				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
@@ -189,7 +189,7 @@ export default {
 		
 			try {
 				for (const item of newItems) {
-					await fetch(`http://localhost:5000/api/shopping-lists/${this.list.id}/items`, {
+					await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/${this.list.id}/items`, {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
@@ -203,7 +203,7 @@ export default {
 				}
 		
 				for (const item of updatedItems) {
-					await fetch(`http://localhost:5000/api/shopping-lists/items/${item.id}/quantity`, {
+					await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/items/${item.id}/quantity`, {
 						method: "PATCH",
 						headers: {
 							"Content-Type": "application/json",
@@ -212,7 +212,7 @@ export default {
 						body: JSON.stringify({ quantity: item.quantity }),
 					});
 		
-					await fetch(`http://localhost:5000/api/shopping-lists/items/${item.id}/check`, {
+					await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/items/${item.id}/check`, {
 						method: "PATCH",
 						headers: {
 							"Content-Type": "application/json",
@@ -223,7 +223,7 @@ export default {
 				}
 		
 				for (const item of deletedItems) {
-					await fetch(`http://localhost:5000/api/shopping-lists/items/${item.id}`, {
+					await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/items/${item.id}`, {
 						method: "DELETE",
 						headers: { Authorization: `Bearer ${token}` },
 					});

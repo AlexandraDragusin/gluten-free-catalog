@@ -24,7 +24,7 @@ import AddToListDialog from "@/components/AddToListDialog/AddToListDialog.vue";
 					return;
 				}
 
-				const response = await fetch("http://localhost:5000/api/favorites", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/favorites`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -44,7 +44,7 @@ import AddToListDialog from "@/components/AddToListDialog/AddToListDialog.vue";
 		async removeFromFavorites(productId) {
 			try {
 				const token = localStorage.getItem("token");
-				await fetch("http://localhost:5000/api/favorites", {
+				await fetch(`${process.env.VUE_APP_API_URL}/api/favorites`, {
 					method: "DELETE",
 					headers: {
 						"Content-Type": "application/json",

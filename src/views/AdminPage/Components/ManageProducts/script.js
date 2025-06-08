@@ -80,7 +80,7 @@ export default {
 	methods: {
 		async fetchProducts() {
 			try {
-				const res = await fetch("http://localhost:5000/api/products");
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/products`);
 				const data = await res.json();
 
 				const mappedProducts = data.map(p => {
@@ -107,7 +107,7 @@ export default {
 		},
 		async fetchCategories() {
 			try {
-				const res = await fetch("http://localhost:5000/api/categories");
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
 				const data = await res.json();
 				this.categories = data;
 			} catch (err) {
@@ -116,7 +116,7 @@ export default {
 		},
 		async fetchAllergens() {
 			try {
-				const res = await fetch("http://localhost:5000/api/allergens");
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/allergens`);
 				const data = await res.json();
 				this.allergens = data;
 			} catch (err) {
@@ -126,7 +126,7 @@ export default {
 		},
 		async fetchStores() {
 			try {
-				const res = await fetch("http://localhost:5000/api/stores");
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
 				const data = await res.json();
 				this.storeOptions = data;
 			} catch (err) {
@@ -161,7 +161,7 @@ export default {
 					const formData = new FormData();
 					formData.append("image", this.productImageFile);
 
-					const uploadRes = await fetch("http://localhost:5000/api/products/upload-image", {
+					const uploadRes = await fetch(`${process.env.VUE_APP_API_URL}/api/products/upload-image`, {
 						method: "POST",
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -186,7 +186,7 @@ export default {
 					producer_gluten_declaration: !!this.editedProduct.producer_gluten_declaration,
 				};
 
-				const res = await fetch(`http://localhost:5000/api/products/${payload.id}`, {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/products/${payload.id}`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
@@ -214,7 +214,7 @@ export default {
 			try {
 				await Promise.all(
 					this.selectedProducts.map(async (product) => {
-						const res = await fetch(`http://localhost:5000/api/products/${product.id}`, {
+						const res = await fetch(`${process.env.VUE_APP_API_URL}/api/products/${product.id}`, {
 							method: "DELETE",
 							headers: {
 								Authorization: `Bearer ${token}`,

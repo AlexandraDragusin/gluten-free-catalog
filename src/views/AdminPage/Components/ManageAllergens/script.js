@@ -41,7 +41,7 @@ export default {
 	methods: {
 		async fetchAllergens() {
 			try {
-				const res = await fetch("http://localhost:5000/api/allergens");
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/allergens`);
 				this.allergens = await res.json();
 			} catch (err) {
 				console.error("Eroare la preluarea alergenilor:", err);
@@ -59,7 +59,7 @@ export default {
 			}
 
 			try {
-				const res = await fetch("http://localhost:5000/api/allergens", {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/allergens`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -120,7 +120,7 @@ export default {
 				}
 
 				const res = await fetch(
-					`http://localhost:5000/api/allergens/${this.editedAllergen.originalCode}`,
+					`${process.env.VUE_APP_API_URL}/api/allergens/${this.editedAllergen.originalCode}`,
 					{
 						method: "PUT",
 						headers: {
@@ -149,7 +149,7 @@ export default {
 			try {
 				await Promise.all(
 					this.selectedAllergens.map(async (allergen) => {
-						const res = await fetch(`http://localhost:5000/api/allergens/${allergen.code}`, {
+						const res = await fetch(`${process.env.VUE_APP_API_URL}/api/allergens/${allergen.code}`, {
 							method: "DELETE",
 							headers: {
 								Authorization: `Bearer ${localStorage.getItem("token")}`,

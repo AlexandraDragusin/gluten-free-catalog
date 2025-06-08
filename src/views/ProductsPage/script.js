@@ -170,18 +170,18 @@ export default {
 			}
 		},
 		async fetchAllergens() {
-			const res = await fetch("http://localhost:5000/api/allergens");
+			const res = await fetch(`${process.env.VUE_APP_API_URL}/api/allergens`);
 			this.allergens = await res.json();
 		},
 		async fetchStores() {
-			const res = await fetch("http://localhost:5000/api/stores");
+			const res = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
 			this.storeOptions = await res.json();
 		},
 		async fetchFavorites() {
 			if (!this.userId || this.userRole === "admin") return;
 
 			try {
-				const res = await fetch(`http://localhost:5000/api/favorites`, {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/favorites`, {
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem("token")}`,
 					},
@@ -199,7 +199,7 @@ export default {
 			}
 	
 			const isFavorite = this.favoriteProductIds.includes(productId);
-			const url = `http://localhost:5000/api/favorites`;
+			const url = `${process.env.VUE_APP_API_URL}/api/favorites`;
 			const method = isFavorite ? 'DELETE' : 'POST';
 
 			try {

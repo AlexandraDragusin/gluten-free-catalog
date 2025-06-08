@@ -20,7 +20,7 @@ export default {
 			this.loading = true;
 
 			try {
-				const response = await fetch("http://localhost:5000/api/auth/verify", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/auth/verify`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ email: this.email, code: this.code }),
@@ -53,7 +53,7 @@ export default {
 			this.resending = true;
 			this.error = "";
 			try {
-				const response = await fetch("http://localhost:5000/api/auth/resend-code", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/auth/resend-code`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ email: this.email }),

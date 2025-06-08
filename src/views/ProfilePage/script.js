@@ -47,7 +47,7 @@ export default {
 					throw new Error("No authentication token found");
 				}
 
-				const response = await fetch("http://localhost:5000/api/users/profile", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/users/profile`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",

@@ -38,7 +38,7 @@ export default {
 			this.loading = true;
 			try {
 				const token = localStorage.getItem("token");
-				const res = await fetch("http://localhost:5000/api/users", {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/users`, {
 					headers: {
 					Authorization: `Bearer ${token}`,
 					},
@@ -68,7 +68,7 @@ export default {
 			try {
 				await Promise.all(
 					this.selectedUsers.map(async (user) => {
-						const res = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+						const res = await fetch(`${process.env.VUE_APP_API_URL}/api/users/${user.id}`, {
 							method: "DELETE",
 							headers: {
 								Authorization: `Bearer ${token}`,

@@ -56,7 +56,7 @@ export default {
 					const formData = new FormData();
 					formData.append("logo", this.logoFile);
 
-					const uploadRes = await fetch("http://localhost:5000/api/stores/upload-logo", {
+					const uploadRes = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/upload-logo`, {
 						method: "POST",
 						headers: {
 							Authorization: `Bearer ${token}`,
@@ -74,7 +74,7 @@ export default {
 				}
 
 				// Send the store data to the backend
-				const response = await fetch("http://localhost:5000/api/stores", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -132,7 +132,7 @@ export default {
 			try {
 				const token = localStorage.getItem("token");
 		
-				const response = await fetch(`http://localhost:5000/api/stores/${this.store.id}/logo`, {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${this.store.id}/logo`, {
 					method: "DELETE",
 					headers: {
 						Authorization: `Bearer ${token}`

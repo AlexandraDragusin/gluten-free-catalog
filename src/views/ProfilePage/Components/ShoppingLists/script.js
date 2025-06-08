@@ -47,7 +47,7 @@ export default {
 		async fetchLists() {
 		try {
 			const token = localStorage.getItem("token");
-			const response = await fetch("http://localhost:5000/api/shopping-lists", {
+			const response = await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 
@@ -59,7 +59,7 @@ export default {
 		async createList() {
 		try {
 			const token = localStorage.getItem("token");
-			const response = await fetch("http://localhost:5000/api/shopping-lists", {
+			const response = await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -80,7 +80,7 @@ export default {
 		async deleteList(id) {
 		try {
 			const token = localStorage.getItem("token");
-			await fetch(`http://localhost:5000/api/shopping-lists/${id}`, {
+			await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/${id}`, {
 				method: "DELETE",
 				headers: { Authorization: `Bearer ${token}` },
 			});
@@ -102,7 +102,7 @@ export default {
 
 			try {
 				const token = localStorage.getItem("token");
-				const res = await fetch(`http://localhost:5000/api/shopping-lists/${listId}/items`, {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/${listId}/items`, {
 					headers: { Authorization: `Bearer ${token}` }
 				});
 				const items = await res.json();

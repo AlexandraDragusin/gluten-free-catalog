@@ -114,19 +114,19 @@ export default {
 		async fetchStores() {
 			try {
 				// Fetch categories from the backend
-				const categoriesRes = await fetch("http://localhost:5000/api/categories");
+				const categoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
 				const categories = await categoriesRes.json();
 				this.filterOptions.categories = categories;
 
 				// Fetch stores from the backend
 				const categoriesSet = new Set();
-				const storesRes = await fetch("http://localhost:5000/api/stores");
+				const storesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
 				const storesData = await storesRes.json();
 
 				// Fetch categories for each store and add them to the store object
 				const storesWithCategories = await Promise.all(
 					storesData.map(async (store) => {
-						const storeCategoriesRes = await fetch(`http://localhost:5000/api/store_categories/${store.id}`);
+						const storeCategoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/store_categories/${store.id}`);
 						const storeCategories = await storeCategoriesRes.json();
 						store.categories = storeCategories.map(cat => cat.category_id);
 
@@ -189,7 +189,7 @@ export default {
 					const formData = new FormData();
 					formData.append("logo", this.logoFile);
 				
-					const uploadRes = await fetch("http://localhost:5000/api/stores/upload-logo", {
+					const uploadRes = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/upload-logo`, {
 						method: "POST",
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -206,7 +206,7 @@ export default {
 					this.editedStore.logo_url = uploadData.logoUrl;
 				}
 
-				const res = await fetch(`http://localhost:5000/api/stores/${this.editedStore.id}`, {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${this.editedStore.id}`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
@@ -234,7 +234,7 @@ export default {
 			try {
 				await Promise.all(
 					this.selectedStores.map(async (store) => {
-						const res = await fetch(`http://localhost:5000/api/stores/${store.id}`, {
+						const res = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${store.id}`, {
 							method: "DELETE",
 							headers: {
 								Authorization: `Bearer ${token}`,

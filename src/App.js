@@ -39,7 +39,7 @@ export default {
 			if (!token) return;
 
 			try {
-				const response = await fetch("http://localhost:5000/api/users/profile", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/users/profile`, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},

@@ -41,7 +41,7 @@ export default {
 		async fetchItemsForList(listId) {
 			try {
 				const token = localStorage.getItem("token");
-				const res = await fetch(`http://localhost:5000/api/shopping-lists/${listId}/items`, {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/${listId}/items`, {
 					headers: {
 						Authorization: `Bearer ${token}`
 					}
@@ -55,7 +55,7 @@ export default {
 		async fetchShoppingLists() {
 			try {
 				const token = localStorage.getItem("token");
-				const res = await fetch("http://localhost:5000/api/shopping-lists", {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists`, {
 					headers: { Authorization: `Bearer ${token}` }
 				});
 				this.shoppingLists = await res.json();
@@ -72,7 +72,7 @@ export default {
 			}
 		
 			try {
-				await fetch(`http://localhost:5000/api/shopping-lists/${this.selected}/items`, {
+				await fetch(`${process.env.VUE_APP_API_URL}/api/shopping-lists/${this.selected}/items`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

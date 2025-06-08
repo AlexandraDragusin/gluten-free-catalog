@@ -28,7 +28,7 @@ export default {
 				updatedData.password = this.password;
 			}
 
-			const response = await fetch("http://localhost:5000/api/users/update", {
+			const response = await fetch(`${process.env.VUE_APP_API_URL}/api/users/update`, {
 				method: "PUT",
 				headers: {
 				"Content-Type": "application/json",
@@ -65,7 +65,7 @@ export default {
 			try {
 				const token = localStorage.getItem("token");
 
-				const response = await fetch("http://localhost:5000/api/users/upload-profile-picture", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/users/upload-profile-picture`, {
 					method: "POST",
 					headers: {
 						Authorization: `Bearer ${token}`
@@ -93,7 +93,7 @@ export default {
 			try {
 				const token = localStorage.getItem("token");
 		
-				const response = await fetch("http://localhost:5000/api/users/profile-picture", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/users/profile-picture`, {
 					method: "DELETE",
 					headers: {
 						Authorization: `Bearer ${token}`,

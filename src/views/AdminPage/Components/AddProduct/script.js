@@ -43,7 +43,7 @@ export default {
 	methods: {
 		async fetchCategories() {
 			try {
-				const response = await fetch("http://localhost:5000/api/categories");
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
 				const data = await response.json();
 				this.categories = data.map(category => ({
 					id: category.id,
@@ -55,7 +55,7 @@ export default {
 		},
 		async fetchStores() {
 			try {
-				const response = await fetch("http://localhost:5000/api/stores");
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
 				const data = await response.json();
 				this.stores = data.map(store => ({
 					id: store.id,
@@ -81,7 +81,7 @@ export default {
 					const formData = new FormData();
 					formData.append("image", this.imageFile);
 				
-					const uploadRes = await fetch("http://localhost:5000/api/products/upload-image", {
+					const uploadRes = await fetch(`${process.env.VUE_APP_API_URL}/api/products/upload-image`, {
 						method: "POST",
 						headers: {
 							Authorization: `Bearer ${token}`
@@ -99,7 +99,7 @@ export default {
 				}
 		
 				// Send the product data to the server
-				const response = await fetch("http://localhost:5000/api/products", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/products`, {
 					method: "POST",
 					headers: {
 					"Content-Type": "application/json",

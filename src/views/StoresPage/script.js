@@ -91,17 +91,17 @@ export default {
 	methods: {
 		async fetchStores() {
 			try {
-					const categoriesRes = await fetch("http://localhost:5000/api/categories");
+					const categoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
 					const categories = await categoriesRes.json();
 
-					const storesRes = await fetch("http://localhost:5000/api/stores");
+					const storesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
 					const storesData = await storesRes.json();
 
 					const usedCategoryIds = new Set();
 
 					const storesWithCategories = await Promise.all(
 						storesData.map(async (store) => {
-							const storeCategoriesRes = await fetch(`http://localhost:5000/api/store_categories/${store.id}`);
+							const storeCategoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/store_categories/${store.id}`);
 							const storeCategories = await storeCategoriesRes.json();
 							store.categories = storeCategories.map(cat => cat.category_id);
 

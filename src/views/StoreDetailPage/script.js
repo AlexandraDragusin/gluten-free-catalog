@@ -34,7 +34,7 @@ export default {
 
 		try {
 			// Get all stores and find this one
-			const storesRes = await fetch("http://localhost:5000/api/stores");
+			const storesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
 			const stores = await storesRes.json();
 			const targetStore = stores.find(s => s.id == storeId);
 
@@ -46,16 +46,16 @@ export default {
 			this.store = targetStore;
 
 			// Get categories for this store
-			const storeCategoriesRes = await fetch(`http://localhost:5000/api/store_categories/${storeId}`);
+			const storeCategoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/store_categories/${storeId}`);
 			const storeCategories = await storeCategoriesRes.json();
 			const categoryIds = storeCategories.map(c => c.category_id);
 
-			const allCategoriesRes = await fetch("http://localhost:5000/api/categories");
+			const allCategoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
 			const allCategories = await allCategoriesRes.json();
 
 			this.categories = allCategories.filter(cat => categoryIds.includes(cat.id));
 
-			const allProductsRes = await fetch("http://localhost:5000/api/products");
+			const allProductsRes = await fetch(`${process.env.VUE_APP_API_URL}/api/products`);
 			const allProducts = await allProductsRes.json();
 
 			this.categoryProducts = {};

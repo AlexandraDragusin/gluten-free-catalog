@@ -40,7 +40,7 @@ export default {
 	methods: {
 		async fetchCategories() {
 			try {
-				const res = await fetch("http://localhost:5000/api/categories");
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
 				const data = await res.json();
 				this.categories = data;
 			} catch (err) {
@@ -63,7 +63,7 @@ export default {
 		},
 		async updateCategory() {
 			try {
-				const res = await fetch(`http://localhost:5000/api/categories/${this.editedCategory.id}`, {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/categories/${this.editedCategory.id}`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",
@@ -92,7 +92,7 @@ export default {
 		
 				await Promise.all(
 					this.selectedCategories.map(async (cat) => {
-						const res = await fetch(`http://localhost:5000/api/categories/${cat.id}`, {
+						const res = await fetch(`${process.env.VUE_APP_API_URL}/api/categories/${cat.id}`, {
 							method: "DELETE",
 							headers: {
 								Authorization: `Bearer ${token}`,
@@ -123,7 +123,7 @@ export default {
 			}
 		
 			try {
-				const res = await fetch("http://localhost:5000/api/categories", {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",

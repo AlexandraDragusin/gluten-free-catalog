@@ -77,7 +77,7 @@ export default {
 		},
 		async fetchReviews() {
 			try {
-				const res = await fetch(`http://localhost:5000/api/reviews/${this.product.id}`);
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/reviews/${this.product.id}`);
 				this.reviews = await res.json();
 			} catch (err) {
 				console.error("Eroare la încărcarea recenziilor:", err);
@@ -93,7 +93,7 @@ export default {
 
 			try {
 				const token = localStorage.getItem("token");
-				const res = await fetch(`http://localhost:5000/api/reviews`, {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/reviews`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -128,7 +128,7 @@ export default {
 		},
 		async deleteReview(id) {
 			try {
-				const res = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/reviews/${id}`, {
 					method: "DELETE",
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -192,7 +192,7 @@ export default {
 					await this.checkIfFavorite(productId);
 				}
 
-				const res = await fetch(`http://localhost:5000/api/products/${productId}`);
+				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/products/${productId}`);
 				const data = await res.json();
 				this.product = data;
 

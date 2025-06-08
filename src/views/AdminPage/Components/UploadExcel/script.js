@@ -35,7 +35,7 @@ export default {
 
 				const token = localStorage.getItem("token");
 
-				const response = await fetch("http://localhost:5000/api/products/upload", {
+				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/products/upload`, {
 					method: "POST",
 					headers: {
 						Authorization: `Bearer ${token}`,
