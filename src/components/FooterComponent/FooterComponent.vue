@@ -3,7 +3,7 @@
 		<v-container class="footer-container">
 		<div class="footer-content">
 			<p class="footer-text">
-			Asociația Română pentru Intoleranță la Gluten – ARIG București
+			Asociația Română pentru Intoleranță la Gluten - ARIG București
 			</p>
 			<p class="footer-text">
 			Str. Vasile Lucaciu nr 72, sector 3, București
@@ -11,8 +11,8 @@
 			<p class="footer-text">
 			E-mail: <a href="mailto:info@arig.ro" class="footer-link">info@arig.ro</a>
 			</p>
-			<p class="footer-link">
-			<a href="#" class="footer-link">Protecția datelor cu caracter personal</a>
+			<p class="footer-text">
+			Protecția datelor cu caracter personal
 			</p>
 			<p class="footer-text copyright">COPYRIGHT ©</p>
 		</div>
