@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 
 function authenticateToken(req, res, next) {
-	// Get token from Authorization header
 	const authHeader = req.header("Authorization");
 
 	if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -12,7 +11,6 @@ function authenticateToken(req, res, next) {
 
 	try {
 		const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
-		console.log("Decoded User:", decodedUser);
 
 		if (!decodedUser.id) {
 			return res.status(401).json({ error: "Token-ul este invalid. Nu s-a găsit id-ul utilizatorului." });
