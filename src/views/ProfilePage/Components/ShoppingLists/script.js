@@ -128,6 +128,7 @@ export default {
 				items.forEach(item => {
 					const checkbox = item.checked ? "☑" : "☐";
 					const row = document.createElement("div");
+
 					row.style.display = "flex";
 					row.style.alignItems = "center";
 					row.style.marginBottom = "12px";

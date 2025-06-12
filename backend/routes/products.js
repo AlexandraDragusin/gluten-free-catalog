@@ -467,7 +467,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 	}
 });
 
-// Upload product image to Cloudinary
+// Upload product image to Amazaon S3
 router.post("/upload-image",
 	authenticateToken,
 	(req, res, next) => { req.uploadFolder = "product-images"; next(); },

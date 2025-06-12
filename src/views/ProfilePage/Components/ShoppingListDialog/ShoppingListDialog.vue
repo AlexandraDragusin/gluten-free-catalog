@@ -71,7 +71,7 @@
 								/>
 							</td>
 							<td>
-								<v-icon>mdi-delete @click="deleteItem(item.id)" </v-icon>
+								<v-icon @click="deleteItem(item.id)" >mdi-delete</v-icon>
 							</td>
 							</tr>
 						</tbody>
