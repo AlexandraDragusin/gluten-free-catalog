@@ -206,17 +206,19 @@
 			variant="outlined"
 			class="mt-3"
 		></v-textarea>
-		<v-btn
-			@click="submitReview"
-			color="primary"
-			:disabled="!newReview.comment || !newReview.rating"
-			class="mt-2 mb-4 add-review-btn"
-			depressed
-			large
-		>
-			<v-icon left>mdi-pencil</v-icon>
-			Adaugă recenzie
-		</v-btn>
+		<div class="review-btn-wrapper">
+			<v-btn
+				@click="submitReview"
+				color="primary"
+				class="add-review-btn"
+				depressed
+				large
+				:style="(!newReview.comment || !newReview.rating) ? 'pointer-events: none; opacity: 0.4;' : ''"
+			>
+				<v-icon left>mdi-pencil</v-icon>
+				Adaugă recenzie
+			</v-btn>
+		</div>
 		</div>
 		<v-alert v-else type="info" outlined dense class="mb-4 creamy-alert">
 			Trebuie să fii autentificat pentru a scrie o recenzie.
@@ -249,22 +251,21 @@
 
 				<div class="review-actions">
 				<v-rating
-					:value="review.rating"
-					color="orange"
-					background-color="grey lighten-1"
+					class="yellow-rating"
+					hover
 					readonly
-					dense
-					size="20"
-					class="mr-2"
+					:length="5"
+					:size="32"
+					:model-value="review.rating"
 				/>
 				<v-btn
 					v-if="userId === review.user_id"
-					icon
-					small
+					variant="plain"
+					density="comfortable"
 					@click="deleteReview(review.id)"
-					color="grey"
+					class="delete-review-btn"
 				>
-					<v-icon small>mdi-delete</v-icon>
+					<v-icon size="24">mdi-delete</v-icon>
 				</v-btn>
 				</div>
 			</div>
@@ -498,6 +499,13 @@
 	line-height: 1.5;
 }
 
+.review-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
 .add-review-btn {
 	border-radius: 8px;
 	text-transform: none;
@@ -578,6 +586,16 @@
 	color: #7f8c8d;
 	display: flex;
 	align-items: center;
+}
+
+.delete-review-btn {
+	min-width: 0;
+	padding: 4px;
+}
+
+
+::v-deep(.v-rating .v-icon) {
+  color: #F7B41A !important;
 }
 
 @media (max-width: 600px) {

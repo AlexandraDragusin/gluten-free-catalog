@@ -230,7 +230,14 @@ export default {
 				}
 		
 				this.$emit("updated");
+				this.snackbarMessage = "Lista a fost actualizată cu succes.";
+				this.snackbarColor = "success";
+				this.snackbar = true;
+
+				setTimeout(() => {
 				this.$emit("update:modelValue", false);
+				}, 1000);
+
 			} catch (err) {
 				console.error("Eroare la salvare:", err);
 				this.snackbarMessage = "Eroare la salvarea modificărilor.";

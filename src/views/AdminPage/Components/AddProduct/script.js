@@ -97,7 +97,7 @@ export default {
 
 					this.product.image_url = uploadData.imageUrl;
 				}
-		
+
 				// Send the product data to the server
 				const response = await fetch(`${process.env.VUE_APP_API_URL}/api/products`, {
 					method: "POST",

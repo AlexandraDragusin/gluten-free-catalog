@@ -78,10 +78,12 @@ export default {
 			}
 		},
 	},
-	created() {
+	async created() {
 		this.fetchAllCategories();
-		this.fetchAllProducts();
-		this.fetchAllStores();
+		await Promise.all([
+			this.fetchAllProducts(),
+			this.fetchAllStores(),
+		]);
 	},
 	methods: {
 		async fetchAllProducts() {

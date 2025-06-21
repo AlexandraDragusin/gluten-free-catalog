@@ -159,6 +159,14 @@
 			:productName="getProductName(productToAdd)"
 		/>
 	</v-container>
+	<v-snackbar
+		v-model="snackbar.show"
+		:timeout="3000"
+		:color="snackbar.color"
+		location="bottom"
+	>
+		{{ snackbar.text }}
+	</v-snackbar>
 </template>
 
 <script src="./script.js"></script>

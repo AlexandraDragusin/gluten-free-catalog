@@ -58,15 +58,32 @@ export default {
 			}
 
 			const method = this.isFavorite ? 'DELETE' : 'POST';
-			await fetch(`${process.env.VUE_APP_API_URL}/api/favorites`, {
-				method,
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${localStorage.getItem("token")}`
-				},
-				body: JSON.stringify({ product_id: this.product.id })
-			});
-			this.isFavorite = !this.isFavorite;
+
+			try {
+				await fetch(`${process.env.VUE_APP_API_URL}/api/favorites`, {
+					method,
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${localStorage.getItem("token")}`
+					},
+					body: JSON.stringify({ product_id: this.product.id })
+				});
+
+				this.isFavorite = !this.isFavorite;
+
+				// Snackbar feedback
+				this.snackbarMessage = this.isFavorite
+					? 'Produsul a fost adăugat la favorite.'
+					: 'Produsul a fost eliminat din favorite.';
+				this.snackbarColor = this.isFavorite ? 'success' : 'warning';
+				this.snackbar = true;
+
+			} catch (err) {
+				console.error("Eroare la toggle favorite:", err);
+				this.snackbarMessage = 'A apărut o eroare. Încearcă din nou.';
+				this.snackbarColor = 'error';
+				this.snackbar = true;
+			}
 		},
 		async checkIfFavorite(productId) {
 			const res = await fetch(`${process.env.VUE_APP_API_URL}/api/favorites`, {
@@ -124,6 +141,10 @@ export default {
 
 			} catch (err) {
 				console.error("Eroare la adăugarea recenziei:", err);
+
+				this.snackbarMessage = 'A apărut o eroare la trimiterea recenziei.';
+				this.snackbarColor = 'error';
+				this.snackbar = true;
 			}
 		},
 		async deleteReview(id) {
@@ -137,6 +158,10 @@ export default {
 				if (!res.ok) throw new Error("Eroare la ștergere.");
 
 				await this.fetchReviews();
+
+				this.snackbarMessage = "Recenzia a fost ștearsă.";
+				this.snackbarColor = "success";
+				this.snackbar = true;
 			} catch (err) {
 				console.error("Eroare la ștergerea recenziei:", err);
 				this.snackbarText = "Eroare la ștergere.";

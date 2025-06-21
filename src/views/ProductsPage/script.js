@@ -38,6 +38,11 @@ export default {
 				excluded_allergens: [],
 				stores: []
 			},
+			snackbar: {
+				show: false,
+				text: '',
+				color: 'success'
+			},
 			allergens: [],
 			storeOptions: [],
 			favoriteProductIds: [],
@@ -214,11 +219,29 @@ export default {
 
 				if (isFavorite) {
 					this.favoriteProductIds = this.favoriteProductIds.filter(id => id !== productId);
+
+					this.snackbar = {
+						show: true,
+						text: 'Produsul a fost eliminat din favorite.',
+						color: 'warning'
+					};
 				} else {
 					this.favoriteProductIds.push(productId);
+
+					this.snackbar = {
+						show: true,
+						text: 'Produsul a fost adăugat la favorite.',
+						color: 'success'
+					};
 				}
 			} catch (err) {
 				console.error("Eroare la toggle favorite:", err);
+
+				this.snackbar = {
+					show: true,
+					text: 'A apărut o eroare. Încearcă din nou.',
+					color: 'error'
+				};
 			}
 		},
 		getProductName(id) {
