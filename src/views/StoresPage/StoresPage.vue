@@ -36,66 +36,77 @@
 			</v-col>
 		</v-row>
 
-		<!-- Stores list -->
-		<v-row v-if="filteredStores.length > 0">
-			<v-col
-				v-for="store in paginatedStores"
-				:key="store.id"
-				cols="12"
-				class="store-card-wrapper"
-			>
-				<div class="store-card" @click="goToStoreDetail(store.id, store.name)" style="cursor: pointer;">
-					<v-row>
-						<v-col cols="2" class="store-logo-col">
-							<v-img :src="store.logo_url" alt="store logo" class="store-logo" />
-						</v-col>
-						<v-col cols="10">
-							<h3 class="store-name">
-								{{ store.name }}
-								<a
-									v-if="store.website"
-									:href="store.website.startsWith('http') ? store.website : 'https://' + store.website"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									<v-icon size="18" class="open-icon">mdi-open-in-new</v-icon>
-								</a>
-							</h3>
-							<p class="store-address">
-								Adresă:
-								<span v-if="store.addresses?.length === 1">
-									{{ formatAddress(store.addresses[0]) }}
-								</span>
-								<span v-else>
-									{{ extractUniqueCities(store.addresses).join(", ") || "-" }}
-								</span>
-							</p>
-							<p class="store-description">{{ store.description }}</p>
-							<p class="store-categories">
-								<strong>Categorii de produse: </strong>
-								<span>
-									{{ (store.categories || [])
-										.map(catId => filterOptions.categories.find(c => c.id === catId)?.name)
-										.filter(Boolean)
-										.join(", ") || "Nespecificat" }}
-								</span>							
-							</p>
-						</v-col>
-					</v-row>
-				</div>
+		<!-- Loader -->
+		<v-row v-if="isLoading" justify="center" class="my-8">
+			<v-col cols="12" class="text-center">
+				<v-progress-circular indeterminate color="primary" size="48" />
+				<p class="mt-2 text-grey">Se încarcă magazinele...</p>
 			</v-col>
 		</v-row>
 
-		<!-- Fallback if no stores present -->
-		<v-row v-else justify="center" class="no-results-row"
-		>
-			<v-col cols="12" class="text-center">
-				<v-icon color="grey" size="48">mdi-store-off</v-icon>
-				<p class="no-results-msg">
-					Nu există magazine care să corespundă criteriilor de filtrare.
-				</p>
-			</v-col>
-		</v-row>
+		<!-- Stores -->
+		<div v-if="!isLoading">
+			<!-- Stores list -->
+			<v-row v-if="filteredStores.length > 0">
+				<v-col
+					v-for="store in paginatedStores"
+					:key="store.id"
+					cols="12"
+					class="store-card-wrapper"
+				>
+					<div class="store-card" @click="goToStoreDetail(store.id, store.name)" style="cursor: pointer;">
+						<v-row>
+							<v-col cols="2" class="store-logo-col">
+								<v-img :src="store.logo_url" alt="store logo" class="store-logo" />
+							</v-col>
+							<v-col cols="10">
+								<h3 class="store-name">
+									{{ store.name }}
+									<a
+										v-if="store.website"
+										:href="store.website.startsWith('http') ? store.website : 'https://' + store.website"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<v-icon size="18" class="open-icon">mdi-open-in-new</v-icon>
+									</a>
+								</h3>
+								<p class="store-address">
+									Adresă:
+									<span v-if="store.addresses?.length === 1">
+										{{ formatAddress(store.addresses[0]) }}
+									</span>
+									<span v-else>
+										{{ extractUniqueCities(store.addresses).join(", ") || "-" }}
+									</span>
+								</p>
+								<p class="store-description">{{ store.description }}</p>
+								<p class="store-categories">
+									<strong>Categorii de produse: </strong>
+									<span>
+										{{ (store.categories || [])
+											.map(catId => filterOptions.categories.find(c => c.id === catId)?.name)
+											.filter(Boolean)
+											.join(", ") || "Nespecificat" }}
+									</span>							
+								</p>
+							</v-col>
+						</v-row>
+					</div>
+				</v-col>
+			</v-row>
+
+			<!-- Fallback if no stores present -->
+			<v-row v-else justify="center" class="no-results-row"
+			>
+				<v-col cols="12" class="text-center">
+					<v-icon color="grey" size="48">mdi-store-off</v-icon>
+					<p class="no-results-msg">
+						Nu există magazine care să corespundă criteriilor de filtrare.
+					</p>
+				</v-col>
+			</v-row>
+		</div>
 
 		<!-- Pagination -->
 		<v-row v-if="filteredStores.length > pagination.itemsPerPage" justify="center" class="pagination-row">

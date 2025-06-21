@@ -8,6 +8,7 @@ export default {
 	components: { LoginRequiredPrompt, AddToListDialog },
 	data() {
 		return {
+			isLoading: true,
 			products: [],
 			filteredProducts: [],
 			categories: [],
@@ -142,12 +143,15 @@ export default {
 	methods: {
 		async fetchProducts() {
 			try {
+				this.isLoading = true;
 				const res = await fetch(`${process.env.VUE_APP_API_URL}/api/products`);
 				const data = await res.json();
 				this.products = data;
 				this.applyFilters();
 			} catch (err) {
 				console.error('Eroare la încărcarea produselor:', err);
+			} finally {
+				this.isLoading = false;
 			}
 		},
 		async fetchCategories() {

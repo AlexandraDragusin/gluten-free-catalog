@@ -2,6 +2,7 @@ export default {
 	name: "StoresPage",
 	data() {
 		return {
+			isLoading: true,
 			stores: [],
 			sortOrder: 'asc',
 			filters: {
@@ -91,38 +92,41 @@ export default {
 	methods: {
 		async fetchStores() {
 			try {
-					const categoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
-					const categories = await categoriesRes.json();
+				this.isLoading = true;
+				const categoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/categories`);
+				const categories = await categoriesRes.json();
 
-					const storesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
-					const storesData = await storesRes.json();
+				const storesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
+				const storesData = await storesRes.json();
 
-					const usedCategoryIds = new Set();
+				const usedCategoryIds = new Set();
 
-					const storesWithCategories = await Promise.all(
-						storesData.map(async (store) => {
-							const storeCategoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/store_categories/${store.id}`);
-							const storeCategories = await storeCategoriesRes.json();
-							store.categories = storeCategories.map(cat => cat.category_id);
+				const storesWithCategories = await Promise.all(
+					storesData.map(async (store) => {
+						const storeCategoriesRes = await fetch(`${process.env.VUE_APP_API_URL}/api/store_categories/${store.id}`);
+						const storeCategories = await storeCategoriesRes.json();
+						store.categories = storeCategories.map(cat => cat.category_id);
 
-							store.categories.forEach(catId => usedCategoryIds.add(catId));
-							return store;
-						})
-					);
+						store.categories.forEach(catId => usedCategoryIds.add(catId));
+						return store;
+					})
+				);
 
-					this.stores = storesWithCategories;
+				this.stores = storesWithCategories;
 
-					this.filterOptions.categories = categories.filter(cat => usedCategoryIds.has(cat.id));
+				this.filterOptions.categories = categories.filter(cat => usedCategoryIds.has(cat.id));
 
-					this.filterOptions.cities = [
-						...new Set(storesData.flatMap(store => store.addresses?.map(addr => addr.city).filter(Boolean)))
-					];
-					this.filterOptions.countries = [
-						...new Set(storesData.flatMap(store => store.addresses?.map(addr => addr.country).filter(Boolean)))
-					];
+				this.filterOptions.cities = [
+					...new Set(storesData.flatMap(store => store.addresses?.map(addr => addr.city).filter(Boolean)))
+				];
+				this.filterOptions.countries = [
+					...new Set(storesData.flatMap(store => store.addresses?.map(addr => addr.country).filter(Boolean)))
+				];
 
 			} catch (err) {
 				console.error("Eroare la încărcarea magazinelor:", err);
+			} finally {
+				this.isLoading = false;
 			}
 		},
 		formatAddress(address) {

@@ -1,6 +1,6 @@
 <template>
 	<v-container class="products-page" fluid ref="productContainer">
-	<!-- Filter and Sort Buttons -->
+		<!-- Filter and Sort Buttons -->
 		<v-row class="filter-button-row">
 			<v-col cols="12" class="filter-button-wrapper">
 				<div class="filter-actions">
@@ -22,48 +22,59 @@
 			</v-col>
 		</v-row>
 
-		<!-- Product Grid -->
-		<div
-			v-if="paginatedProducts.length > 0"
-			class="products-grid"
-		>
-			<div
-				v-for="product in paginatedProducts"
-				:key="product.id"
-				class="product-card-wrapper"
-				:style="{ width: cardSize + 'px' }"
-			>
-				<v-card class="product-card" @click="$emit('navigate-to-product-detail', product.id)">
-					<div class="action-buttons">
-						<v-btn icon @click.stop="toggleFavorite(product.id)">
-							<v-icon :color="favoriteProductIds.includes(product.id) ? 'red' : 'grey'">
-								{{ favoriteProductIds.includes(product.id) ? 'mdi-heart' : 'mdi-heart-outline' }}
-							</v-icon>
-						</v-btn>
-
-						<v-btn icon @click.stop="openListDialog(product.id)">
-							<v-icon color="green">mdi-cart-plus</v-icon>
-						</v-btn>
-					</div>
-					<v-img :src="product.image_url || require('@/assets/no-image.png')" class="product-image" cover></v-img>
-					<v-card-text class="product-info">
-						<p class="product-brand">{{ product.brand || 'EAN: ' + product.ean }}</p>
-						<h3 class="product-name">{{ product.name }}</h3>
-						<p v-if="product.weight && product.unit" class="product-weight">
-							{{ product.weight }} {{ product.unit }}
-						</p>
-					</v-card-text>
-				</v-card>
-			</div>
-		</div>
-
-		<!-- No results -->
-		<v-row v-else justify="center" class="no-results-row">
+		<!-- Loading -->
+		<v-row v-if="isLoading" justify="center" class="my-8">
 			<v-col cols="12" class="text-center">
-			<v-icon color="grey" size="48">mdi-cube-off</v-icon>
-			<p class="no-results-msg">Nu există produse care să corespundă criteriilor de filtrare.</p>
+				<v-progress-circular indeterminate color="primary" size="48" />
+				<p class="mt-2 text-grey">Se încarcă produsele...</p>
 			</v-col>
 		</v-row>
+
+		<!-- Products -->
+		<div v-if="!isLoading">
+			<!-- Product Grid -->
+			<div
+				v-if="paginatedProducts.length > 0"
+				class="products-grid"
+			>
+				<div
+					v-for="product in paginatedProducts"
+					:key="product.id"
+					class="product-card-wrapper"
+					:style="{ width: cardSize + 'px' }"
+				>
+					<v-card class="product-card" @click="$emit('navigate-to-product-detail', product.id)">
+						<div class="action-buttons">
+							<v-btn icon @click.stop="toggleFavorite(product.id)">
+								<v-icon :color="favoriteProductIds.includes(product.id) ? 'red' : 'grey'">
+									{{ favoriteProductIds.includes(product.id) ? 'mdi-heart' : 'mdi-heart-outline' }}
+								</v-icon>
+							</v-btn>
+
+							<v-btn icon @click.stop="openListDialog(product.id)">
+								<v-icon color="green">mdi-cart-plus</v-icon>
+							</v-btn>
+						</div>
+						<v-img :src="product.image_url || require('@/assets/no-image.png')" class="product-image" cover></v-img>
+						<v-card-text class="product-info">
+							<p class="product-brand">{{ product.brand || 'EAN: ' + product.ean }}</p>
+							<h3 class="product-name">{{ product.name }}</h3>
+							<p v-if="product.weight && product.unit" class="product-weight">
+								{{ product.weight }} {{ product.unit }}
+							</p>
+						</v-card-text>
+					</v-card>
+				</div>
+			</div>
+
+			<!-- No results -->
+			<v-row v-else justify="center" class="no-results-row">
+				<v-col cols="12" class="text-center">
+				<v-icon color="grey" size="48">mdi-cube-off</v-icon>
+				<p class="no-results-msg">Nu există produse care să corespundă criteriilor de filtrare.</p>
+				</v-col>
+			</v-row>
+		</div>
 
 		<!-- Pagination -->
 		<v-row v-if="filteredProducts.length > pagination.itemsPerPage" justify="center" class="pagination-row">
