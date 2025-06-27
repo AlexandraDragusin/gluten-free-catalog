@@ -80,12 +80,28 @@ export default {
 			},
 			deep: true,
 			immediate: true
+		},
+		pagination: {
+			handler(newVal, oldVal) {
+				if (newVal.page !== oldVal.page) {
+					this.scrollToTop();
+				}
+			},
+			deep: true
 		}
 	},
 	created() {
 		this.fetchStores();
 	},
 	methods: {
+		scrollToTop() {
+			setTimeout(() => {
+					window.scrollTo({
+					top: 0,
+					behavior: 'auto'
+				});
+			}, 0);
+		},
 		applyFilters() {
 			this.filteredStores = this.stores.filter(store => {
 				const matchesSearch = !this.filters.search || store.name.toLowerCase().includes(this.filters.search.toLowerCase());

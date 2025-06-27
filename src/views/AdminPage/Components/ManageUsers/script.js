@@ -30,10 +30,28 @@ export default {
 				: this.headers;
 		}
 	},
+	watch: {
+		pagination: {
+			handler(newVal, oldVal) {
+				if (newVal.page !== oldVal.page) {
+					this.scrollToTop();
+				}
+			},
+			deep: true
+		}
+	},
 	created() {
 		this.fetchUsers();
 	},
 	methods: {
+		scrollToTop() {
+			setTimeout(() => {
+					window.scrollTo({
+					top: 0,
+					behavior: 'auto'
+				});
+			}, 0);
+		},
 		async fetchUsers() {
 			this.loading = true;
 			try {

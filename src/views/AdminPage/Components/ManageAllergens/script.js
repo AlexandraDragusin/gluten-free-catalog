@@ -35,6 +35,16 @@ export default {
 				: this.headers;
 		}
 	},
+	watch: {
+		pagination: {
+			handler(newVal, oldVal) {
+				if (newVal.page !== oldVal.page) {
+					this.scrollToTop();
+				}
+			},
+			deep: true
+		}
+	},
 	created() {
 		this.fetchAllergens();
 	},
@@ -81,6 +91,14 @@ export default {
 			} catch (err) {
 				console.error("Eroare la adăugare alergen:", err);
 			}
+		},
+		scrollToTop() {
+			setTimeout(() => {
+					window.scrollTo({
+					top: 0,
+					behavior: 'auto'
+				});
+			}, 0);
 		},
 		editAllergen(item) {
 			this.editedAllergen = {

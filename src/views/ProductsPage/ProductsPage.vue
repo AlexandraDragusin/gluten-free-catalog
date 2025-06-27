@@ -84,6 +84,7 @@
 				:length="pageCount"
 				total-visible="7"
 				color="orange"
+				@update:modelValue="scrollToTop"
 			/>
 			<span class="pagination-label">Pagina următoare</span>
 		</v-row>

@@ -126,7 +126,6 @@ export default {
 			this.$router.push("/");
 		},
 		goToVerifyPage(email) {
-			console.log("Navigating to Verify Page with email:", email);
 			this.$router.push({ name: 'Verify', params: { email } });
 		},
 		translateStoreType(type) {

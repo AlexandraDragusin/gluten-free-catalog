@@ -71,6 +71,16 @@ export default {
 			});
 		}
 	},
+	watch: {
+		pagination: {
+			handler(newVal, oldVal) {
+				if (newVal.page !== oldVal.page) {
+					this.scrollToTop();
+				}
+			},
+			deep: true
+		}
+	},
 	created() {
 		this.fetchStores();
 		this.fetchAllergens();
@@ -132,6 +142,14 @@ export default {
 			} catch (err) {
 				console.error("Eroare la preluarea magazinelor:", err);
 			}
+		},
+		scrollToTop() {
+			setTimeout(() => {
+					window.scrollTo({
+					top: 0,
+					behavior: 'auto'
+				});
+			}, 0);
 		},
 		editProduct(product) {
 			this.editedProduct = {

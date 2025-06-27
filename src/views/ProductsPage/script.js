@@ -54,6 +54,10 @@ export default {
 			productToAdd: null
 		};
 	},
+	emits: [
+		'navigate-to-products',
+		'navigate-to-product-detail'
+	],
 	computed: {
 		pageCount() {
 			return Math.ceil(this.filteredProducts.length / this.pagination.itemsPerPage);
@@ -96,6 +100,14 @@ export default {
 			}
 
 			this.applyFilters();
+		},
+		pagination: {
+			handler(newVal, oldVal) {
+				if (newVal.page !== oldVal.page) {
+					this.scrollToTop();
+				}
+			},
+			deep: true
 		}
 	},
 	created() {
@@ -247,6 +259,14 @@ export default {
 					color: 'error'
 				};
 			}
+		},
+		scrollToTop() {
+			setTimeout(() => {
+					window.scrollTo({
+					top: 0,
+					behavior: 'auto'
+				});
+			}, 0);
 		},
 		getProductName(id) {
 			const product = this.products.find(p => p.id === id);

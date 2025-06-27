@@ -69,6 +69,7 @@
 						v-model="pagination.page"
 						:length="Math.ceil(allergens.length / pagination.itemsPerPage)"
 						total-visible="7"
+						@update:modelValue="scrollToTop"
 					/>
 					<span class="pagination-label">Pagina următoare</span>
 				</div>

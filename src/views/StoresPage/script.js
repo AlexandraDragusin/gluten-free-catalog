@@ -43,7 +43,15 @@ export default {
 				this.filters.type = '';
 				this.filterDraft.type = '';
 			}
-		} 
+		},
+		pagination: {
+			handler(newVal, oldVal) {
+				if (newVal.page !== oldVal.page) {
+					this.scrollToTop();
+				}
+			},
+			deep: true
+		}
 	},
 	computed: {
 		pageCount() {
@@ -128,6 +136,14 @@ export default {
 			} finally {
 				this.isLoading = false;
 			}
+		},
+		scrollToTop() {
+			setTimeout(() => {
+					window.scrollTo({
+					top: 0,
+					behavior: 'auto'
+				});
+			}, 0);
 		},
 		formatAddress(address) {
 			if (!address) return "-";
