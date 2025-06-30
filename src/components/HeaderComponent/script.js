@@ -79,7 +79,7 @@ export default {
 		},
 	},
 	async created() {
-		this.fetchAllCategories();
+		await this.fetchAllCategories();
 		await Promise.all([
 			this.fetchAllProducts(),
 			this.fetchAllStores(),
